@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>渡鸦管家 · 运营后台</title>
+  <meta name="description" content="渡鸦管家轻食订购与配送运营后台高保真原型">
+  <link rel="icon" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css?v=20260818-56">
+</head>
+<body>
+  <div id="login-view" class="login-view">
+    <section class="login-brand-panel" aria-label="渡鸦管家品牌介绍">
+      <div class="ambient ambient-a"></div>
+      <div class="ambient ambient-b"></div>
+      <div class="tech-orbit orbit-a"><i></i><i></i><i></i></div>
+      <div class="tech-orbit orbit-b"><i></i><i></i></div>
+      <div class="tech-particles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="login-brand-inner">
+        <div class="brand-lockup brand-lockup-light">
+          <img class="brand-mark-img" src="assets/logo.png" alt="渡鸦管家 Logo">
+          <span><b>渡鸦管家</b><small>LIGHTFOOD OPERATIONS</small></span>
+        </div>
+        <div class="login-promise">
+          <span class="eyebrow">精细履约 · 稳定增长</span>
+          <h1>让每一份健康计划，<br>都被妥善送达。</h1>
+          <p>从品牌、套餐与订购，到每日配送和经营复盘，用一套清晰的工作流连接用户与餐桌。</p>
+        </div>
+        <p class="login-quote">“把复杂留给系统，把确定交给运营。”</p>
+      </div>
+    </section>
+    <main class="login-form-panel">
+      <form id="login-form" class="login-card" novalidate>
+        <div class="login-mobile-logo brand-lockup">
+          <img class="brand-mark-img" src="assets/logo.png" alt="渡鸦管家 Logo">
+          <span><b>渡鸦管家</b><small>LIGHTFOOD OPERATIONS</small></span>
+        </div>
+        <div class="login-heading">
+          <h2>欢迎回来</h2>
+          <p>请使用管理员账号登录运营工作台</p>
+        </div>
+        <div class="field" id="account-field">
+          <label for="login-account">管理员账号</label>
+          <div class="input-shell"><span data-icon="user"></span><input id="login-account" autocomplete="username" placeholder="请输入账号"></div>
+          <small class="field-error"></small>
+        </div>
+        <div class="field" id="password-field">
+          <label for="login-password">登录密码</label>
+          <div class="input-shell"><span data-icon="lock"></span><input id="login-password" type="password" autocomplete="current-password" placeholder="请输入密码"><button type="button" class="icon-button plain" data-action="toggle-password" aria-label="显示密码"><span data-icon="eye"></span></button></div>
+          <small class="field-error"></small>
+        </div>
+        <div class="login-options login-options-single">
+          <label class="check-label"><input type="checkbox" id="remember-account"><span></span>记住账号</label>
+        </div>
+        <div id="login-error" class="login-error" role="alert"></div>
+        <button id="login-submit" class="button primary large full" type="submit"><span>进入运营后台</span><span data-icon="arrow-right"></span></button>
+        <button class="demo-account" type="button" data-action="fill-demo"><span data-icon="spark"></span><span><b>使用演示账号</b><small>admin / Raven@2026</small></span><span data-icon="chevron-right"></span></button>
+        <p class="login-help">登录即代表您同意遵守数据安全与隐私保护规范</p>
+      </form>
+    </main>
+  </div>
+
+  <div id="app" class="app-shell is-hidden">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+      <main class="workspace" id="workspace" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="drawer-root"></div>
+  <div id="toast-root" class="toast-stack" aria-live="polite"></div>
+
+  <script src="app.js?v=20260818-56"></script>
+</body>
+</html>
