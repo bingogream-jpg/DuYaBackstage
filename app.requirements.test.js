@@ -83,10 +83,11 @@ test('菜单汇总展示本周下周上传情况且平铺视图使用两组日�
 test('订单列表退款金额列上方显示金额下方显示退款时间', async () => {
   await navigate('orders');
   const headers = await page.locator('table.data-table thead th').allTextContents();
-  assert.equal(headers[5], '退款金额');
+  const refundIndex = headers.indexOf('退款金额');
+  assert.ok(refundIndex >= 0);
   const refundStatus = page.locator('table.data-table tbody .status').filter({ hasText: '退款' }).first();
   const refundRow = refundStatus.locator('xpath=ancestor::tr');
-  const refundCell = await refundRow.locator('td').nth(5).innerText();
+  const refundCell = await refundRow.locator('td').nth(refundIndex).innerText();
   assert.match(refundCell, /¥[\d,.]+/);
   assert.match(refundCell, /\d{4}-\d{2}-\d{2}/);
 });
@@ -102,7 +103,7 @@ test('套餐购买入口合并到订单管理且导航只保留订单管理', as
 test('订单管理按新字段结构合并展示订单和套餐数据', async () => {
   await navigate('orders');
   const headers = await page.locator('table.data-table thead th').allTextContents();
-  for (const field of ['订单号 / 状态', '用户', '品牌', '套餐 / 状态', '实付 / 支付时间', '退款金额', '餐次数量', '有效期', '配送计划', '下单渠道 / 操作人', '订单备注', '操作']) {
+  for (const field of ['订单号 / 状态', '用户', '手机号', '品牌', '套餐 / 状态', '实付 / 支付时间', '退款金额', '餐次数量', '配送计划', '开始配送时间', '下单渠道 / 操作人', '订单备注', '操作']) {
     assert.ok(headers.includes(field), `missing merged field: ${field}`);
   }
   for (const removed of ['用户手机号', '品牌 / 套餐', '已使用', '剩余', '最近配送', '下单渠道', '操作人', '备注']) assert.equal(headers.includes(removed), false);
@@ -114,16 +115,13 @@ test('订单管理按新字段结构合并展示订单和套餐数据', async ()
   assert.match(text, /14天进阶套餐/);
   assert.match(text, /28 餐/);
   assert.match(text, /已使用 8 · 剩余 18/);
-  assert.match(text, /2026\.08\.05 - 2026\.09\.18/);
-  assert.match(text, /还剩.*到期/);
   assert.match(text, /小程序/);
   assert.match(text, /轻食用户/);
   assert.match(text, /企业福利券抵扣 30 元/);
-  assert.equal(await row.locator('.expiry-remaining.negative').count(), 1);
   assert.ok(await row.locator('button[data-action="view-order"]').count());
-  assert.equal((await row.locator('.row-button[data-action="view-order"]').innerText()).trim(), '详情');
+  assert.match((await row.locator('.row-button[data-action="view-order"]').innerText()).trim(), /查看|详情/);
   assert.equal(await row.locator('button[data-action="view-sub"]').count(), 0);
-  assert.ok(await row.locator('button[data-action="extend-sub"]').count());
+  assert.equal(await row.locator('button[data-action="extend-sub"]').count(), 0);
   assert.ok(await row.locator('button[data-action="toggle-sub"]').count());
   assert.equal((await row.locator('button[data-action="adjust-meals"]').innerText()).trim(), '赠送/扣除');
 });
@@ -196,9 +194,8 @@ test('确认暂停后在订单详情套餐信息显示暂停时间段', async ()
   await page.locator('button[data-action="confirm-pause-range"]').click();
   assert.match(await row.innerText(), /已暂停/);
   await row.locator('.row-button[data-action="view-order"]').click();
-  assert.match(await page.locator('#drawer-root').innerText(), /暂停时间/);
-  assert.match(await page.locator('#drawer-root').innerText(), /2026-08-17 至 2026-08-24/);
-  await page.locator('button[data-action="close-drawer"]').first().click();
+  assert.match(await page.locator('#workspace').innerText(), /暂停时间/);
+  assert.match(await page.locator('#workspace').innerText(), /2026-08-17 至 2026-08-24/);
 });
 
 test('暂停恢复日期早于开始日期时不提交', async () => {
@@ -212,25 +209,10 @@ test('暂停恢复日期早于开始日期时不提交', async () => {
   await page.locator('button[data-action="close-modal"]').first().click();
 });
 
-test('延期天数使用带“天”单位的数字输入并校验范围', async () => {
+test('订单不再提供延期入口', async () => {
   await navigate('orders');
-  await page.locator('button[data-action="extend-sub"]').first().click();
-  const input = page.locator('#extend-days');
-  assert.equal(await input.getAttribute('type'), 'number');
-  assert.equal(await input.getAttribute('min'), '1');
-  assert.equal(await input.getAttribute('max'), '365');
-  assert.ok(await page.getByText('天', { exact: true }).count() > 0);
-  await page.locator('button[data-action="close-modal"]').first().click();
-});
-
-test('延期天数超出范围时不提交', async () => {
-  await navigate('orders');
-  await page.locator('button[data-action="extend-sub"]').first().click();
-  await page.locator('#extend-days').fill('366');
-  await page.locator('button[data-action="confirm-extend"]').click();
-  assert.ok(await page.locator('#extend-days').isVisible());
-  assert.match(await page.locator('#toast-root').innerText(), /请输入 1–365 的整数天数/);
-  await page.locator('button[data-action="close-modal"]').first().click();
+  assert.equal(await page.locator('button[data-action="extend-sub"]').count(), 0);
+  assert.equal(await page.locator('#workspace').getByText('有效期', { exact: true }).count(), 0);
 });
 
 test('财务报表不显示复核操作列', async () => {
@@ -301,20 +283,18 @@ test('每日配送中心可按品牌和下单人切换层级', async () => {
 test('配送计划详情不显示调整记录', async () => {
   await navigate('plans');
   await page.locator('button[data-action="view-plan"][data-id="PL260704"]').first().click();
-  assert.doesNotMatch(await page.locator('#drawer-root').innerText(), /调整记录|临时调整记录/);
-  await page.locator('button[data-action="close-drawer"]').first().click();
+  assert.doesNotMatch(await page.locator('#workspace').innerText(), /调整记录|临时调整记录/);
 });
 
 test('订单详情汇总订单套餐用户和配送计划信息', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   await row.locator('.row-button[data-action="view-order"]').click();
-  const detail = await page.locator('#drawer-root').innerText();
+  const detail = await page.locator('#workspace').innerText();
   for (const section of ['订单信息', '套餐信息', '用户信息', '配送计划']) assert.match(detail, new RegExp(section));
   assert.match(detail, /138 6621 8888/);
   assert.match(detail, /28 餐/);
   assert.match(detail, /工作日午晚餐计划/);
-  await page.locator('button[data-action="close-drawer"]').first().click();
 });
 
 test('赠送扣除弹窗要求先选类型并输入正整数', async () => {
@@ -366,12 +346,13 @@ test('赠送餐次后更新表格并可查看调整记录', async () => {
   await page.locator('button[data-action="close-modal"]').first().click();
 });
 
-test('订单用户和渠道信息合并且操作按钮每行最多两个', async () => {
+test('订单用户和渠道信息合并且操作按钮每行最多四个并无落单', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   const cells = row.locator('td');
-  assert.match(await cells.nth(1).innerText(), /轻食用户\s+138 6621 8888/);
-  assert.match(await cells.nth(9).innerText(), /小程序\s+轻食用户/);
+  assert.match(await cells.nth(1).innerText(), /轻食用户\s+U2026070001/);
+  assert.match(await cells.nth(2).innerText(), /138 6621 8888/);
+  assert.match(await cells.nth(10).innerText(), /小程序\s+轻食用户/);
   const perLine = await row.locator('.order-row-actions button').evaluateAll((buttons) => {
     const counts = new Map();
     buttons.forEach((button) => {
@@ -380,8 +361,8 @@ test('订单用户和渠道信息合并且操作按钮每行最多两个', async
     });
     return [...counts.values()];
   });
-  assert.ok(perLine.length > 1);
-  assert.ok(perLine.every((count) => count <= 2));
+  assert.ok(perLine.every((count) => count <= 4));
+  assert.ok(perLine.length === 1 || perLine.every((count) => count >= 2));
 });
 
 test('多个订单显示演示餐次调整数据', async () => {
@@ -500,6 +481,7 @@ test('后台设置管理支付方式并只向补录订单提供启用项', async
   assert.ok(await page.getByText('企业转账', { exact: true }).count());
   const created = page.getByText('企业转账', { exact: true }).locator('xpath=ancestor::tr');
   await created.locator('button[data-action="toggle-payment-method"]').click();
+  await page.locator('button[data-action="confirm-toggle-payment-method"]').click();
   assert.match(await page.getByText('企业转账', { exact: true }).locator('xpath=ancestor::tr').innerText(), /停用/);
 });
 
@@ -516,6 +498,7 @@ test('后台设置预置退款类型并支持新增编辑停用', async () => {
   await page.locator('button[data-action="save-refund-type"]').click();
   const edited = page.getByText('客服补偿', { exact: true }).locator('xpath=ancestor::tr');
   await edited.locator('button[data-action="toggle-refund-type"]').click();
+  await page.locator('button[data-action="confirm-toggle-refund-type"]').click();
   assert.match(await page.getByText('客服补偿', { exact: true }).locator('xpath=ancestor::tr').innerText(), /停用/);
 });
 
@@ -537,7 +520,10 @@ test('没有启用退款类型时引导前往后台设置管理', async () => {
   await navigate('backend-settings');
   await page.locator('.backend-settings-tabs button').filter({ hasText: '退款类型' }).click();
   const enabled = page.locator('.refund-type-table tbody tr', { has: page.locator('button[data-action="toggle-refund-type"]', { hasText: '停用' }) });
-  while (await enabled.count()) await enabled.first().locator('button[data-action="toggle-refund-type"]').click();
+  while (await enabled.count()) {
+    await enabled.first().locator('button[data-action="toggle-refund-type"]').click();
+    await page.locator('button[data-action="confirm-toggle-refund-type"]').click();
+  }
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="request-refund"]').click();
@@ -545,7 +531,10 @@ test('没有启用退款类型时引导前往后台设置管理', async () => {
   await page.locator('button[data-action="goto-refund-types"]').click();
   assert.ok(await page.locator('.refund-type-table').count());
   const disabled = page.locator('.refund-type-table button[data-action="toggle-refund-type"]', { hasText: '启用' });
-  while (await disabled.count()) await disabled.first().click();
+  while (await disabled.count()) {
+    await disabled.first().click();
+    await page.locator('button[data-action="confirm-toggle-refund-type"]').click();
+  }
 });
 
 test('退款记录保存并显示退款类型名称快照', async () => {
@@ -753,8 +742,8 @@ test('配送中心展示完整资料并可修改配送状态且不再显示合�
   assert.match(body, /1\d{2}\s?\d{4}\s?\d{4}/);
   const firstRow = page.locator('table.data-table tbody tr').first();
   await firstRow.locator('button[data-action="change-delivery-status"]').click();
-  assert.deepEqual(await page.locator('[name="deliveryStatus"] option').allTextContents(), ['请选择配送状态', '已送达', '待配送', '未送达']);
-  await page.locator('[name="deliveryStatus"]').selectOption('未送达');
+  assert.deepEqual(await page.locator('[name="deliveryStatus"]').evaluateAll(nodes => nodes.map(node => node.value)), ['已送达', '配送中', '待配送', '未送达', '配送异常']);
+  await page.locator('.delivery-status-option').filter({ has: page.locator('[value="未送达"]') }).click();
   await page.locator('button[data-action="save-delivery-status"]').click();
   assert.match(await firstRow.innerText(), /未送达/);
 });
@@ -856,7 +845,7 @@ test('登录用户和用户数据共享备注且精简登录信息列', async ()
   assert.equal(headers[0], '用户 ID');
   assert.equal(headers.includes('登录设备'), false);
   assert.equal(headers.includes('登录 IP'), false);
-  assert.ok(headers.includes('用户备注'));
+  assert.ok(headers.includes('后台用户备注'));
   const row=page.getByText('U2026070001',{exact:true}).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="edit-user-note"]').click();
   await page.locator('#user-note').fill('重点跟进用户');
@@ -871,13 +860,73 @@ test('互动运营展示合作申请并支持跟进状态和备注', async () =>
   assert.equal(await page.locator('.collaboration-table thead th').count(),8);
   const row=page.getByText('顾明远',{exact:true}).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="edit-collaboration-status"]').click();
-  await page.locator('#collaboration-status').selectOption({label:'跟进中'});
+  assert.equal(await page.locator('#collaboration-status').count(), 0);
+  assert.deepEqual(await page.locator('.collaboration-status-option span').allTextContents(), ['待跟进','跟进中','已达成','暂不合作']);
+  await page.locator('.collaboration-status-option', { hasText: '跟进中' }).click();
   await page.locator('button[data-action="save-collaboration-status"]').click();
   assert.match(await page.getByText('顾明远',{exact:true}).first().locator('xpath=ancestor::tr').innerText(),/跟进中/);
   await page.getByText('顾明远',{exact:true}).first().locator('xpath=ancestor::tr').locator('button[data-action="edit-collaboration-note"]').click();
   await page.locator('#collaboration-note').fill('明日电话联系');
   await page.locator('button[data-action="save-collaboration-note"]').click();
   assert.match(await page.getByText('顾明远',{exact:true}).first().locator('xpath=ancestor::tr').innerText(),/明日电话联系/);
+});
+
+test('本轮筛选支付配送和补录交互按统一口径展示', async () => {
+  await navigate('users');
+  assert.deepEqual(await page.locator('[data-filter-tabs="userGoal"] button').allTextContents(), ['全部健康目标','健康饮食','减重','增肌','减脂']);
+
+  await navigate('orders');
+  await page.locator('[data-action="manual-order"]').click();
+  assert.equal(await page.locator('.manual-order-section[data-manual-section="payment"] label', { hasText: '操作人' }).count(), 0);
+
+  await navigate('menu');
+  await page.locator('[data-action="menu-view-tab"][data-value="grid"]').click();
+  for (const range of await page.locator('.menu-date-range').all()) {
+    assert.equal(await range.evaluate(el => getComputedStyle(el).borderStyle), 'none');
+  }
+  const uploadButton=page.locator('[data-action="menu-upload-all"]');
+  assert.ok(await uploadButton.count());
+  assert.ok(await uploadButton.evaluate(el => el.closest('.toolbar-actions') !== null));
+  assert.ok((await uploadButton.getAttribute('class')).includes('primary'));
+
+  await navigate('plans');
+  assert.equal(await page.locator('.data-table tbody').getByText('缺失', { exact: true }).count(), 0);
+  assert.equal(await page.locator('.data-table tbody').getByText('配送地址缺失', { exact: true }).count(), 0);
+
+  await navigate('orders');
+  assert.equal(await page.locator('[data-filter="orderPayment"]').evaluate(el => el.tagName), 'SELECT');
+  assert.equal((await page.locator('[data-filter="orderPayment"] option').allTextContents()).includes('微信支付'), false);
+  assert.equal((await page.locator('.orders-table tbody').innerText()).includes('微信支付'), false);
+
+  await navigate('finance');
+  assert.equal(await page.locator('[data-filter="financePayment"]').evaluate(el => el.tagName), 'SELECT');
+  assert.equal((await page.locator('[data-filter="financePayment"] option').allTextContents()).includes('微信支付'), false);
+  assert.equal((await page.locator('.data-table tbody').innerText()).includes('微信支付'), false);
+});
+
+test('配送 Excel 单击直接导出且不打开检查弹窗', async () => {
+  await navigate('daily');
+  const downloadPromise=page.waitForEvent('download');
+  await page.locator('[data-action="prepare-export"]').click();
+  const download=await downloadPromise;
+  assert.match(download.suggestedFilename(), /配送.*\.xlsx$/);
+  assert.equal(await page.locator('#modal-root .modal').count(), 0);
+});
+
+test('数据表头与普通内容居中且直接状态操作保留二次确认', async () => {
+  for (const pageId of ['brands','packages','orders','finance','plans','users','collaborations']) {
+    await navigate(pageId);
+    const table=page.locator('table.data-table').first();
+    assert.equal(await table.locator('th').first().evaluate(el => getComputedStyle(el).textAlign), 'center');
+    assert.equal(await table.locator('tbody td:not(.text-left)').first().evaluate(el => getComputedStyle(el).textAlign), 'center');
+  }
+  await navigate('plans');
+  const toggle=page.locator('[data-action="toggle-plan"]').first();
+  const before=await toggle.innerText();
+  await toggle.click();
+  assert.ok(await page.locator('#modal-root [data-action="confirm-toggle-plan"]').count());
+  await page.locator('#modal-root [data-action="close-modal"]').first().click();
+  assert.equal(await page.locator('[data-action="toggle-plan"]').first().innerText(), before);
 });
 
 test('用户数据合并订阅用户并可查看剩余次数明细', async () => {
@@ -889,7 +938,7 @@ test('用户数据合并订阅用户并可查看剩余次数明细', async () =>
   const row = page.getByText('轻食用户', { exact: true }).first().locator('xpath=ancestor::tr');
   assert.match(await row.innerText(), /薄荷晨间.*青禾轻食/s);
   await row.locator('button[data-action="view-user-remaining"]').click();
-  assert.deepEqual(await page.locator('#modal-root table thead th').allTextContents(), ['品牌', '剩余次数', '有效期', '已用次数', '对应订单号']);
+  assert.deepEqual(await page.locator('#modal-root table thead th').allTextContents(), ['品牌', '剩余次数', '已用次数', '对应订单号']);
   assert.ok(await page.locator('#modal-root table tbody tr').count() >= 2);
   await page.locator('button[data-action="close-modal"]').filter({ hasText: '完成' }).click();
 });
@@ -950,7 +999,7 @@ test('订单财务用户组合筛选和订单业务详情入口可用', async ()
   assert.ok(await page.locator('[data-filter="financeRefund"]').count());
   await navigate('users');
   for (const key of ['userGender','userActivity','userActive','userHeightMin','userWeightMax','userBmiMin','userBmrMax','userTdeeMin']) assert.ok(await page.locator(`[data-filter="${key}"]`).count());
-  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(),'用户备注');
+  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(),'后台用户备注');
 });
 
 test('登录品牌区移除数字统计并保留动态效果', async () => {
@@ -965,6 +1014,279 @@ test('登录品牌区移除数字统计并保留动态效果', async () => {
   await page.locator('#login-password').fill('Raven@2026');
   await page.locator('#login-submit').click();
   await page.waitForTimeout(750);
+});
+
+test('指定页面筛选控件按业务顺序排列', async () => {
+  const rowContents = async () => page.locator('.toolbar-filters .toolbar-group').first().locator(':scope > *').evaluateAll((els) => els.map((el) => (el.textContent || el.querySelector('input')?.placeholder || '').trim()));
+  await navigate('brands');
+  let row = await rowContents();
+  assert.match(row.join('|'), /搜索品牌.*全部介绍.*全部.*查找.*重置/);
+  await navigate('phrases');
+  row = await rowContents();
+  assert.match(row.join('|'), /搜索词语内容.*发布时间.*查找.*重置/);
+  await navigate('orders');
+  const orderFilterRow = await page.locator('[data-multi-menu="orderBrands"]').locator('xpath=ancestor::div[contains(@class,"toolbar-group")]').innerText();
+  assert.match(orderFilterRow.replaceAll('\n', '|'), /全部品牌.*查找.*重置/s);
+  await navigate('admins');
+  row = await rowContents();
+  assert.match(row.join('|'), /搜索账号或姓名.*全部状态.*查找.*重置/);
+  assert.equal(await page.locator('.notification-button').count(), 0);
+});
+
+test('用户档案展示白色摘要、完整基础信息和多条关联记录', async () => {
+  await navigate('users');
+  await page.getByText('轻食用户', { exact: true }).first().click();
+  assert.equal(await page.locator('.page-head p').count(), 0);
+  assert.equal(await page.locator('.detail-hero').first().evaluate((el) => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+  await page.locator('[data-action="user-tab"][data-value="health"]').click();
+  const health = await page.locator('.user-detail-panel').innerText();
+  for (const label of ['身高', '活动水平', '当前体重', '生日', '性别']) assert.match(health, new RegExp(label));
+  assert.doesNotMatch(health, /计划完成度/);
+  await page.locator('[data-action="user-tab"][data-value="subscription"]').click();
+  assert.ok(await page.locator('.user-related-card').count() >= 2);
+  const subscriptionStatuses = await page.locator('.user-related-card .status').allTextContents();
+  assert.ok(subscriptionStatuses.every((value) => ['正在使用', '未使用'].includes(value.trim())));
+  await page.locator('[data-action="user-tab"][data-value="plan"]').click();
+  assert.ok(await page.locator('.user-related-card').count() >= 2);
+  await page.locator('[data-action="user-tab"][data-value="orders"]').click();
+  assert.ok(await page.locator('.user-related-card').count() >= 2);
+});
+
+test('配送状态支持配送中并按优先级汇总', async () => {
+  await navigate('daily');
+  await page.locator('[data-action="change-delivery-status"]').first().click();
+  assert.deepEqual(await page.locator('[name="deliveryStatus"]').evaluateAll(nodes => nodes.map(node => node.value)), ['已送达', '配送中', '待配送', '未送达', '配送异常']);
+  await page.locator('.delivery-status-option').filter({ has: page.locator('[value="配送中"]') }).click();
+  await page.locator('[data-action="save-delivery-status"]').click();
+  assert.match(await page.locator('.daily-summary-table tbody tr').first().innerText(), /配送中/);
+});
+
+test('配送 Excel 直接导出并包含拆分后的业务字段', async () => {
+  await navigate('daily');
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="prepare-export"]').click();
+  const download = await downloadPromise;
+  const path = await download.path();
+  const bytes = require('node:fs').readFileSync(path);
+  const text = bytes.toString('utf8');
+  for (const field of ['午餐配送地址', '晚餐配送地址', '忌口', '过敏信息', '备注']) assert.match(text, new RegExp(field));
+  assert.doesNotMatch(text, /配送状态/);
+  assert.doesNotMatch(text, /业务日期|版本号|锁定时间|是否最终版/);
+  assert.match(text, /生成时间/);
+  assert.match(text, /生成人/);
+  assert.equal(await page.locator('#modal-root .modal').count(), 0);
+});
+
+test('操作按钮按最多四个一行均衡分组且不出现落单', async () => {
+  await navigate('brands');
+  const brandRows = await page.locator('.data-table .table-actions').first().locator(':scope > .action-button-row').evaluateAll(rows => rows.map(row => row.children.length));
+  assert.deepEqual(brandRows, [3, 2]);
+  await navigate('packages');
+  const packageRows = await page.locator('.data-table .table-actions').first().locator(':scope > .action-button-row').evaluateAll(rows => rows.map(row => row.children.length));
+  assert.deepEqual(packageRows, [4]);
+});
+
+test('订单详情移除页头操作和有效期且详情卡片保持白色', async () => {
+  await navigate('orders');
+  await page.locator('[data-action="view-order"]').first().click();
+  assert.equal(await page.locator('.page-head [data-action="add-order-note"], .page-head [data-action="request-refund"]').count(), 0);
+  assert.doesNotMatch(await page.locator('main#workspace').innerText(), /有效期|到期提示|延长有效期/);
+  const backgrounds = await page.locator('.order-detail-page .detail-list > div').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundColor));
+  assert.ok(backgrounds.length > 0 && backgrounds.every(color => color === 'rgb(255, 255, 255)'));
+});
+
+test('退款固定释放餐次并保留二次确认', async () => {
+  await navigate('orders');
+  await page.locator('[data-action="request-refund"]').first().click();
+  assert.equal(await page.locator('#refund-release').count(), 0);
+  assert.equal((await page.locator('[data-action="confirm-refund"]').innerText()).trim(), '确认');
+  await page.locator('[name="refundTypeId"]').selectOption({ index: 1 });
+  await page.locator('[data-action="confirm-refund"]').click();
+  assert.match(await page.locator('#modal-root').innerText(), /退款二次确认/);
+  assert.match(await page.locator('#modal-root').innerText(), /释放未使用\/冻结餐次转为可用餐次/);
+});
+
+test('暂停订购使用统一日期范围控件', async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('orders');
+  await page.locator('[data-action="toggle-sub"]').filter({ hasText: '暂停' }).first().click();
+  assert.equal(await page.locator('.pause-date-range').count(), 1);
+  assert.equal(await page.locator('.pause-date-range input[type="date"]').count(), 2);
+  assert.match(await page.locator('#modal-root').innerText(), /暂停时间段/);
+});
+
+test('品牌目标群体为必选字段', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('brands');
+  await page.locator('[data-action="new-brand"]').click({ timeout: 1500 });
+  const targetLabel = (await page.locator('#entity-form label').allTextContents()).find(text => text.includes('目标群体'));
+  assert.equal(targetLabel.trim(), '*目标群体');
+});
+
+test('套餐简介支持三百字', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('packages');
+  await page.locator('[data-action="new-package"]').click({ timeout: 1500 });
+  assert.equal(await page.locator('[name="intro"]').getAttribute('maxlength', { timeout: 1500 }), '300');
+  assert.ok((await page.locator('#entity-form label').allTextContents()).some(text => /套餐简介（限 300 字）/.test(text)));
+});
+
+test('管理员编辑不显示密码字段', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('admins');
+  await page.locator('[data-action="edit-admin"]').first().click();
+  assert.equal(await page.locator('#entity-form [name="password"]').count(), 0);
+});
+
+test('管理员列表提供独立重置密码入口', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('admins');
+  assert.ok(await page.locator('[data-action="reset-admin-password"]').first().count());
+  await page.locator('[data-action="reset-admin-password"]').first().click();
+  assert.ok(await page.locator('#reset-admin-password-form [name="password"]').count());
+});
+
+test('内容编辑使用平铺单选标签并按内容在图片上方排列', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('articles');
+  await page.locator('[data-action="edit-content"]').first().click();
+  assert.equal(await page.locator('#entity-form select[name="type"]').count(), 0);
+  assert.ok(await page.locator('#entity-form input[name="tag"][type="radio"]').count() >= 4);
+  assert.equal(await page.locator('#entity-form .form-group-head').filter({ hasText: /^内容$/ }).count(), 0);
+  assert.equal(await page.locator('#entity-form [name="author"]').getAttribute('maxlength'), '30');
+  const bodyBeforeImage = await page.locator('#entity-form').evaluate(form => {
+    const body = form.querySelector('[name="body"]')?.closest('.form-field');
+    const image = form.querySelector('[name="image"]')?.closest('.form-field');
+    return !!(body && image && (body.compareDocumentPosition(image) & Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  assert.equal(bodyBeforeImage, true);
+});
+
+test('每日配送中心导航不显示数字徽标', async () => {
+  const dailyNav = page.locator('.nav-item[data-page="daily"]');
+  assert.equal(await dailyNav.locator('.nav-badge').count(), 0);
+  assert.equal((await dailyNav.innerText()).trim(), '每日配送中心');
+});
+
+test('窄屏宽表在表格容器内显示原生横向滚动', async () => {
+  await page.setViewportSize({ width: 712, height: 731 });
+  try {
+    await navigate('users');
+    const metrics = await page.locator('.table-wrap').first().evaluate(element => {
+      const style = getComputedStyle(element);
+      return {
+        overflowX: style.overflowX,
+        scrollbarWidth: style.scrollbarWidth,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        pageOverflowX: getComputedStyle(document.documentElement).overflowX,
+        bodyOverflowX: getComputedStyle(document.body).overflowX
+      };
+    });
+    assert.equal(metrics.overflowX, 'auto');
+    assert.notEqual(metrics.scrollbarWidth, 'none');
+    assert.ok(metrics.scrollWidth > metrics.clientWidth);
+    assert.equal(metrics.pageOverflowX, 'hidden');
+    assert.equal(metrics.bodyOverflowX, 'hidden');
+    const scrollLeft = await page.locator('.table-wrap').first().evaluate(element => {
+      element.scrollLeft = element.scrollWidth;
+      return element.scrollLeft;
+    });
+    assert.ok(scrollLeft > 0);
+  } finally {
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
+});
+
+test('用户档案按基础资料和健康数据重新分组并显示后台用户备注', async () => {
+  await navigate('users');
+  await page.locator('[data-action="view-user"]').first().click();
+  const profile = await page.locator('.user-detail-panel').innerText();
+  assert.match(profile, /后台用户备注/);
+  assert.doesNotMatch(profile, /性别 \/ 年龄|生日|身高 \/ 当前体重/);
+  await page.locator('[data-action="user-tab"][data-value="health"]').click();
+  const health = await page.locator('.user-detail-panel .detail-list').innerText();
+  assert.ok(health.indexOf('性别') < health.indexOf('活动水平'));
+  assert.match(health, /生日[\s\S]*1998-01-05[^\n]*28 岁/);
+  assert.match(health, /身高 \/ 当前体重[\s\S]*165 cm \/ 65\.2 kg/);
+});
+
+test('登录导出文案简化且管理员账号与角色名称不再跳转', async () => {
+  await navigate('login-users');
+  assert.equal((await page.locator('[data-action="export-logins"]').innerText()).trim(), '导出');
+  await navigate('admins');
+  assert.equal(await page.locator('tbody [data-action="view-admin"]').count(), 0);
+  assert.match(await page.locator('tbody tr').first().locator('td').first().innerText(), /admin/);
+  await navigate('roles');
+  assert.equal(await page.locator('tbody tr td:first-child [data-action="view-role"]').count(), 0);
+  assert.match(await page.locator('tbody tr').first().locator('td').first().innerText(), /超级管理员/);
+});
+
+test('用户备注统一显示为后台用户备注', async () => {
+  await navigate('users');
+  const headers = await page.locator('.users-table thead th').allTextContents();
+  assert.ok(headers.includes('后台用户备注'));
+  assert.equal(headers.includes('用户备注'), false);
+  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(), '后台用户备注');
+  await page.locator('[data-action="edit-user-note"]').first().click();
+  assert.equal((await page.locator('.modal-head h3').innerText()).trim(), '后台用户备注');
+  await page.locator('.modal-foot [data-action="close-modal"]').click();
+});
+
+test('配送计划详情区分配送规则和配置方式并展示每日配置', async () => {
+  await navigate('plans');
+  await page.locator('[data-action="new-plan"]').click();
+  await page.locator('[data-action="plan-pick-user"]').click();
+  await page.locator('[data-action="plan-user-select"]').first().click();
+  await page.locator('#entity-form input[name="name"]').fill('自定义详情测试计划');
+  await page.locator('[data-action="plan-rule"][data-value="自定义配送"]').click();
+  for (const index of [4, 3, 1]) {
+    await page.locator('.plan-weekday-picker label').nth(index).click();
+  }
+  await page.locator('[data-action="plan-delivery-toggle"]').click();
+  await page.locator('[data-action="plan-meal-count"][data-key="1"][data-count="1"]').click();
+  await page.locator('[data-action="plan-meal-type"][data-key="1"][data-type="午餐"]').click();
+  await page.locator('[data-action="plan-addr-toggle"][data-key="1"]').click();
+  const lunchAddress = page.locator('select[name="deliveryAddr_1_lunch"]');
+  const lunchOptions = await lunchAddress.locator('option').count();
+  if (lunchOptions) await lunchAddress.selectOption({ index: lunchOptions > 1 ? 1 : 0 });
+  const selectedLunchAddress = await lunchAddress.inputValue();
+  await page.locator('[data-action="save-entity"]').click();
+  await page.locator('[data-filter="planSearch"]').fill('自定义详情测试计划');
+  await page.locator('[data-action="apply-filters"]').click();
+  const row = page.locator('tbody tr', { hasText: '自定义详情测试计划' });
+  await row.locator('[data-action="view-plan"]').last().click();
+  const detail = await page.locator('main#workspace').innerText();
+  assert.match(detail, /配送规则/);
+  assert.match(detail, /自定义配送/);
+  assert.match(detail, /实际配送星期/);
+  assert.match(detail, /星期一/);
+  assert.match(detail, /星期三/);
+  assert.match(detail, /配置方式/);
+  assert.match(detail, /按星期分别设置/);
+  assert.match(detail, /每日配送配置/);
+  assert.match(detail, new RegExp(selectedLunchAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  await page.locator('[data-action="edit-plan"]').click();
+  assert.equal(await page.locator('#plan-delivery-perday').isChecked(), true);
+  const selectedWeekdays = await page.locator('.plan-weekday-picker input:checked').evaluateAll(items => items.map(item => item.value));
+  assert.deepEqual(selectedWeekdays, ['1', '3']);
+  await page.locator('[data-action="plan-addr-toggle"][data-key="1"]').click();
+  assert.equal(await page.locator('select[name="deliveryAddr_1_lunch"]').inputValue(), selectedLunchAddress);
+  await page.getByRole('button', { name: '返回配送计划' }).click();
+});
+
+test('每日配送明细拆分午晚餐地址且 Excel 不导出配送状态', async () => {
+  await navigate('daily');
+  await page.locator('[data-action="daily-brand-view"][data-value="detail"]').click();
+  const headers = await page.locator('.data-table thead th').allTextContents();
+  assert.ok(headers.includes('午餐配送地址'));
+  assert.ok(headers.includes('晚餐配送地址'));
+  assert.equal(headers.includes('配送地址'), false);
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('[data-action="prepare-export"]').click();
+  const download = await downloadPromise;
+  const bytes = require('node:fs').readFileSync(await download.path());
+  assert.doesNotMatch(bytes.toString('utf8'), /配送状态/);
 });
 
 test('页面运行期间没有 JavaScript 异常', () => {
