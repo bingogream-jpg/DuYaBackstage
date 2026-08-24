@@ -999,7 +999,7 @@ test('订单财务用户组合筛选和订单业务详情入口可用', async ()
   assert.ok(await page.locator('[data-filter="financeRefund"]').count());
   await navigate('users');
   for (const key of ['userGender','userActivity','userActive','userHeightMin','userWeightMax','userBmiMin','userBmrMax','userTdeeMin']) assert.ok(await page.locator(`[data-filter="${key}"]`).count());
-  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(),'后台用户备注');
+  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(),'用户备注');
 });
 
 test('登录品牌区移除数字统计并保留动态效果', async () => {
@@ -1198,12 +1198,18 @@ test('窄屏宽表在表格容器内显示原生横向滚动', async () => {
   }
 });
 
-test('用户档案按基础资料和健康数据重新分组并显示后台用户备注', async () => {
+test('用户档案拆分用户目标并显示订购与登录概览', async () => {
   await navigate('users');
   await page.locator('[data-action="view-user"]').first().click();
   const profile = await page.locator('.user-detail-panel').innerText();
   assert.match(profile, /后台用户备注/);
-  assert.doesNotMatch(profile, /性别 \/ 年龄|生日|身高 \/ 当前体重/);
+  assert.match(profile, /用户目标[\s\S]*健康目标[\s\S]*目标体重/);
+  assert.match(profile, /订购与登录概览/);
+  assert.match(profile, /订阅过的品牌[\s\S]*薄荷晨间[\s\S]*青禾轻食/);
+  assert.match(profile, /总餐数[\s\S]*核销餐数[\s\S]*未核销餐数/);
+  assert.match(profile, /用户登录总次数[\s\S]*最近一次登录时间/);
+  assert.doesNotMatch(profile, /活动水平|过敏信息|性别 \/ 年龄|生日|身高 \/ 当前体重/);
+  assert.equal(await page.locator('.user-detail-hero .detail-avatar').count(), 0);
   await page.locator('[data-action="user-tab"][data-value="health"]').click();
   const health = await page.locator('.user-detail-panel .detail-list').innerText();
   assert.ok(health.indexOf('性别') < health.indexOf('活动水平'));
@@ -1227,10 +1233,58 @@ test('用户备注统一显示为后台用户备注', async () => {
   const headers = await page.locator('.users-table thead th').allTextContents();
   assert.ok(headers.includes('后台用户备注'));
   assert.equal(headers.includes('用户备注'), false);
-  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(), '后台用户备注');
+  assert.equal((await page.locator('[data-action="edit-user-note"]').first().innerText()).trim(), '用户备注');
   await page.locator('[data-action="edit-user-note"]').first().click();
-  assert.equal((await page.locator('.modal-head h3').innerText()).trim(), '后台用户备注');
+  assert.equal((await page.locator('.modal-head h3').innerText()).trim(), '用户备注');
+  assert.equal((await page.locator('[data-action="save-user-note"]').innerText()).trim(), '保存用户备注');
   await page.locator('.modal-foot [data-action="close-modal"]').click();
+});
+
+test('顶部日期和管理员入口无边框且账户菜单只显示退出登录', async () => {
+  const styles = await page.locator('.today-chip, .top-operator').evaluateAll((els) => els.map((el) => ({
+    borderStyle: getComputedStyle(el).borderStyle,
+    borderWidth: getComputedStyle(el).borderWidth,
+  })));
+  styles.forEach((style) => {
+    assert.equal(style.borderStyle, 'none');
+    assert.equal(style.borderWidth, '0px');
+  });
+  const trigger = page.locator('.top-operator');
+  const before = await trigger.boundingBox();
+  await trigger.click();
+  const menu = page.locator('.top-profile-menu');
+  assert.deepEqual(await menu.locator('button').allTextContents(), ['退出登录']);
+  const after = await trigger.boundingBox();
+  const menuBox = await menu.boundingBox();
+  assert.deepEqual(after, before);
+  assert.ok(menuBox.y >= after.y + after.height);
+  assert.ok(Math.abs((menuBox.x + menuBox.width) - (after.x + after.width)) <= 1);
+  await page.locator('.breadcrumb').click();
+  assert.equal(await page.locator('.top-profile-menu').count(), 0);
+});
+
+test('用户导出与订购中开关同排且指定页面导出文案统一', async () => {
+  await navigate('users');
+  assert.equal((await page.locator('[data-action="export-users"]').innerText()).trim(), '导出');
+  const userActionLayout = await page.locator('[data-action="export-users"], .subscribed-only-switch').evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+  const exportCenter = userActionLayout[0].top + userActionLayout[0].height / 2;
+  const toggleCenter = userActionLayout[1].top + userActionLayout[1].height / 2;
+  assert.ok(Math.abs(exportCenter - toggleCenter) <= 2);
+  assert.ok(userActionLayout[1].right > userActionLayout[0].right);
+  for (const [pageId, action] of [['daily','prepare-export'],['finance','export-finance'],['orders','export-orders']]) {
+    await navigate(pageId);
+    assert.equal((await page.locator(`[data-action="${action}"]`).first().innerText()).trim(), '导出');
+  }
+});
+
+test('后台设置业务按钮行不显示虚线分隔', async () => {
+  await navigate('backend-settings');
+  const style = await page.locator('.settings-data-section .toolbar-actions').evaluate((el) => ({
+    borderStyle: getComputedStyle(el).borderTopStyle,
+    borderWidth: getComputedStyle(el).borderTopWidth,
+  }));
+  assert.equal(style.borderStyle, 'none');
+  assert.equal(style.borderWidth, '0px');
 });
 
 test('配送计划详情区分配送规则和配置方式并展示每日配置', async () => {
