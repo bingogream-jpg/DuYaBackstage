@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chromium } = require('C:/Users/Admin（无密码）/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core');
 
-const pageUrl = `file:///D:/Project/DuYaGuanJia/new-chat/back/index.html?test=${Date.now()}`;
+const pageUrl = `file:///D:/Project/DuYaGuanJia/DuYaBackstage-main/index.html?test=${Date.now()}`;
 let browser;
 let page;
 const pageErrors = [];
@@ -138,14 +138,13 @@ test('配送计划仅显示正在使用和未使用两种状态', async () => {
   assert.ok(actionLabels.every((value) => ['停用', '启用'].includes(value)));
 });
 
-test('配送计划停用后显示未使用并可再次启用', async () => {
+test('配送计划列表操作列仅保留查看和编辑', async () => {
   await navigate('plans');
-  const row = page.locator('table.data-table tbody tr').first();
-  await row.locator('button[data-action="toggle-plan"]').click();
-  await page.locator('button[data-action="confirm-toggle-plan"]').click();
-  const statusIndex = (await page.locator('table.data-table thead th').allTextContents()).indexOf('状态');
-  assert.match(await row.locator('td').nth(statusIndex).innerText(), /未使用/);
-  assert.equal((await row.locator('button[data-action="toggle-plan"]').innerText()).trim(), '启用');
+  assert.equal(await page.locator('button[data-action="copy-plan"]').count(), 0);
+  assert.equal(await page.locator('button[data-action="toggle-plan"]').count(), 0);
+  assert.ok(await page.locator('button[data-action="view-plan"]').count() > 0);
+  assert.ok(await page.locator('button[data-action="edit-plan"]').count() > 0);
+  assert.deepEqual(await page.locator('table.data-table tbody tr').first().locator('.table-actions button').allTextContents(), ['查看', '编辑']);
 });
 
 test('激励词语隐藏编号并将待使用显示为待开始', async () => {
@@ -207,6 +206,25 @@ test('暂停恢复日期早于开始日期时不提交', async () => {
   assert.ok(await page.locator('#pause-start').isVisible());
   assert.match(await page.locator('#toast-root').innerText(), /恢复日期不能早于开始日期/);
   await page.locator('button[data-action="close-modal"]').first().click();
+});
+
+test('暂停弹窗可勾选占用暂停次数并做上限校验拦截', async () => {
+  await navigate('orders');
+  const row = page.getByText('OD202608040091', { exact: true }).first().locator('xpath=ancestor::tr');
+  await row.locator('button[data-action="toggle-sub"]').click();
+  await page.locator('button[data-action="confirm-toggle-sub"]').click();
+  assert.equal((await row.locator('button[data-action="toggle-sub"]').innerText()).trim(), '暂停');
+  await row.locator('button[data-action="toggle-sub"]').click();
+  assert.ok(await page.locator('#pause-occupied').isVisible());
+  assert.equal(await page.locator('#pause-occupied').isChecked(), true);
+  await page.locator('button[data-action="confirm-pause-range"]').click();
+  assert.ok(await page.locator('#pause-occupied').isVisible());
+  assert.match(await page.locator('#toast-root').innerText(), /暂停次数已达上限/);
+  await page.locator('#pause-occupied').uncheck();
+  await page.locator('button[data-action="confirm-pause-range"]').click();
+  assert.equal((await row.locator('button[data-action="toggle-sub"]').innerText()).trim(), '恢复');
+  await row.locator('button[data-action="toggle-sub"]').click();
+  await page.locator('button[data-action="confirm-toggle-sub"]').click();
 });
 
 test('订单不再提供延期入口', async () => {
@@ -286,6 +304,36 @@ test('配送计划详情不显示调整记录', async () => {
   assert.doesNotMatch(await page.locator('#workspace').innerText(), /调整记录|临时调整记录/);
 });
 
+test('配送计划详情精简按钮且自定义配送括号显示星期', async () => {
+  await navigate('plans');
+  await page.locator('[data-filter="planSearch"]').fill('自定义周末计划');
+  await page.locator('[data-action="apply-filters"]').click();
+  await page.locator('button[data-action="view-plan"]').first().click();
+  const detail = await page.locator('#workspace').innerText();
+  assert.doesNotMatch(detail, /实际配送星期/);
+  assert.match(detail, /自定义配送（周六、周日）/);
+  assert.equal(await page.locator('button[data-action="toggle-plan"]').count(), 0);
+  assert.ok(await page.locator('button[data-action="edit-plan"]').count());
+});
+
+test('配送计划详情按计划显示配置方式样式', async () => {
+  await navigate('plans');
+  await page.locator('[data-filter="planSearch"]').fill('工作日定制餐计划');
+  await page.locator('[data-action="apply-filters"]').click();
+  await page.locator('button[data-action="view-plan"]').first().click();
+  const dailyDetail = await page.locator('#workspace').innerText();
+  assert.match(dailyDetail, /分别设置每天/);
+  assert.match(dailyDetail, /每日配送配置/);
+  await navigate('plans');
+  await page.locator('[data-filter="planSearch"]').fill('工作日午餐计划');
+  await page.locator('[data-action="apply-filters"]').click();
+  await page.locator('button[data-action="view-plan"]').first().click();
+  const unifiedDetail = await page.locator('#workspace').innerText();
+  assert.match(unifiedDetail, /统一设置/);
+  assert.match(unifiedDetail, /配送配置/);
+  assert.doesNotMatch(unifiedDetail, /分别设置每天/);
+});
+
 test('订单详情汇总订单套餐用户和配送计划信息', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
@@ -301,11 +349,12 @@ test('赠送扣除弹窗要求先选类型并输入正整数', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="adjust-meals"]').click();
-  assert.deepEqual(await page.locator('#meal-adjust-type option').allTextContents(), ['请选择调整类型', '赠送', '扣除']);
+  assert.deepEqual(await page.locator('.meal-adjust-type-option').allTextContents(), ['赠送', '扣除']);
+  assert.equal(await page.locator('.meal-adjust-type-grid select').count(), 0);
   assert.equal(await page.locator('#meal-adjust').getAttribute('step'), '1');
   assert.ok(await page.locator('#meal-adjust-note').count());
   await page.locator('button[data-action="confirm-adjust-meals"]').click();
-  assert.ok(await page.locator('#meal-adjust-type').isVisible());
+  assert.ok(await page.locator('.meal-adjust-type-option').first().isVisible());
   assert.match(await page.locator('#toast-root').innerText(), /请选择赠送或扣除/);
   await page.locator('button[data-action="close-modal"]').first().click();
 });
@@ -314,10 +363,10 @@ test('扣除餐次不能超过当前剩余餐次', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="adjust-meals"]').click();
-  await page.locator('#meal-adjust-type').selectOption('deduct');
+  await page.locator('.meal-adjust-type-option', { hasText: '扣除' }).click();
   await page.locator('#meal-adjust').fill('999');
   await page.locator('button[data-action="confirm-adjust-meals"]').click();
-  assert.ok(await page.locator('#meal-adjust-type').isVisible());
+  assert.ok(await page.locator('.meal-adjust-type-option').first().isVisible());
   assert.match(await page.locator('#toast-root').innerText(), /不能超过当前剩余餐次/);
   await page.locator('button[data-action="close-modal"]').first().click();
 });
@@ -326,7 +375,7 @@ test('赠送餐次后更新表格并可查看调整记录', async () => {
   await navigate('orders');
   const row = page.getByText('OD202608050018', { exact: true }).first().locator('xpath=ancestor::tr');
   await row.locator('button[data-action="adjust-meals"]').click();
-  await page.locator('#meal-adjust-type').selectOption('gift');
+  await page.locator('.meal-adjust-type-option', { hasText: '赠送' }).click();
   await page.locator('#meal-adjust').fill('3');
   await page.locator('#meal-adjust-note').fill('售后补偿');
   await page.locator('button[data-action="confirm-adjust-meals"]').click();
@@ -920,13 +969,13 @@ test('数据表头与普通内容居中且直接状态操作保留二次确认',
     assert.equal(await table.locator('th').first().evaluate(el => getComputedStyle(el).textAlign), 'center');
     assert.equal(await table.locator('tbody td:not(.text-left)').first().evaluate(el => getComputedStyle(el).textAlign), 'center');
   }
-  await navigate('plans');
-  const toggle=page.locator('[data-action="toggle-plan"]').first();
+  await navigate('brands');
+  const toggle=page.locator('[data-action="toggle-brand"]').first();
   const before=await toggle.innerText();
   await toggle.click();
-  assert.ok(await page.locator('#modal-root [data-action="confirm-toggle-plan"]').count());
+  assert.ok(await page.locator('#modal-root [data-action="confirm-toggle-brand"]').count());
   await page.locator('#modal-root [data-action="close-modal"]').first().click();
-  assert.equal(await page.locator('[data-action="toggle-plan"]').first().innerText(), before);
+  assert.equal(await page.locator('[data-action="toggle-brand"]').first().innerText(), before);
 });
 
 test('用户数据合并订阅用户并可查看剩余次数明细', async () => {
@@ -941,6 +990,50 @@ test('用户数据合并订阅用户并可查看剩余次数明细', async () =>
   assert.deepEqual(await page.locator('#modal-root table thead th').allTextContents(), ['品牌', '剩余次数', '已用次数', '对应订单号']);
   assert.ok(await page.locator('#modal-root table tbody tr').count() >= 2);
   await page.locator('button[data-action="close-modal"]').filter({ hasText: '完成' }).click();
+});
+
+test('核销明细页面与用户档案页签可查看', async () => {
+  await navigate('redemptions');
+  const headers = await page.locator('table.data-table thead th').allTextContents();
+  for (const field of ['核销时间','用户','品牌','订单号','配送计划','送餐地址','收货人','收货人电话','餐别','核销餐数','数据来源','操作人']) assert.ok(headers.includes(field), `missing ${field}`);
+  assert.equal(headers.includes('备注'), false);
+  assert.equal(headers.includes('手机号'), false);
+  assert.equal(headers.includes('用户ID'), false);
+  assert.match(await page.locator('table.data-table tbody').innerText(), /薄荷晨间/);
+  await page.locator('[data-filter-tabs="redemptionSource"] button[data-value="后台扣除"]').click();
+  assert.match(await page.locator('table.data-table tbody').innerText(), /后台扣除/);
+  assert.equal(await page.locator('[data-action="export-redemptions"]').count(), 1);
+  await navigate('users');
+  await page.getByText('陈奕川', { exact: true }).first().click();
+  await page.locator('[data-action="user-tab"][data-value="redemptions"]').click();
+  assert.ok(await page.locator('.redemption-table-wrap table tbody tr').count() >= 1);
+  assert.match(await page.locator('.redemption-table-wrap').innerText(), /后台扣除/);
+  assert.equal(await page.locator('.redemption-table-wrap table thead th', { hasText: '备注' }).count(), 0);
+  assert.ok((await page.locator('.redemption-table-wrap table thead th').allTextContents()).includes('收货人电话'));
+});
+
+test('用户档案配送计划页签展示配送日历并可按日期查看餐数', async () => {
+  await navigate('users');
+  await page.getByText('顾明远', { exact: true }).first().click();
+  await page.locator('[data-action="user-tab"][data-value="plan"]').click();
+  assert.match(await page.locator('#workspace').innerText(), /配送日历/);
+  assert.equal(await page.locator('.user-plan-cal-calendar').count(), 1);
+  assert.equal(await page.locator('.user-plan-cal-detail').count(), 1);
+  assert.deepEqual(await page.locator('.user-plan-cal-detail table thead th').allTextContents(), ['品牌', '午餐', '晚餐', '合计']);
+  const rows = await page.locator('.user-plan-cal-detail table tbody tr').count();
+  assert.ok(rows >= 1, '自动选中配送日期后应展示当日餐数');
+  const cells = page.locator('.user-plan-cal-calendar button[data-action="user-plan-cal-date"]');
+  assert.ok(await cells.count() >= 2, '工作日计划应有多天可点');
+  await cells.nth(1).click();
+  assert.ok(await page.locator('.user-plan-cal-detail table tbody tr').count() >= 1);
+  assert.match(await page.locator('.user-plan-cal-detail').innerText(), /谷物碗社/);
+  await page.locator('button[data-action="user-plan-cal-view"][data-value="detail"]').click();
+  assert.deepEqual(await page.locator('.user-plan-cal-detail table thead th').allTextContents(), ['配送计划', '品牌', '餐别', '送达时间', '配送地址']);
+  assert.ok(await page.locator('.user-plan-cal-detail table tbody tr').count() >= 1);
+  await page.locator('button[data-action="user-plan-cal-view"][data-value="summary"]').click();
+  assert.deepEqual(await page.locator('.user-plan-cal-detail table thead th').allTextContents(), ['品牌', '午餐', '晚餐', '合计']);
+  await page.locator('button[data-action="user-plan-cal-month"][data-value="prev"]').click();
+  assert.match(await page.locator('.user-plan-cal-calendar .plan-cal-head').innerText(), /2026 年 7 月|2026 年 07 月/);
 });
 
 test('用户数据可仅查看包含暂停状态的订阅中用户', async () => {
@@ -1210,6 +1303,7 @@ test('用户档案拆分用户目标并显示订购与登录概览', async () =>
   assert.match(profile, /用户登录总次数[\s\S]*最近一次登录时间/);
   assert.doesNotMatch(profile, /活动水平|过敏信息|性别 \/ 年龄|生日|身高 \/ 当前体重/);
   assert.equal(await page.locator('.user-detail-hero .detail-avatar').count(), 0);
+  assert.doesNotMatch(profile, /忌口/);
   await page.locator('[data-action="user-tab"][data-value="health"]').click();
   const health = await page.locator('.user-detail-panel .detail-list').innerText();
   assert.ok(health.indexOf('性别') < health.indexOf('活动水平'));
@@ -1313,11 +1407,12 @@ test('配送计划详情区分配送规则和配置方式并展示每日配置',
   const detail = await page.locator('main#workspace').innerText();
   assert.match(detail, /配送规则/);
   assert.match(detail, /自定义配送/);
-  assert.match(detail, /实际配送星期/);
+  assert.doesNotMatch(detail, /实际配送星期/);
+  assert.match(detail, /自定义配送（周一、周三）/);
   assert.match(detail, /星期一/);
   assert.match(detail, /星期三/);
   assert.match(detail, /配置方式/);
-  assert.match(detail, /按星期分别设置/);
+  assert.match(detail, /分别设置每天/);
   assert.match(detail, /每日配送配置/);
   assert.match(detail, new RegExp(selectedLunchAddress.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   await page.locator('[data-action="edit-plan"]').click();

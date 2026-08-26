@@ -274,6 +274,12 @@ svg.icon{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;s
 .dashboard-global-kpis .metric-card.danger strong{white-space:nowrap;font-size:22px}.finance-net-breakdown{white-space:normal}.daily-brand-view-tabs{margin-left:auto}.daily-status-tabs{flex-wrap:wrap}.daily-status-tabs button{min-height:29px;padding:0 12px;font-size:11px}.delivery-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}.delivery-status-option{position:relative;display:flex;align-items:center;justify-content:center;min-height:54px;border:1px solid var(--line-strong);border-radius:11px;background:#fff;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:.15s}.delivery-status-option input{position:absolute;opacity:0;pointer-events:none}.delivery-status-option span{display:flex;align-items:center;justify-content:center;width:100%;height:100%}.delivery-status-option.active,.delivery-status-option:has(input:checked){border-color:var(--mint-600);background:var(--mint-50);color:var(--forest-800);box-shadow:0 0 0 2px rgba(19,201,141,.15)}
 @media(prefers-reduced-motion:reduce){.tech-orbit,.tech-scan,.tech-particles i{animation:none!important}}
 
+/* 赠送/扣除餐次：调整类型平铺选项。 */
+.meal-adjust-type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
+.meal-adjust-type-option{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.meal-adjust-type-option input{position:absolute;opacity:0;pointer-events:none}
+.meal-adjust-type-option.active,.meal-adjust-type-option:has(input:checked){border-color:var(--mint-600);background:var(--mint-50);color:var(--forest-800);box-shadow:0 0 0 2px rgba(19,201,141,.15)}
+
 /* Composite filters and revised brand/address layouts */
 .multi-filter{position:relative;flex:none}.multi-filter-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:122px;cursor:pointer}.multi-filter-menu{position:absolute;z-index:120;top:calc(100% + 6px);left:0;display:grid;min-width:210px;max-height:300px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:11px;background:#fff;box-shadow:var(--shadow-lg)}.multi-filter-menu[hidden]{display:none}.multi-filter-menu label{display:flex;align-items:center;gap:8px;padding:8px;border-radius:7px;color:var(--ink);font-size:12px;cursor:pointer}.multi-filter-menu label:hover{background:var(--wash)}.multi-filter-actions{display:flex;justify-content:space-between;padding:4px 5px 8px;border-bottom:1px solid var(--line)}.multi-filter-actions button{border:0;background:transparent;color:var(--mint-700);font-size:11px;cursor:pointer}.date-range-control,.range-filter{display:flex;align-items:center;gap:6px;min-height:38px;padding:4px 8px;border:1px solid var(--line-strong);border-radius:9px;background:#fff;color:var(--muted);font-size:10px;white-space:nowrap}.date-range-control input,.range-filter input{width:122px;min-height:28px;padding:4px 6px;border:0;background:transparent;outline:0;color:var(--ink)}.range-filter input{width:70px}.range-filter i{font-style:normal;color:var(--soft)}
 .brand-form-grid>.brand-identity-layout{grid-column:1/-1;width:100%;min-width:0}.brand-identity-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto 260px;gap:16px 20px}.brand-primary-fields{display:contents}.brand-primary-fields>.form-field:nth-child(1){grid-column:1;grid-row:1}.brand-primary-fields>.form-field:nth-child(2){grid-column:2;grid-row:1}.brand-primary-fields>.brand-description-field{grid-column:1;grid-row:2}.brand-identity-layout>.brand-logo-field{grid-column:2;grid-row:2;min-width:0}.brand-identity-layout .brand-logo-field .upload-box,.brand-primary-fields .brand-description-field textarea{width:100%;height:236px;min-height:236px}.brand-identity-layout .brand-logo-field .upload-box{min-height:236px}.menu-upload-summary>div:nth-child(2),.menu-upload-summary>div:nth-child(3){display:grid;grid-template-columns:auto auto auto;align-items:center;justify-content:start;gap:7px}.menu-upload-summary>div:nth-child(2)>span,.menu-upload-summary>div:nth-child(3)>span{grid-column:1/-1}.menu-upload-summary>div:nth-child(2)>small,.menu-upload-summary>div:nth-child(3)>small{display:inline-flex;margin:0;padding:4px 7px;border-radius:999px;background:var(--mint-50);font-size:9px}.menu-upload-summary>div:nth-child(2)>small.negative,.menu-upload-summary>div:nth-child(3)>small.negative{background:#fff0ef;color:var(--red-600)}
@@ -289,6 +295,32 @@ html,body{max-width:100%;overflow-x:hidden}.app-shell,.app-main,.workspace,.page
 /* 配送计划详情：配送规则与每日配置使用独立信息层级。 */
 .plan-detail-section{margin-top:20px}.plan-detail-section>h4{margin:0 0 10px;color:var(--forest-900);font-size:15px}.plan-setting-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.plan-setting-grid.is-unified{grid-template-columns:1fr}.plan-setting-card{overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#fff}.plan-setting-card>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--wash)}.plan-setting-card>header b{color:var(--forest-800)}.plan-setting-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.plan-setting-fields>div{display:flex;flex-direction:column;gap:5px;min-width:0;padding:12px 14px;border-right:1px solid #edf2f0;border-bottom:1px solid #edf2f0}.plan-setting-fields>div:nth-child(2n){border-right:0}.plan-setting-fields span{color:var(--soft);font-size:10px}.plan-setting-fields b{overflow-wrap:anywhere;color:var(--ink);font-size:12px}.plan-detail-section .detail-list{background:#fff}
 @media(max-width:760px){.plan-setting-grid,.plan-setting-fields{grid-template-columns:1fr}.plan-setting-fields>div{border-right:0}}
+
+/* 配送计划详情：配送日历。 */
+.user-plan-calendar .plan-cal-layout{grid-template-columns:minmax(340px,.95fr) minmax(0,1.05fr)}
+.user-plan-calendar .plan-cal-calendar,.user-plan-calendar .plan-cal-detail{background:#fff;border-color:#d9eee6;border-radius:14px;box-shadow:0 8px 22px rgba(20,60,49,.05)}
+.user-plan-calendar .plan-cal-head{margin-bottom:12px;padding:2px 4px}
+.user-plan-calendar .plan-cal-head b{font-size:14px;color:var(--forest-800)}
+.user-plan-calendar .plan-cal-weekday{padding:5px 0;font-size:10px;color:var(--mint-700);font-weight:800}
+.user-plan-calendar .plan-cal-cell{min-height:56px;border-radius:11px;font-weight:600;background:#fff;border-color:#e5efe9;transition:.18s}
+.user-plan-calendar .plan-cal-cell:not(.disabled):not(.empty):hover{transform:translateY(-2px);border-color:var(--mint-500);box-shadow:0 4px 12px rgba(19,201,141,.18)}
+.user-plan-calendar .plan-cal-cell.selected{border-color:var(--mint-600);background:var(--mint-50);box-shadow:0 0 0 2px rgba(19,201,141,.18)}
+.user-plan-calendar .plan-cal-cell.disabled{background:#fff;color:#cfd8d4;border-color:#f0f4f2}
+.user-plan-calendar .plan-cal-cell small{font-size:9px;padding:2px 7px;border-radius:99px}
+.user-plan-calendar .plan-cal-cell small.past{background:var(--mint-100);color:var(--forest-700)}
+.user-plan-calendar .plan-cal-cell small.future{background:var(--amber-100);color:var(--amber-600)}
+.user-plan-calendar .plan-cal-detail-inner{display:grid;gap:10px;overflow:auto}
+.user-plan-calendar .plan-cal-detail-head{background:linear-gradient(135deg,#f0fdf7,#e3f8ef);border:1px solid #d9eee6;border-radius:12px;padding:10px 12px}
+.user-plan-calendar .plan-cal-detail-head>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.user-plan-calendar .plan-cal-detail-head span{font-size:11px}
+.user-plan-calendar .plan-cal-table{border:1px solid var(--line);background:#fff;border-radius:10px;overflow:hidden;white-space:normal}
+.user-plan-calendar .plan-cal-table thead th{background:var(--mint-50);color:var(--forest-700)}
+@media(max-width:1000px){.user-plan-calendar .plan-cal-layout{grid-template-columns:1fr}}
+
+/* 用户档案-核销明细表格卡片背景。 */
+.redemption-table-wrap{min-width:0;max-width:100%;overflow:auto;padding:6px 16px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.redemption-table-wrap .data-table{width:max-content;min-width:100%}
+.redemption-table-wrap .data-table th:first-child,.redemption-table-wrap .data-table td:first-child{padding-left:8px}
 
 /* Topbar, user toolbar and backend-settings refinements. */
 .today-chip{border:0}
