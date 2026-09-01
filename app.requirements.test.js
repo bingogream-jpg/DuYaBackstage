@@ -215,10 +215,10 @@ test('暂停弹窗可勾选占用暂停次数并做上限校验拦截', async ()
   await page.locator('button[data-action="confirm-toggle-sub"]').click();
   assert.equal((await row.locator('button[data-action="toggle-sub"]').innerText()).trim(), '暂停');
   await row.locator('button[data-action="toggle-sub"]').click();
-  assert.ok(await page.locator('#pause-occupied').isVisible());
+  await page.locator('#pause-occupied').waitFor({ state: 'visible' });
   assert.equal(await page.locator('#pause-occupied').isChecked(), true);
   await page.locator('button[data-action="confirm-pause-range"]').click();
-  assert.ok(await page.locator('#pause-occupied').isVisible());
+  await page.locator('#pause-occupied').waitFor({ state: 'visible' });
   assert.match(await page.locator('#toast-root').innerText(), /暂停次数已达上限/);
   await page.locator('#pause-occupied').uncheck();
   await page.locator('button[data-action="confirm-pause-range"]').click();
@@ -1222,6 +1222,23 @@ test('套餐简介支持三百字', { timeout: 10000 }, async () => {
   await page.locator('[data-action="new-package"]').click({ timeout: 1500 });
   assert.equal(await page.locator('[name="intro"]').getAttribute('maxlength', { timeout: 1500 }), '300');
   assert.ok((await page.locator('#entity-form label').allTextContents()).some(text => /套餐简介（限 300 字）/.test(text)));
+});
+
+test('套餐表单启用与小程序显示开关默认开启且表格详情同步', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('packages');
+  await page.locator('[data-action="new-package"]').click({ timeout: 1500 });
+  assert.equal(await page.locator('#entity-form [name="statusSwitch"]').isChecked(), true);
+  assert.equal(await page.locator('#entity-form [name="showInAppSwitch"]').isChecked(), true);
+  assert.equal(await page.locator('#entity-form select[name="status"]').count(), 0);
+  await page.locator('button[data-action="close-modal"]').first().click();
+  const headers = await page.locator('table.data-table thead th').allTextContents();
+  assert.ok(headers.includes('小程序显示'));
+  assert.ok(headers.includes('状态'));
+  await page.locator('button[data-action="view-package"]').first().click();
+  const detail = await page.locator('#workspace').innerText();
+  assert.match(detail, /启用状态/);
+  assert.match(detail, /小程序显示/);
 });
 
 test('管理员编辑不显示密码字段', { timeout: 10000 }, async () => {
