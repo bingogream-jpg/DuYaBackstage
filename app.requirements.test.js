@@ -97,7 +97,8 @@ test('套餐购买入口合并到订单管理且导航只保留订单管理', as
   assert.equal(await tradeNav.locator('button[data-page="orders"]').count(), 1);
   assert.equal(await tradeNav.locator('button[data-page="subscriptions"]').count(), 0);
   await navigate('orders');
-  assert.match(await page.locator('.page-head').innerText(), /订单管理/);
+  assert.match(await page.locator('.breadcrumb').innerText(), /订单管理/);
+  assert.equal(await page.locator('.page-head h2').count(), 0);
 });
 
 test('订单管理按新字段结构合并展示订单和套餐数据', async () => {
@@ -1241,6 +1242,60 @@ test('套餐表单启用与小程序显示开关默认开启且表格详情同�
   assert.match(detail, /小程序显示/);
 });
 
+test('公告表单不含图片字段且营养咨询保留', { timeout: 10000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
+  await navigate('announcements');
+  await page.locator('[data-action="new-content"]').click({ timeout: 1500 });
+  assert.equal(await page.locator('#entity-form [name="image"]').count(), 0);
+  await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('articles');
+  await page.locator('[data-action="new-content"]').click({ timeout: 1500 });
+  assert.ok(await page.locator('#entity-form [name="image"]').count() >= 1);
+});
+
+test('配送时间选项支持午餐晚餐多选并影响配送计划送达时间', { timeout: 15000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('app-rules');
+  const rows = page.locator('#delivery-slot-rows .delivery-slot-row');
+  assert.ok(await rows.count() >= 2);
+  assert.equal(await rows.first().locator('[name="slotMeal"][value="午餐"]').isChecked(), true);
+  assert.equal(await rows.first().locator('[name="slotMeal"][value="晚餐"]').isChecked(), true);
+  // 点击餐别标签可切换，且选中态样式同步
+  const dinnerLabel = rows.first().locator('.slot-meal-option', { hasText: '晚餐' });
+  await dinnerLabel.click();
+  assert.equal(await rows.first().locator('[name="slotMeal"][value="晚餐"]').isChecked(), false);
+  assert.equal((await dinnerLabel.getAttribute('class')).includes('active'), false);
+  await dinnerLabel.click();
+  assert.equal(await rows.first().locator('[name="slotMeal"][value="晚餐"]').isChecked(), true);
+  assert.equal((await dinnerLabel.getAttribute('class')).includes('active'), true);
+  // 新增行结构与初始行一致（无嵌套）
+  await page.locator('[data-action="add-delivery-slot"]').click();
+  const rowsAfterAdd = page.locator('#delivery-slot-rows > .delivery-slot-row');
+  assert.equal(await rowsAfterAdd.count(), 3);
+  assert.equal(await rowsAfterAdd.last().locator('.delivery-slot-row').count(), 0);
+  await rowsAfterAdd.last().locator('[data-action="remove-delivery-slot"]').click();
+  // 关闭第一行的晚餐餐别后保存
+  await dinnerLabel.click();
+  assert.equal(await rows.first().locator('[name="slotMeal"][value="晚餐"]').isChecked(), false);
+  await page.locator('[data-action="save-app-rules"]').click();
+  await page.waitForTimeout(200);
+  // 打开配送计划新建页，核对午餐/晚餐送达时间选项
+  await navigate('plans');
+  await page.locator('[data-action="new-plan"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('[data-action="plan-meal-count"][data-key="0"][data-count="1"]').click();
+  await page.locator('[data-action="plan-meal-type"][data-key="0"][data-type="晚餐"]').click();
+  const dinnerOptions = await page.locator('select[name="deliveryTime_0_dinner"] option').allTextContents();
+  assert.equal(dinnerOptions.includes('11:30 之前'), false);
+  assert.ok(dinnerOptions.includes('17:30 之前'));
+  await page.locator('[data-action="plan-meal-type"][data-key="0"][data-type="午餐"]').click();
+  const lunchOptions = await page.locator('select[name="deliveryTime_0_lunch"] option').allTextContents();
+  assert.ok(lunchOptions.includes('11:30 之前'));
+  assert.ok(lunchOptions.includes('17:30 之前'));
+  await page.getByRole('button', { name: '返回配送计划' }).click();
+  await page.evaluate(() => window.scrollTo(0, 0));
+});
+
 test('管理员编辑不显示密码字段', { timeout: 10000 }, async () => {
   if (await page.locator('[data-action="close-modal"]').count()) await page.locator('[data-action="close-modal"]').first().click();
   await navigate('admins');
@@ -1352,6 +1407,8 @@ test('用户备注统一显示为后台用户备注', async () => {
 });
 
 test('顶部日期和管理员入口无边框且账户菜单只显示退出登录', async () => {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(50);
   const styles = await page.locator('.today-chip, .top-operator').evaluateAll((els) => els.map((el) => ({
     borderStyle: getComputedStyle(el).borderStyle,
     borderWidth: getComputedStyle(el).borderWidth,
