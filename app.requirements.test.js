@@ -1146,13 +1146,15 @@ test('用户档案展示白色摘要、完整基础信息和多条关联记录',
   assert.ok(await page.locator('.user-related-card').count() >= 2);
 });
 
-test('配送状态支持配送中并按优先级汇总', async () => {
+test('每日配送按汇总隐藏配送状态、按明细保留', async () => {
   await navigate('daily');
-  await page.locator('[data-action="change-delivery-status"]').first().click();
-  assert.deepEqual(await page.locator('[name="deliveryStatus"]').evaluateAll(nodes => nodes.map(node => node.value)), ['已送达', '配送中', '待配送', '未送达', '配送异常']);
-  await page.locator('.delivery-status-option').filter({ has: page.locator('[value="配送中"]') }).click();
-  await page.locator('[data-action="save-delivery-status"]').click();
-  assert.match(await page.locator('.daily-summary-table tbody tr').first().innerText(), /配送中/);
+  assert.equal((await page.locator('.daily-summary-table thead th').allTextContents()).includes('配送状态'), false);
+  assert.equal(await page.locator('.daily-summary-table [data-action="change-delivery-status"]').count(), 0);
+  assert.ok(await page.locator('.daily-summary-table [data-action="view-task"]').count() > 0);
+  await page.locator('[data-action="daily-brand-view"][data-value="detail"]').click();
+  await page.waitForTimeout(120);
+  assert.ok((await page.locator('table.data-table thead th').allTextContents()).includes('配送状态'));
+  assert.ok(await page.locator('table.data-table [data-action="change-delivery-status"]').count() > 0);
 });
 
 test('配送 Excel 直接导出并包含拆分后的业务字段', async () => {
@@ -1294,6 +1296,21 @@ test('配送时间选项支持午餐晚餐多选并影响配送计划送达时�
   assert.ok(lunchOptions.includes('17:30 之前'));
   await page.getByRole('button', { name: '返回配送计划' }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
+});
+
+test('表格暂无数据使用极简空状态样式', { timeout: 15000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('brands');
+  await page.locator('[data-filter="brandSearch"]').fill('不存在的品牌关键词ZZZ');
+  await page.locator('[data-action="apply-filters"]').click();
+  const empty = page.locator('.empty-state');
+  await empty.waitFor({ state: 'visible' });
+  assert.equal((await empty.locator('h3').innerText()).trim(), '没有找到品牌');
+  assert.ok(await empty.locator('p').count());
+  assert.equal(await empty.locator('.empty-icon svg').count(), 1);
+  const box = await empty.locator('.empty-icon').boundingBox();
+  assert.equal(Math.round(box.width), 44);
+  assert.equal(Math.round(box.height), 44);
 });
 
 test('管理员编辑不显示密码字段', { timeout: 10000 }, async () => {
@@ -1514,4 +1531,92 @@ test('每日配送明细拆分午晚餐地址且 Excel 不导出配送状态', a
 
 test('页面运行期间没有 JavaScript 异常', () => {
   assert.deepEqual(pageErrors, []);
+});
+
+test('每日配送明细可分别设置午晚餐配送状态', { timeout: 20000 }, async () => {
+  await navigate('daily');
+  await page.locator('[data-action="daily-brand-view"][data-value="detail"]').click();
+  await page.waitForTimeout(150);
+  const rows = page.locator('table.data-table tbody tr');
+  const total = await rows.count();
+  let target = -1;
+  for (let i = 0; i < total; i++) {
+    const text = await rows.nth(i).innerText();
+    if (/午餐/.test(text) && /晚餐/.test(text)) { target = i; break; }
+  }
+  assert.ok(target >= 0, '应存在同时含午餐与晚餐的明细行');
+  const row = rows.nth(target);
+  await row.locator('[data-action="change-delivery-status"]').click();
+  const lunchOptions = await page.locator('[name="deliveryStatusLunch"]').evaluateAll((nodes) => nodes.map((n) => n.value));
+  const dinnerOptions = await page.locator('[name="deliveryStatusDinner"]').evaluateAll((nodes) => nodes.map((n) => n.value));
+  assert.deepEqual(lunchOptions, ['已送达', '配送中', '待配送', '未送达', '配送异常']);
+  assert.deepEqual(dinnerOptions, ['已送达', '配送中', '待配送', '未送达', '配送异常']);
+  await page.locator('.delivery-status-option').filter({ has: page.locator('[name="deliveryStatusLunch"][value="已送达"]') }).click();
+  await page.locator('.delivery-status-option').filter({ has: page.locator('[name="deliveryStatusDinner"][value="未送达"]') }).click();
+  await page.locator('button[data-action="save-delivery-status"]').click();
+  const rowText = await row.innerText();
+  assert.match(rowText, /午餐\s*已送达/);
+  assert.match(rowText, /晚餐\s*未送达/);
+});
+
+test('套餐支持仅购买一次与生效范围配置', { timeout: 15000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('packages');
+  const headers = await page.locator('table.data-table thead th').allTextContents();
+  assert.ok(headers.includes('是否仅购买一次'));
+  await page.locator('[data-action="new-package"]').click();
+  await page.waitForTimeout(150);
+  const onceSwitch = page.locator('#entity-form [name="onceOnlySwitch"]');
+  assert.equal(await onceSwitch.isChecked(), false);
+  assert.equal(await page.locator('#entity-form .once-scope').isVisible(), false);
+  await page.locator('#entity-form label.switch:has([name="onceOnlySwitch"])').click();
+  await page.waitForTimeout(120);
+  assert.equal(await page.locator('#entity-form .once-scope').isVisible(), true);
+  assert.equal(await page.locator('#entity-form [name="onceScope"]').count(), 2);
+  assert.equal(await page.locator('#entity-form [name="onceScope"][value="多品牌生效"]').isChecked(), true);
+  assert.equal(await page.locator('#entity-form .once-scope .hint-icon').count(), 2);
+  await page.locator('#entity-form [name="name"]').fill('仅购买一次测试套餐');
+  await page.locator('#entity-form [name="desc"]').fill('仅购一次描述');
+  await page.locator('#entity-form [name="tag"]').fill('仅购标签');
+  await page.locator('#entity-form [name="intro"]').fill('仅购简介');
+  await page.locator('#entity-form input[name="advantage"]').first().fill('仅购优势');
+  await page.locator('#entity-form .once-scope-option', { hasText: '单品牌生效' }).click();
+  await page.locator('button[data-action="save-entity"]').click();
+  await page.waitForTimeout(250);
+  await page.locator('[data-filter="packageSearch"]').fill('仅购买一次测试套餐');
+  await page.locator('[data-action="apply-filters"]').click();
+  await page.waitForTimeout(120);
+  const row = page.locator('tbody tr', { hasText: '仅购买一次测试套餐' });
+  assert.match(await row.innerText(), /是\s*单品牌生效/);
+  await row.locator('button[data-action="view-package"]').first().click();
+  await page.waitForTimeout(150);
+  assert.match(await page.locator('#workspace').innerText(), /仅购买一次\s*是 · 单品牌生效/);
+});
+
+test('套餐演示数据含仅购买一次为是的记录且范围展示正确', { timeout: 15000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('packages');
+  const onceCell = async (name) => (await page.locator('tbody tr', { hasText: name }).locator('td').nth(9).innerText()).trim();
+  assert.match(await onceCell('14天进阶套餐'), /是[\s\S]*多品牌生效/);
+  assert.match(await onceCell('3天轻体验套餐'), /是[\s\S]*单品牌生效/);
+  assert.equal(await onceCell('7天体验套餐'), '否');
+});
+
+test('套餐仅购买一次开启后范围tab与开关同行且不换行', { timeout: 15000 }, async () => {
+  if (await page.locator('[data-action="close-modal"]').count()) await page.locator('button[data-action="close-modal"]').first().click();
+  await navigate('packages');
+  await page.locator('[data-action="new-package"]').click();
+  await page.waitForTimeout(150);
+  await page.locator('#entity-form label.switch:has([name="onceOnlySwitch"])').click();
+  await page.waitForTimeout(120);
+  const layout = await page.locator('#entity-form .package-once-line').evaluate((el) => {
+    const sw = el.querySelector('.switch').getBoundingClientRect();
+    const scope = el.querySelector('.once-scope').getBoundingClientRect();
+    const cs = getComputedStyle(el.querySelector('.once-scope'));
+    return { topDiff: Math.abs(sw.top - scope.top), scopeRight: Math.round(scope.right), lineRight: Math.round(el.getBoundingClientRect().right), wrap: cs.flexWrap, scrollW: el.scrollWidth, clientW: el.clientWidth };
+  });
+  assert.ok(layout.topDiff < 6, `开关与范围 tab 应同行，实际差值 ${layout.topDiff}`);
+  assert.equal(layout.wrap, 'nowrap');
+  assert.ok(layout.scopeRight <= layout.lineRight + 1, '范围 tab 不应溢出容器');
+  assert.ok(layout.scrollW <= layout.clientW + 2, '该行不应产生横向溢出');
 });
