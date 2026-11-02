@@ -1,0 +1,24 @@
+html[data-local-role=admin] #invite-settings-editor .r39-invite-intro{
+  grid-column:1/-1;
+  min-width:0;
+}
+html[data-local-role=admin] #invite-settings-editor .r39-invite-intro textarea{
+  width:100%;
+  min-height:104px;
+  box-sizing:border-box;
+  padding:10px 12px;
+  border:1px solid #c8d9d4;
+  border-radius:8px;
+  background:#fff;
+  color:#24443b;
+  font:inherit;
+  line-height:1.7;
+  resize:vertical;
+}
+html[data-local-role=admin] .r37f-tier-minimum{
+  align-self:center;
+  padding:7px 0;
+  color:#87968f;
+  font-size:11px;
+  white-space:nowrap;
+}

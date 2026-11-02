@@ -1,0 +1,23 @@
+/* V1.5-r24 growth filters, compact confirmations and unified identity */
+html[data-local-role="admin"] .g24-filters .toolbar-group{gap:10px}
+html[data-local-role="admin"] .g24-filters .g7-filter{gap:5px}
+html[data-local-role="admin"] .g24-filters input,
+html[data-local-role="admin"] .g24-filters select{height:36px;border-radius:8px}
+html[data-local-role="admin"] table.data-table td small.r24-coupon-status{display:block;margin-top:7px}
+html[data-local-role="admin"] table.data-table td small.r24-coupon-status .r3-badge,
+html[data-local-role="admin"] table.data-table td small.r24-coupon-status .status{display:inline-flex}
+html[data-local-role="admin"] table.data-table .r24-red-count{color:#c43232;font-weight:800;font-variant-numeric:tabular-nums}
+html[data-local-role="admin"] .g24-user-cell{min-width:154px!important;text-align:left!important;vertical-align:middle!important}
+html[data-local-role="admin"] .r24-identity{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:130px;line-height:1.45;text-align:left}
+html[data-local-role="admin"] .r24-identity b{color:var(--ink);font-size:13px;font-weight:700;max-width:100%;overflow-wrap:anywhere}
+html[data-local-role="admin"] .r24-identity small{display:block;margin:0!important;font-size:10.5px;letter-spacing:0;line-height:1.45}
+html[data-local-role="admin"] .r24-identity .r24-user-id{font-size:9.5px;color:#aeb7b1;font-weight:400}
+html[data-local-role="admin"] .r24-identity .r24-user-phone{color:#7b857e;font-size:10.5px}
+html[data-local-role="admin"] .g24-user-cell .r24-identity+.r24-identity{padding-top:8px;border-top:1px solid #edf0ee;margin-top:8px}
+html[data-local-role="admin"] .g24-confirm-compact .g6-confirm-panel{max-width:390px;padding:22px}
+html[data-local-role="admin"] .g24-confirm-compact h2{font-size:18px;line-height:1.5;margin:0 0 10px}
+html[data-local-role="admin"] .g24-confirm-compact .g6-confirm-panel>div{min-height:0}
+html[data-local-role="admin"] .g24-confirm-compact p{margin:0 0 16px;color:var(--muted);font-size:12px;line-height:1.65}
+html[data-local-role="admin"] .g24-confirm-compact footer{justify-content:flex-end;gap:8px}
+html[data-local-role="admin"] #modal-root table.data-table td[data-g24-identity],
+html[data-local-role="admin"] #drawer-root table.data-table td[data-g24-identity]{vertical-align:middle!important}

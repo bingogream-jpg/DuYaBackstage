@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>渡鸦管家 · V1.5-r4 联动原型</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="restoration.css">
+  <link rel="stylesheet" href="precision.css">
+<link rel="stylesheet" href="purchase.css">
+<link rel="stylesheet" href="delivery.css">
+<link rel="stylesheet" href="v15.css">
+<link rel="stylesheet" href="r3.css"><link rel="stylesheet" href="r4-home.css"></head>
+<body>
+  <div class="stage-wrap">
+    <div class="phone">
+      <div class="phone-hardware" aria-hidden="true"><span></span><i></i></div>
+      <div class="phone-screen" id="phone-screen">
+        <div class="status-bar" id="status-bar">
+          <b>9:41</b>
+          <span class="status-icons" aria-hidden="true">
+            <i class="si si-signal"></i><i class="si si-wifi"></i><i class="si si-battery"></i>
+          </span>
+        </div>
+        <div class="app" id="app">
+          <header class="nav" id="nav"></header>
+          <main class="screen-stage" id="stage" aria-live="polite"></main>
+          <nav class="tab-bar" id="tab-bar" aria-label="主导航"></nav>
+          <div class="layer-root" id="layers"></div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/client.js"></script><script src="r4-home-model.js"></script><script src="app.bundle.js"></script>
+  <button class="record-reset" id="reset-demo">恢复演示数据</button>
+  <script>document.getElementById("reset-demo").onclick=function(){localStorage.removeItem("duya-v15-r4");location.reload();};</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+/* Filter separators: retain the dashed action divider, remove the redundant solid line. */
+html[data-local-role="admin"],html[data-local-role="admin"] body{min-width:0!important;width:100%;max-width:100%}
+html[data-local-role="admin"] .app-main,html[data-local-role="admin"] #workspace{min-width:0}
+.g6-filters,.g13-filters:has(.g19-filter-actions),.g19-dialog-filters{border-bottom:0!important}
+.g21-export-toolbar{border-top:1px dashed var(--line);padding-top:12px;margin:12px 0}
+.g21-table-wrap{overflow:auto;max-width:100%}.g21-table{width:100%;table-layout:auto!important;min-width:950px}
+.g21-table th,.g21-table td{white-space:normal;word-break:normal;overflow-wrap:break-word;padding:14px 16px;text-align:center}
+.g21-table small{display:block;color:var(--muted);margin-top:6px}.g21-table td:has(small){min-width:140px}
+th.g21-validity,td.g21-validity{min-width:220px!important;width:auto!important;white-space:nowrap!important}
+th.g21-money,td.g21-money{min-width:190px!important;width:auto!important;white-space:nowrap!important}
+th.g21-content,td.g21-content{min-width:200px!important}th.g21-source,td.g21-source{min-width:240px!important}
+.g21-pager{display:flex;gap:10px;align-items:center;padding-top:16px;flex-wrap:wrap}.g21-pager>span{margin-right:auto}
+.menu-card,.menu-grid-card{position:relative}.menu-card footer,.menu-grid-ops{justify-content:flex-end!important}
+.g21-nutrition-button{background:#075b48!important;color:white!important;border-color:#075b48!important}
+.g21-pending{position:absolute;top:10px;right:10px;background:#fff3d5;color:#895600;font-size:11px;padding:5px 8px;border-radius:6px;max-width:150px}
+.g21-menu-scroll{max-height:57vh;overflow:auto}.g21-nutrition-table{width:100%;min-width:1240px;table-layout:auto!important}
+.g21-nutrition-table th,.g21-nutrition-table td{padding:12px 9px;text-align:center;vertical-align:middle;word-break:normal}
+.g21-nutrition-table td[rowspan]{min-width:105px;background:#f7faf8;border-right:1px solid var(--line)}
+.g21-nutrition-table td:has([data-g21-nutrient="name"]){min-width:190px}
+.g21-nutrition-table input{width:82px;height:36px;border:1px solid #b6cdc4;border-radius:6px;padding:6px;font:inherit;box-sizing:border-box}
+.g21-nutrition-table input[data-g21-nutrient="name"],.g21-nutrition-table select{width:180px;display:block;margin:4px auto;max-width:none}
+.g21-nutrition-table .table-actions{display:flex!important;flex-wrap:nowrap!important;justify-content:center;gap:8px;min-width:168px}
+.g21-nutrition-table .table-actions button{height:32px;white-space:nowrap}
+.modal:has(.g21-nutrition){width:min(1320px,96vw)!important;max-width:96vw!important;animation:none!important}
+.modal:has(.g21-readonly){width:min(1200px,94vw)!important;max-width:94vw!important;animation:none!important}
+.g20-table-toolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important}.g20-table-toolbar>.g20-filter-row{order:0}.g20-table-toolbar>.g20-table-actions{order:1;border-top:1px dashed var(--line);padding-top:12px;margin-top:12px}
+.g20-table-toolbar>.g20-filter-row,.g21-record-filters{margin-left:0!important;justify-content:flex-start!important;width:100%;box-sizing:border-box}
+.g21-nutrition-table small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+.modal:has(.g10-coupon-detail) .g10-coupon-detail b{white-space:pre-wrap;overflow-wrap:anywhere}
+.g20-action-grid,.table-actions.g19-action-buttons{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:center!important;gap:8px!important;grid-template-columns:none!important}
+th.g21-actions{background:#f4f8f0!important}td.g21-actions{background:inherit!important}
+#g20-checkin-form{max-width:1200px;margin:auto}.g21-checkin-form-footer{display:flex;justify-content:flex-end;gap:12px;padding:20px}
+[hidden]{display:none!important}
+@media(max-width:1100px){
+ .menu-card-grid,.menu-grid-cards{grid-template-columns:minmax(0,1fr)!important}
+ .menu-view-toolbar{flex-wrap:wrap;gap:14px}.menu-view-toolbar>*{min-width:0}
+ .summary-ribbon{flex-wrap:wrap}.summary-ribbon>div{min-width:0!important}
+ .g20-filter-row{flex-wrap:wrap!important}.g20-filter-row>label{min-width:130px;flex:1 1 160px}
+}

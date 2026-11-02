@@ -1,0 +1,81 @@
+/* V1.5-r26 growth/activity tables and multi-coupon checkout */
+html[data-local-role="admin"] .r26-filter-tabs{display:flex;align-items:center;gap:4px;max-width:100%;overflow-x:auto;padding:3px;border:1px solid #dce3de;border-radius:9px;background:#f6f8f6;scrollbar-width:thin}
+html[data-local-role="admin"] .r26-filter-tabs button{flex:none;height:30px;padding:0 11px;border:0;border-radius:7px;background:transparent;color:#657068;font:12px/1 "Microsoft YaHei",Arial,sans-serif;cursor:pointer;white-space:nowrap}
+html[data-local-role="admin"] .r26-filter-tabs button:hover{background:#eaf0eb;color:#293b31}
+html[data-local-role="admin"] .r26-filter-tabs button.on{background:#244833;color:#fff;box-shadow:0 2px 7px #1e3b2b24}
+html[data-local-role="admin"] .r26-native-select{display:none!important}
+html[data-local-role="admin"] .r26-switch{display:inline-flex;align-items:center;gap:7px;margin-top:7px;color:#68736c;font-size:11px;cursor:pointer;user-select:none}
+html[data-local-role="admin"] .r26-switch input{position:absolute;opacity:0;pointer-events:none}
+html[data-local-role="admin"] .r26-switch i{position:relative;display:block;width:34px;height:19px;border-radius:99px;background:#c9d0cc;transition:.18s}
+html[data-local-role="admin"] .r26-switch i:after{content:"";position:absolute;left:2px;top:2px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #263c2e33;transition:.18s}
+html[data-local-role="admin"] .r26-switch input:checked+i{background:#2f6a48}
+html[data-local-role="admin"] .r26-switch input:checked+i:after{transform:translateX(15px)}
+html[data-local-role="admin"] .r26-switch input:focus-visible+i{outline:2px solid #57735e;outline-offset:2px}
+html[data-local-role="admin"] .r26-switch input:disabled+i{opacity:.5}
+html[data-local-role="admin"] .r26-status-cell{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;min-width:92px}
+html[data-local-role="admin"] .r26-name-status{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:190px}
+html[data-local-role="admin"] .r26-name-status>div{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+html[data-local-role="admin"] .r26-name-status .r26-switch{margin-top:0}
+html[data-local-role="admin"] .r26-reward-cell{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:170px;line-height:1.45}
+html[data-local-role="admin"] .r26-reward-cell>div{display:flex;flex-direction:column;gap:2px;width:100%}
+html[data-local-role="admin"] .r26-reward-cell span,html[data-local-role="admin"] .r26-reward-type{display:inline-flex;width:max-content;padding:2px 7px;border-radius:99px;background:#edf2ee;color:#627067;font-size:10px;font-weight:600}
+html[data-local-role="admin"] .r26-reward-cell b,html[data-local-role="admin"] .r26-reward-legacy>b{color:#27332c;font-size:12px;font-weight:600}
+html[data-local-role="admin"] .r26-reward-legacy{line-height:1.55}
+html[data-local-role="admin"] .r26-reward-legacy>.r26-reward-type{margin-bottom:4px}
+html[data-local-role="admin"] .r26-cell-link,html[data-local-role="admin"] .r26-count-link{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:#1f5b3c;font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-color:#b5c9bb;text-underline-offset:3px}
+html[data-local-role="admin"] .r26-count-link{min-width:30px;min-height:28px;border-radius:7px;text-decoration:none}
+html[data-local-role="admin"] .r26-count-link:hover,html[data-local-role="admin"] .r26-cell-link:hover{background:#edf4ef;color:#123d29}
+html[data-local-role="admin"] .r26-count-link.red{color:#c43232}
+html[data-local-role="admin"] .r26-stack-rule{display:inline-flex;padding:4px 8px;border-radius:7px;background:#f3f6f3;color:#4f6156;font-size:11px;white-space:nowrap}
+html[data-local-role="admin"] .r26-home-tag{padding:3px 7px;border-radius:99px;background:#fff1ce;color:#8a5a08;font-size:10px;font-weight:700;white-space:nowrap}
+html[data-local-role="admin"] .r26-user-phone{display:block;margin-top:3px;color:#7b857e;font-size:10.5px}
+html[data-local-role="admin"] .r26-path-time{display:flex;flex-direction:column;gap:4px;min-width:160px}
+html[data-local-role="admin"] .r26-path-time b{font-size:12px;color:#2d3932}
+html[data-local-role="admin"] .r26-path-time small{font-size:10.5px;color:#87918a}
+html[data-local-role="admin"] .r26-audience{display:flex;flex-direction:column;gap:4px;min-width:180px}
+html[data-local-role="admin"] .r26-audience small{color:#87918a;line-height:1.45}
+html[data-local-role="admin"] #drawer-root .g8-user-summary{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:5px}
+html[data-local-role="admin"] #drawer-root .g8-user-summary article{flex:1 0 112px;min-width:112px}
+html[data-local-role="admin"] table.data-table td:has(.r26-switch),html[data-local-role="admin"] table.data-table td:has(.r26-reward-cell),html[data-local-role="admin"] table.data-table td:has(.r26-name-status){vertical-align:middle!important}
+html[data-local-role="admin"] .r26-feature-list{display:flex;flex-direction:column;gap:9px}
+html[data-local-role="admin"] .r26-feature-list label{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid #dfe6e1;border-radius:9px;background:#fafbfa;cursor:pointer}
+html[data-local-role="admin"] .r26-feature-list label:has(input:checked){border-color:#315e43;background:#eff6f1;box-shadow:0 0 0 2px #315e4314}
+html[data-local-role="admin"] .r26-feature-list span{display:flex;flex-direction:column;gap:4px}
+html[data-local-role="admin"] .r26-feature-list small{color:#7d8881}
+html[data-local-role="admin"] table.data-table td{vertical-align:middle}
+html[data-local-role="admin"] .g13-detail-only table.data-table td:first-child{min-width:160px}
+html[data-local-role="admin"] #workspace,
+html[data-local-role="admin"] .r3-admin-page,
+html[data-local-role="admin"] .g6-table-shell{min-width:0;max-width:100%}
+html[data-local-role="admin"],
+html[data-local-role="admin"] body{overflow-x:hidden}
+html[data-local-role="admin"] .g6-table-shell{overflow:hidden;contain:layout paint}
+html[data-local-role="admin"] .g6-table-shell .table-wrap{min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+
+html[data-local-role="mini"] .v26-coupon-picker{padding:4px 16px 18px;max-height:62vh;overflow:auto}
+html[data-local-role="mini"] .v26-coupon-note{display:flex;flex-direction:column;gap:5px;padding:12px;border-radius:12px;background:#eff5ed;color:#334a3b}
+html[data-local-role="mini"] .v26-coupon-note span{font-size:11px;color:#69796f;line-height:1.55}
+html[data-local-role="mini"] .v26-coupon-options{display:flex;flex-direction:column;gap:9px;margin:12px 0}
+html[data-local-role="mini"] .v26-coupon-option{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:9px;align-items:center;width:100%;padding:12px;border:1px solid #e0e5e1;border-radius:12px;background:#fff;text-align:left;color:#27352d}
+html[data-local-role="mini"] .v26-coupon-option.on{border-color:#3e704f;background:#f1f7f2;box-shadow:0 0 0 1px #3e704f}
+html[data-local-role="mini"] .v26-coupon-option.off{opacity:.56}
+html[data-local-role="mini"] .v26-coupon-check{display:grid;place-items:center;width:23px;height:23px;border:1px solid #cfd8d2;border-radius:7px;background:#fff;color:#fff;font-size:13px}
+html[data-local-role="mini"] .v26-coupon-option.on .v26-coupon-check{border-color:#2e6041;background:#2e6041}
+html[data-local-role="mini"] .v26-coupon-option span:nth-child(2){display:flex;flex-direction:column;gap:4px;min-width:0}
+html[data-local-role="mini"] .v26-coupon-option b{font-size:13px}
+html[data-local-role="mini"] .v26-coupon-option small{font-size:10px;color:#829087}
+html[data-local-role="mini"] .v26-coupon-option em{font-style:normal;font-size:10px;color:#63736a;text-align:right}
+html[data-local-role="mini"] .v26-coupon-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+html[data-local-role="mini"] .v26-coupon-actions button{height:40px;border:1px solid #dce4de;border-radius:10px;background:#fff;color:#2d4034;font:600 12px "Microsoft YaHei",Arial,sans-serif}
+html[data-local-role="mini"] .v26-coupon-actions button.primary{grid-column:1/-1;border-color:#294b35;background:#294b35;color:#fff}
+html[data-local-role="mini"] .v26-coupon-help{margin:10px 2px 0;font-size:10px;line-height:1.55;color:#87928b}
+
+@media(max-width:1100px){
+  html[data-local-role="admin"] .r26-filter-tabs{max-width:420px}
+  html[data-local-role="admin"] table.data-table{min-width:1180px}
+}
+@media(max-width:760px){
+  html[data-local-role="admin"] .r26-filter-tabs{max-width:100%}
+  html[data-local-role="mini"] .v26-coupon-actions{grid-template-columns:1fr}
+  html[data-local-role="mini"] .v26-coupon-actions button.primary{grid-column:auto}
+}

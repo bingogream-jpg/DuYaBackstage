@@ -1,0 +1,147 @@
+/* V1.5-r35 mini-program nutrition target and food picker fixes. */
+html[data-local-role="mini"] .r29-target{
+  max-width:100%;
+  overflow-x:clip;
+}
+html[data-local-role="mini"] .r29-target *,
+html[data-local-role="mini"] .r29-target *::before,
+html[data-local-role="mini"] .r29-target *::after{
+  box-sizing:border-box;
+}
+html[data-local-role="mini"] .r29-target-hero{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+  contain:paint;
+}
+html[data-local-role="mini"] .r29-target-hero>:is(small,h1,p){
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role="mini"] .r29-target-hero>.r29-art{
+  width:min(110px,34%);
+  min-width:0;
+  max-width:100%;
+}
+html[data-local-role="mini"] .r29-target-form{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+}
+html[data-local-role="mini"] .r29-macro-grid{
+  align-items:stretch;
+  gap:clamp(6px,2.2vw,10px);
+}
+html[data-local-role="mini"] .r29-macro{
+  display:flex;
+  min-width:0;
+  min-height:144px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-left:2px;
+  padding-right:2px;
+}
+html[data-local-role="mini"] .r29-macro>.r29-art{
+  width:clamp(34px,12vw,43px);
+  max-width:100%;
+  margin-left:auto;
+  margin-right:auto;
+}
+html[data-local-role="mini"] .r29-macro>b{
+  max-width:100%;
+  overflow:hidden;
+  font-size:clamp(10px,3.45vw,12px);
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role="mini"] .r29-macro>:is(span,strong),
+html[data-local-role="mini"] .r29-macro>:is(span,strong)>em{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role="mini"] .r29-slider{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+html[data-local-role="mini"] .r29-track{
+  max-width:calc(100% - 16px);
+}
+html[data-local-role="mini"] .r29-slider-labels{
+  width:100%;
+  min-width:0;
+}
+html[data-local-role="mini"] .r35-food-head{
+  gap:8px;
+  width:100%;
+  min-width:0;
+  margin-bottom:10px;
+}
+html[data-local-role="mini"] .r35-food-head>button{
+  flex:0 0 34px;
+  width:34px!important;
+  height:38px!important;
+  border:1px solid #e2e8df!important;
+  border-radius:10px!important;
+  background:#fff!important;
+}
+html[data-local-role="mini"] .r35-food-head>.r27-food-search{
+  flex:1 1 auto;
+  width:auto;
+  min-width:0;
+  height:38px;
+  border-radius:10px;
+}
+html[data-local-role="mini"] .r35-food-head .r27-food-search input{
+  height:36px;
+  padding:0 10px;
+}
+html[data-local-role="mini"] .r35-food-head .r27-food-search button{
+  flex:0 0 auto;
+  padding:0 12px;
+}
+html[data-local-role="mini"] .r27-food-tools{
+  flex-wrap:wrap;
+  row-gap:7px;
+}
+html[data-local-role="mini"] .r35-added-chip{
+  margin-left:auto;
+  border-radius:999px;
+  background:#eef4e8;
+  color:#617b55;
+  padding:4px 8px;
+  font-size:9px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+@media(max-width:350px){
+  html[data-local-role="mini"] .r29-target-hero{
+    grid-template-columns:minmax(0,1fr) 92px;
+    padding-left:2px;
+    padding-right:2px;
+  }
+  html[data-local-role="mini"] .r29-target-hero>.r29-art{
+    width:92px;
+    max-width:92px;
+  }
+  html[data-local-role="mini"] .r29-macro{
+    min-height:140px;
+  }
+  html[data-local-role="mini"] .r27-food-tools{
+    align-items:flex-start;
+  }
+  html[data-local-role="mini"] .r27-methods{
+    margin-left:auto;
+  }
+  html[data-local-role="mini"] .r35-added-chip{
+    order:3;
+    margin-left:0;
+  }
+}

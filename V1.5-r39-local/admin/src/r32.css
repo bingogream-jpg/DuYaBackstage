@@ -1,0 +1,59 @@
+/* V1.5-r32 compact mini-program settings and unified backend list layout. */
+html[data-local-role="admin"] .r32-rules-body{margin-top:16px}
+html[data-local-role="admin"] .r32-rules-body .form-section>h3{margin-top:0}
+html[data-local-role="admin"] .r32-rules-body .form-grid{align-items:start}
+html[data-local-role="admin"] .r32-rules-body .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;padding-top:18px;border-top:1px solid var(--line)}
+html[data-local-role="admin"] .r32-rules-body .r31-slot-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+html[data-local-role="admin"] .r32-rules-body .r32-slot-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e2e9e2;border-radius:8px;background:#f8faf8}
+html[data-local-role="admin"] .r32-rules-body .r32-slot-row input[type="time"]{width:126px}
+html[data-local-role="admin"] .r32-rules-body .r32-slot-row label{display:flex;align-items:center;gap:5px;font-size:12px}
+html[data-local-role="admin"] .r32-rules-body .pause-limit-editor{display:flex;align-items:center;gap:9px}
+html[data-local-role="admin"] .r32-rules-body .pause-limit-editor select{width:150px}
+html[data-local-role="admin"] .r32-upload-control{display:flex;align-items:flex-start;gap:16px;min-width:0;padding:12px;border:1px solid #e0e8e1;border-radius:10px;background:#f8faf8}
+html[data-local-role="admin"] .r32-image-preview{flex:0 0 auto;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px dashed #c8d6ca;border-radius:8px;background:#edf3ed;color:#84958a;font-size:11px;box-sizing:border-box}
+html[data-local-role="admin"] .r32-image-preview img{display:block;width:100%;height:100%;object-fit:cover}
+html[data-local-role="admin"] .r32-image-sharePoster{width:160px;height:240px;aspect-ratio:2/3}
+html[data-local-role="admin"] .r32-image-invitePoster{width:280px;height:158px;aspect-ratio:16/9}
+html[data-local-role="admin"] .r32-image-loginBg{width:135px;height:240px;aspect-ratio:750/1334}
+html[data-local-role="admin"] .r32-image-refundQr{width:120px;height:120px;aspect-ratio:1}
+html[data-local-role="admin"] .r32-image-postPaymentServiceImage{width:180px;height:240px;aspect-ratio:3/4}
+html[data-local-role="admin"] .r32-upload-copy{display:flex;flex-direction:column;gap:5px;min-width:0;padding-top:2px}
+html[data-local-role="admin"] .r32-upload-copy>b{font-size:13px;color:var(--ink)}
+html[data-local-role="admin"] .r32-upload-copy>p{margin:0;color:#65786c;font-size:12px;line-height:1.65}
+html[data-local-role="admin"] .r32-upload-copy>small{color:#85958b;font-size:10px;line-height:1.5}
+html[data-local-role="admin"] .r32-upload-copy .r31-image-actions{margin-top:5px;display:flex;gap:8px;flex-wrap:wrap}
+html[data-local-role="admin"] .r32-upload-copy .r31-image-actions label.button{cursor:pointer}
+
+html[data-local-role="admin"] .r32-list-card{padding:12px 16px 16px!important}
+html[data-local-role="admin"] .r32-list-card>:first-child{margin-top:0!important}
+html[data-local-role="admin"] .r32-list-card :is(.g6-filters,.g20-filter-row,.g21-record-filters){margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:#fff!important}
+html[data-local-role="admin"] .r32-list-card .g6-filters .toolbar-group{gap:8px!important;padding:0!important}
+html[data-local-role="admin"] .r32-list-card .g7-filter{min-width:145px!important}
+html[data-local-role="admin"] .r32-list-card .g21-record-filters{display:flex!important;align-items:flex-end!important;justify-content:flex-start!important;gap:10px!important;flex-wrap:wrap!important}
+html[data-local-role="admin"] .r32-list-card .g21-record-filters>label{flex:0 1 170px!important;min-width:135px!important}
+html[data-local-role="admin"] .r32-list-card .g21-record-filters>label:nth-child(-n+2){flex-basis:210px!important}
+html[data-local-role="admin"] .r32-list-card .g21-record-filters input,
+html[data-local-role="admin"] .r32-list-card .g21-record-filters select{width:100%}
+html[data-local-role="admin"] .r32-filter-divider{height:0;margin:12px 0 10px;border-top:1px dashed #cfdad2}
+html[data-local-role="admin"] .r32-actions-row{display:flex;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;min-height:34px;padding:0 0 10px}
+html[data-local-role="admin"] .r32-actions-row>.button,html[data-local-role="admin"] .r32-actions-row>button{height:34px;min-height:34px;white-space:nowrap}
+html[data-local-role="admin"] .r32-table-divider{height:0;margin:0 0 10px;border-top:1px solid #dfe7e1}
+html[data-local-role="admin"] .r32-list-card :is(.g6-table-shell,.r3-table-wrap,.table-wrap){max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;contain:layout paint}
+html[data-local-role="admin"] .r32-table{width:max-content!important;min-width:100%!important;table-layout:auto!important;border-collapse:separate!important;border-spacing:0}
+html[data-local-role="admin"] .r32-table th,html[data-local-role="admin"] .r32-table td{text-align:center!important;vertical-align:middle!important;white-space:normal}
+html[data-local-role="admin"] .r32-table th{white-space:nowrap!important;padding:12px 14px!important}
+html[data-local-role="admin"] .r32-table td{padding:12px 14px!important;line-height:1.55}
+html[data-local-role="admin"] .r32-table [data-r32-col="name"]{min-width:180px}
+html[data-local-role="admin"] .r32-table [data-r32-col="description"]{min-width:220px;max-width:260px}
+html[data-local-role="admin"] .r32-table [data-r32-col="date"]{min-width:150px}
+html[data-local-role="admin"] .r32-table [data-r32-col="reward"]{min-width:200px}
+html[data-local-role="admin"] .r32-table [data-r32-col="status"]{min-width:92px}
+html[data-local-role="admin"] .r32-table [data-r32-col="actions"]{min-width:170px;white-space:nowrap!important}
+html[data-local-role="admin"] .r32-table [data-r32-col="number"]{min-width:100px}
+html[data-local-role="admin"] .r32-table .table-actions,html[data-local-role="admin"] .r32-table .g19-action-buttons{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;align-items:center!important;gap:7px!important;min-width:max-content!important;margin:auto!important}
+html[data-local-role="admin"] .r32-table .table-actions button,html[data-local-role="admin"] .r32-table .g19-action-buttons button{white-space:nowrap!important}
+html[data-local-role="admin"] .r32-cell-clamp{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere;line-height:1.55;max-height:3.1em}
+@media(max-width:900px){
+  html[data-local-role="admin"] .r32-upload-control{align-items:flex-start;flex-direction:column}
+  html[data-local-role="admin"] .r32-list-card{padding:10px 12px 14px!important}
+}

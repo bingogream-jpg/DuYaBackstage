@@ -1,0 +1,14 @@
+  const localInviteRoutes=['invite-users','invite-relations','invite-rewards'];
+  Object.assign(pageMeta,{'invites':['增长运营','商户邀请码'],'invite-users':['增长运营','用户邀请码活动'],'invite-relations':['增长运营','邀请记录'],'invite-rewards':['增长运营','邀请奖励']});
+  const localGrowth=navGroups.find(g=>g.label==='增长运营');if(localGrowth){const i=localGrowth.items.findIndex(x=>x[0]==='invites');localGrowth.items.splice(i,1,['invites','spark','商户邀请码'],['invite-users','users','用户邀请码活动'],['invite-relations','record','邀请记录'],['invite-rewards','gift','邀请奖励']);}
+  const localRoleCan=roleCan;roleCan=function(page){return localRoleCan(localInviteRoutes.includes(page)?'invites':page);};
+  const localMerchantBase=V15_PAGES.invites;V15_PAGES.invites=function(){const box=document.createElement('div');box.innerHTML=localMerchantBase();box.querySelector('#r3-invite-settings')?.closest('.r3-card')?.remove();const relations=box.querySelector('[data-action="r3-relations"]');if(relations){relations.dataset.action='local-relations-page';relations.textContent='邀请记录';}return box.innerHTML;};
+  V15_PAGES['invite-users']=()=>ar3Head('用户邀请码活动','设置活动时间、邀请上限和双方奖励。')+ar3SettingsForm()+'</section>';
+  function localRelationsTable(){return atable(['受邀用户','来源 / 绑定时间','状态','操作'],ast().inviteRelations.map(r=>[ae(ast().users.find(u=>u.id===r.userId)?.name||'用户'),ae(r.code)+'<small>'+dateTime(r.boundAt)+'</small>',badge(r.status),r.status==='待复核'?ab('保留为有效','local-review','data-id="'+r.id+'" data-valid="yes"','secondary small')+' '+ab('判定异常','local-review','data-id="'+r.id+'"','secondary small'):'—']));}
+  V15_PAGES['invite-relations']=()=>ar3Head('邀请记录','查看商户与用户邀请关系，处理待复核邀请。')+card('邀请关系',localRelationsTable())+'</section>';
+  V15_PAGES['invite-rewards']=()=>ar3Head('邀请奖励','仅展示邀请相关奖励，待发放原因与小程序一致。')+card('奖励记录',atable(['用户','奖励 / 来源','状态 / 原因','操作'],ast().users.flatMap(u=>u.rewards.filter(r=>String(r.id).startsWith('invite-')||/邀请|受邀/.test(r.source||'')).map(r=>[ae(u.name),ae(r.name)+'<small>'+ae(r.source)+'</small>',badge(r.status)+'<small>'+ae(r.reason||'')+'</small>',r.status==='已发放'?'—':ab('处理发放','local-reward-issue','data-id="'+ae(r.id)+'"','secondary small')]))))+'</section>';
+  ar3Action('local-relations-page',()=>navigate('invite-relations'));
+  ar3Action('local-review',async n=>{await ar3.cmd('ADMIN_REVIEW',{id:n.dataset.id,valid:n.dataset.valid==='yes'});renderApp();});
+  ar3Action('local-reward-issue',async n=>{await ar3.cmd('ADMIN_REWARD',{id:n.dataset.id});renderApp();});
+  const localRulesBase=renderAppRules;renderAppRules=function(){const box=document.createElement('div');box.innerHTML=localRulesBase();box.querySelector('#r3-invite-settings')?.closest('.r3-card')?.remove();box.insertAdjacentHTML('beforeend',card('邀请码活动',note('用户邀请码活动已独立到增长运营菜单。')+ab('打开用户邀请码活动','local-invite-settings')));return box.innerHTML;};
+  ar3Action('local-invite-settings',()=>navigate('invite-users'));

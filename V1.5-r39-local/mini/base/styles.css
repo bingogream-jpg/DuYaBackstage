@@ -1,0 +1,111 @@
+/* Shell + layout primitives.
+   Design canvas: 415 x 777 (recording 830 x 1554 / 2), wrapped in the dark
+   phone shell carried over from the previous prototype. */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background:#f2f3f5;
+  font:400 14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:#121212;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+ul,ol{margin:0;padding:0;list-style:none}
+h1,h2,h3,h4,p{margin:0}
+
+/* ---------- phone shell ---------- */
+.stage-wrap{display:flex;align-items:center;justify-content:center}
+.phone{
+  position:relative;
+  width:min(447px,100vw);
+  padding:10px;
+  border-radius:54px;
+  background:linear-gradient(145deg,#3a3d3a 0%,#111311 26%,#050605 64%,#2b2e2b 100%);
+  box-shadow:0 36px 88px rgba(8,14,10,.30),inset 0 0 0 1px #4a4d4a,inset 0 0 0 3px #171817;
+}
+.phone:before,.phone:after{
+  content:"";position:absolute;left:-3px;width:3px;border-radius:3px 0 0 3px;
+  background:linear-gradient(90deg,#080908,#2b2e2b);
+}
+.phone:before{top:150px;height:34px}
+.phone:after{top:206px;height:62px}
+.phone-hardware{
+  position:absolute;z-index:60;top:16px;left:50%;transform:translateX(-50%);
+  width:112px;height:22px;border-radius:0 0 14px 14px;background:#050505;
+  display:flex;align-items:center;justify-content:center;gap:10px;pointer-events:none;
+  box-shadow:0 1px 0 rgba(255,255,255,.08),0 3px 8px rgba(0,0,0,.2);
+}
+.phone-hardware span{width:42px;height:4px;border-radius:9px;background:#2a2a2a}
+.phone-hardware i{width:7px;height:7px;border-radius:50%;background:#16262e;border:1px solid #44555e}
+.phone-screen{
+  position:relative;
+  width:415px;height:821px;
+  overflow:hidden;border-radius:44px;background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 0 0 1px #050505;
+  display:flex;flex-direction:column;
+}
+
+/* scale the whole shell down when the browser window is smaller */
+@media (max-width:460px){
+  body{padding:6px}
+  .phone{padding:7px;border-radius:46px}
+  .phone-hardware{top:12px}
+  .phone:before,.phone:after{display:none}
+  .phone-screen{border-radius:38px}
+}
+
+/* ---------- status bar ---------- */
+.status-bar{
+  flex:0 0 44px;height:44px;padding:0 20px 0 26px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:13px;font-weight:600;letter-spacing:.02em;
+  background:var(--nav-bg,#fff);color:var(--nav-ink,#121212);
+  transition:background .18s ease,color .18s ease;
+}
+.status-icons{display:flex;align-items:center;gap:5px}
+.si{display:block;background:currentColor}
+.si-signal{width:15px;height:10px;clip-path:polygon(0 100%,18% 100%,18% 60%,0 60%,0 100%,30% 100%,30% 40%,48% 40%,48% 100%,60% 100%,60% 20%,78% 20%,78% 100%,90% 100%,90% 0,100% 0,100% 100%)}
+.si-wifi{width:14px;height:10px;clip-path:polygon(50% 100%,0 42%,18% 22%,50% 0,82% 22%,100% 42%)}
+.si-battery{
+  width:22px;height:11px;border-radius:3px;background:none;
+  border:1px solid currentColor;position:relative;
+}
+.si-battery:after{
+  content:"";position:absolute;top:2px;left:2px;width:14px;height:5px;border-radius:1px;
+  background:currentColor;
+}
+
+/* ---------- app frame ---------- */
+.app{
+  position:relative;flex:1 1 auto;min-height:0;
+  display:flex;flex-direction:column;
+  background:var(--screen-bg,#fff);
+}
+.nav{
+  flex:0 0 64px;height:64px;position:relative;z-index:20;
+  display:flex;align-items:center;
+  background:var(--nav-bg,#fff);color:var(--nav-ink,#121212);
+}
+.screen-stage{
+  flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  background:var(--screen-bg,#fff);
+}
+.screen-stage::-webkit-scrollbar{display:none}
+.tab-bar{
+  flex:0 0 50px;height:50px;z-index:30;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:6px 8px 0;background:#fff;
+}
+.tab-bar[hidden]{display:none}
+.layer-root{position:absolute;inset:0;z-index:50;pointer-events:none}
+.layer-root>*{pointer-events:auto}
+.toast{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+  z-index:80;max-width:70%;padding:12px 20px;border-radius:10px;
+  background:rgba(17,17,17,.82);color:#fff;font-size:13px;line-height:1.4;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;
+}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}

@@ -1,0 +1,406 @@
+/* r39: one flat, full-width bottom navigation across all tabbed pages. */
+html[data-local-role=mini] .app #tab-bar:not([hidden]){
+  position:relative;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  width:100%;
+  height:54px;
+  flex:0 0 54px;
+  padding:8px 10px 0;
+  border:0;
+  border-radius:0;
+  background:#fff;
+  box-shadow:none;
+  gap:0;
+  box-sizing:border-box;
+}
+html[data-local-role=mini] .app #tab-bar .tab-item{
+  min-width:0;
+  justify-content:flex-start;
+  gap:2px;
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  color:#9a9a9a;
+  font-size:12px;
+  line-height:18px;
+}
+html[data-local-role=mini] .app #tab-bar .tab-item.active{
+  background:transparent;
+  color:#111;
+  font-weight:400;
+}
+html[data-local-role=mini] .app #tab-bar .tab-icon,
+html[data-local-role=mini] .app #tab-bar .tab-icon svg{
+  width:28px;
+  height:28px;
+}
+html[data-local-role=mini] .app.shop-screen #tab-bar:not([hidden]){
+  position:relative;
+  inset:auto;
+  width:100%;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  width:100%;
+  min-height:60px;
+  padding:15px 0;
+  text-align:left;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool>.profile-glyph,
+html[data-local-role=mini] .record-profile .r39-service-tool>svg{
+  width:27px;
+  height:27px;
+  flex:none;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool .row-main{
+  flex:1;
+  min-width:0;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool .row-title,
+html[data-local-role=mini] .record-profile .r39-service-tool .row-sub{
+  display:block;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool .row-sub{
+  color:#999;
+  font-size:12px;
+}
+html[data-local-role=mini] .record-profile .r39-service-tool .row-tail{
+  margin-left:auto;
+  color:#aaa;
+}
+html[data-local-role=mini] .record-profile .r39-invite-card{
+  padding:16px;
+}
+html[data-local-role=mini] .record-profile .r39-invite-card .card-head{
+  align-items:center;
+  margin-bottom:10px;
+}
+html[data-local-role=mini] .r39-invite-intro{
+  margin:0 0 11px;
+  color:#52695d;
+  font-size:12px;
+  line-height:1.7;
+  overflow-wrap:anywhere;
+}
+html[data-local-role=mini] .r39-invite-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-width:0;
+}
+html[data-local-role=mini] .r39-invite-footer>span{
+  color:#64756b;
+  font-size:13px;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r39-invite-footer>span b{
+  color:#668d26;
+  font-size:16px;
+}
+html[data-local-role=mini] .r39-invite-entry{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  min-height:38px;
+  padding:8px 18px;
+  border:0;
+  border-radius:20px;
+  background:linear-gradient(110deg,#8db42f,#6e9c17);
+  color:#fff;
+  font-size:13px;
+  font-weight:650;
+}
+html[data-local-role=mini] .track-met+.r29-diet{margin-top:16px}
+html[data-local-role=mini] .r39-invite-bind{
+  margin-top:14px;
+  padding:16px;
+  border:1px solid #e4ebdd;
+  border-radius:17px;
+  background:#fff;
+}
+html[data-local-role=mini] .r39-invite-bind>header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+html[data-local-role=mini] .r39-invite-bind h2{
+  margin:0;
+  color:#23392c;
+  font-size:16px;
+}
+html[data-local-role=mini] .r39-invite-bind header p,
+html[data-local-role=mini] .r39-invite-bind>p{
+  margin:5px 0 0;
+  color:#87958b;
+  font-size:11px;
+  line-height:1.65;
+}
+html[data-local-role=mini] .r39-invite-bind>header>span{
+  flex:none;
+  padding:3px 8px;
+  border-radius:12px;
+  background:#edf5e4;
+  color:#668d25;
+  font-size:10px;
+}
+html[data-local-role=mini] .r39-invite-bind>div{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  margin-top:13px;
+}
+html[data-local-role=mini] .r39-invite-bind input{
+  min-width:0;
+  height:40px;
+  padding:0 12px;
+  border:1px solid #dce5d8;
+  border-radius:10px;
+  background:#fbfcfa;
+  color:#294334;
+  outline:none;
+}
+html[data-local-role=mini] .r39-invite-bind button{
+  min-width:88px;
+  padding:0 15px;
+  border:0;
+  border-radius:10px;
+  background:#709d25;
+  color:#fff;
+  font-size:13px;
+  font-weight:650;
+}
+html[data-local-role=mini] .r39-my-favorites{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  width:calc(100% - 32px);
+  margin:12px 16px 0;
+  padding:11px 13px;
+  border:1px solid #e3ebdd;
+  border-radius:13px;
+  background:#f7faf3;
+  color:#294f3b;
+  text-align:left;
+}
+html[data-local-role=mini] .r39-my-favorites span{
+  font-size:13px;
+  font-weight:650;
+}
+html[data-local-role=mini] .r39-my-favorites b{
+  min-width:22px;
+  padding:1px 6px;
+  border-radius:11px;
+  background:#e8f2dd;
+  color:#688d25;
+  font-size:11px;
+  text-align:center;
+}
+html[data-local-role=mini] .r39-my-favorites em{
+  grid-column:1/-1;
+  margin-top:3px;
+  color:#8b9a90;
+  font-size:10px;
+  font-style:normal;
+}
+html[data-local-role=mini] .r39-article-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  margin:12px 0;
+}
+html[data-local-role=mini] .r39-article-toolbar .search-bar{
+  min-width:0;
+  margin:0;
+}
+html[data-local-role=mini] .r39-article-toolbar .r39-my-favorites{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  width:auto;
+  min-height:36px;
+  margin:0;
+  padding:0 11px;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r39-article-toolbar .r39-my-favorites span{
+  font-size:12px;
+}
+html[data-local-role=mini] .r39-article-toolbar .r39-my-favorites b{
+  min-width:18px;
+  padding:0 4px;
+}
+html[data-local-role=mini] .v26-coupon-picker{
+  padding:4px 12px 16px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list{
+  gap:10px;
+  margin:2px 0 13px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket.v26-coupon-option{
+  position:relative;
+  display:grid;
+  grid-template-columns:27% minmax(0,1fr);
+  gap:0;
+  width:100%;
+  min-height:96px;
+  padding:0;
+  overflow:hidden;
+  border:2px solid #fff;
+  border-radius:16px;
+  background:#fff;
+  color:#263c26;
+  text-align:left;
+  box-shadow:0 4px 12px #7d9a2910;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket.v26-coupon-option.on{
+  border-color:#78a52c;
+  background:#fff;
+  box-shadow:0 0 0 2px #dcebc9,0 5px 15px #6c8f2517;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket.v26-coupon-option.off{
+  opacity:.62;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket-value{
+  display:flex;
+  min-width:0;
+  padding:10px 6px 10px 11px;
+  flex-direction:column;
+  justify-content:center;
+  border-right:1px dashed #d6e2b9;
+  background:linear-gradient(100deg,#f8fbed,#edf4d8);
+  color:#486e0d;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket-value>small{
+  align-self:flex-start;
+  margin-bottom:1px;
+  font-size:12px;
+  line-height:1;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket-value>b{
+  display:block;
+  font-size:33px;
+  line-height:1.05;
+  letter-spacing:-1px;
+  text-align:center;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket-value>span{
+  display:block;
+  margin-top:7px;
+  color:#99a185;
+  font-size:9px;
+  line-height:1.4;
+  text-align:center;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-ticket-info{
+  display:flex;
+  min-width:0;
+  padding:9px 10px 9px 13px;
+  flex-direction:column;
+  gap:7px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-head,
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-footer{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:7px;
+  min-width:0;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-head{
+  padding-right:25px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-head strong{
+  min-width:0;
+  color:#163c29;
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-coupon-count{
+  flex:none;
+  padding:3px 7px;
+  border-radius:14px;
+  background:#eff5e8;
+  color:#64813a;
+  font-size:9px;
+  font-style:normal;
+  line-height:1.4;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-brand{
+  color:#94a0a5;
+  font-size:11px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-footer{
+  align-items:flex-end;
+  margin-top:auto;
+  color:#91a1a6;
+  font-size:9px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-footer>span{
+  min-width:0;
+  line-height:1.5;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-footer>em{
+  flex:none;
+  color:#64813a;
+  font-size:10px;
+  font-style:normal;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-ticket-footer>em.blocked{
+  max-width:55%;
+  color:#a47b56;
+  text-align:right;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-coupon-check{
+  position:absolute;
+  left:8px;
+  top:8px;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  width:21px;
+  height:21px;
+  border:1px solid #bed1be;
+  border-radius:50%;
+  background:#fff;
+  color:transparent;
+  font-size:12px;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .v26-coupon-option.on .v26-coupon-check{
+  border-color:#6e9a2b;
+  background:#6e9a2b;
+  color:#fff;
+}
+html[data-local-role=mini] .r39-coupon-ticket-list .r33m-empty{
+  grid-column:1/-1;
+}
+html[data-local-role=mini] .r25-record-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+html[data-local-role=mini] .r25-record-head .x38-calendar{
+  order:1;
+  flex:0 0 30px;
+}
+html[data-local-role=mini] .r25-record-head .r25-target-link{
+  order:2;
+  margin-left:auto;
+}
+html[data-local-role=mini] .r25-record-head .x38-calendar svg{
+  width:17px;
+  height:17px;
+}

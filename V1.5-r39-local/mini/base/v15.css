@@ -1,0 +1,228 @@
+/* ================================================================
+   V1.5 新增模块样式：问卷调查 / 品牌推荐 / 优惠券 / 邀请码 / 饮食记录
+   载入顺序在其余样式之后，用于覆盖首页饮食卡片与新增页面
+   ================================================================ */
+
+/* ---------- 首页饮食记录卡片：去掉研发中与置灰，改为可用状态 ---------- */
+.recorded-intake,.recorded-diet{border-color:#e6ecdb;background:#fff;color:#121212}
+.recorded-intake .record-section-title,.recorded-diet .record-section-title{color:#121212;font-size:21px}
+.recorded-intake .record-section-title svg,.recorded-diet .record-section-title svg{color:#609b00}
+.recorded-diet{display:block;align-items:stretch;padding-bottom:14px}
+.recorded-diet>img{display:none}
+.recorded-diet>b{display:block;font-size:16px;color:#8d8d8d;font-weight:400;margin:6px 0 12px}
+.recorded-diet>button{display:block;width:100%;background:#f0f6e2;color:#4b7a1a;border-radius:9px;padding:12px 0;margin-top:12px;font-size:17px;font-weight:700}
+.intake-progress{position:relative;overflow:hidden}
+.intake-progress>i{position:absolute;left:0;top:0;bottom:0;background:#8fbb31;border-radius:10px;display:block}
+.v15-home-diet{display:flex;flex-direction:column;gap:8px}
+.v15-home-row{display:flex;justify-content:space-between;align-items:center;font-size:15px;color:#333}
+.v15-home-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:10px}
+.v15-home-row b{color:#609b00;flex:none;font-size:14px}
+.v15-home-total{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #e5e5e5;padding-top:8px;font-size:14px;color:#888}
+.v15-home-total b{color:#121212;font-size:17px}
+
+/* ---------- 通用 ---------- */
+.v15-page{padding:14px 13px 26px;font-size:15px;color:#1b1b1b}
+.v15-page .card+.card{margin-top:12px}
+.v15-block{padding:14px}
+.v15-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.v15-sec-head h3{font-size:19px;font-weight:700}
+.v15-sec-head>span{font-size:13px;color:#8d8d8d}
+.v15-note{font-size:13px;color:#8d8d8d;line-height:1.5;margin-top:10px}
+.v15-hint{font-size:13px;color:#9a9a9a;line-height:1.5;margin:12px 2px}
+.v15-empty-text{font-size:14px;color:#9a9a9a;text-align:center;padding:18px 0}
+.v15-warn{color:#c25b2a}
+.v15-link{color:#609b00;font-size:14px;font-weight:600}
+
+.v15-hero{padding:16px 15px;border-radius:12px;background:linear-gradient(120deg,#eaf7c9,#f7fbe9 70%);margin-bottom:12px}
+.v15-hero h2{font-size:22px;font-weight:700}
+.v15-hero p{font-size:14px;color:#5c6b45;margin-top:6px;line-height:1.5}
+.v15-hero .v15-tags{margin-top:10px}
+
+.v15-tags{display:flex;flex-wrap:wrap;gap:6px}
+.v15-chip{display:inline-block;background:#f2f5ea;color:#5d6b45;border-radius:14px;padding:3px 10px;font-size:13px;line-height:1.5}
+.v15-chip-key{background:#e6f4c2;color:#3f6a12;font-weight:600}
+.v15-chip-hit{background:#eaf7cf;color:#4a7a12}
+.v15-chip-plain{background:#fff;border:1px dashed #cdd9b4;color:#5d6b45}
+.v15-chip-btn{cursor:pointer;border:1px solid transparent}
+.v15-chip-btn.on{background:#609b00;color:#fff}
+
+.v15-progress{flex:1;height:8px;border-radius:6px;background:#eef2e4;overflow:hidden}
+.v15-progress>i{display:block;height:100%;background:#8fbb31;border-radius:6px}
+.v15-progress.big{height:11px;margin:12px 0 0}
+.v15-progress-row{display:flex;align-items:center;gap:10px;font-size:13px;color:#7c8a63;margin:12px 0}
+
+.v15-btn{flex:1;background:#609b00;color:#fff;border-radius:9px;padding:13px 0;font-size:17px;font-weight:700;text-align:center}
+.v15-btn.ghost{background:#f1f4ea;color:#4b7a1a}
+.v15-btn[disabled]{opacity:.45}
+.v15-fixed{position:sticky;bottom:0;display:flex;gap:10px;padding:12px 0 4px;background:#fff;margin-top:14px}
+.v15-actions-row{display:flex;gap:10px;margin-top:12px}
+
+/* ---------- 问卷 ---------- */
+.v15-q-card{border:1px solid #e8ecdd;border-radius:10px;padding:13px}
+.v15-q-card+.v15-q-card{margin-top:10px}
+.v15-q-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.v15-q-top b{font-size:17px}
+.v15-q-card p{font-size:13px;color:#8d8d8d;margin-top:6px;line-height:1.5}
+.v15-state{flex:none;background:#f2f5ea;color:#8d8d8d;border-radius:12px;padding:2px 9px;font-size:12px}
+.v15-state.on{background:#e6f4c2;color:#4b7a1a;font-weight:600}
+.v15-q-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.v15-meta{display:flex;gap:12px;font-size:12px;color:#9a9a9a;margin-top:8px}
+.v15-goal-switch{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.v15-question h2{font-size:20px;line-height:1.45}
+.v15-sub{font-size:13px;color:#9a9a9a;margin-top:6px}
+.v15-opts{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.v15-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e6e6e6;border-radius:10px;padding:13px 12px;font-size:16px;text-align:left;background:#fff}
+.v15-opt.on{border-color:#8fbb31;background:#f4fad8;font-weight:600}
+.v15-opt.on svg{width:18px;height:18px;color:#609b00}
+.v15-survey{padding-bottom:10px}
+.v15-empty{padding:24px 16px;text-align:center}
+.v15-empty h2{font-size:20px}
+.v15-empty p{font-size:14px;color:#8d8d8d;margin:10px 0 16px;line-height:1.6}
+
+/* ---------- 品牌推荐 ---------- */
+.v15-rec-entry{display:flex;align-items:center;gap:10px;width:100%;margin:12px 0 6px;padding:13px 12px;border:1px dashed #b9d383;border-radius:11px;background:#f7fce9;text-align:left}
+.v15-rec-entry svg{width:20px;height:20px;color:#609b00;flex:none}
+.v15-rec-entry span{flex:1;min-width:0}
+.v15-rec-entry b{display:block;font-size:16px;color:#3f6a12}
+.v15-rec-entry small{display:block;font-size:12px;color:#7c8a63;margin-top:3px}
+.v15-rec-card{padding:14px}
+.v15-rec-head{display:flex;align-items:center;gap:10px}
+.v15-rank{flex:none;width:22px;height:22px;border-radius:50%;background:#609b00;color:#fff;font-size:13px;display:grid;place-items:center;font-weight:700}
+.v15-rec-logo{width:46px;height:46px;border-radius:9px;object-fit:cover;flex:none;background:#f2f5ea}
+.v15-rec-head>div{flex:1;min-width:0}
+.v15-rec-head b{font-size:17px}
+.v15-rec-head p{font-size:13px;color:#8d8d8d;margin-top:3px}
+.v15-match{flex:none;font-size:13px;color:#4b7a1a;font-weight:600}
+.v15-why{display:flex;align-items:center;gap:6px;font-size:14px;color:#4a5a32;margin:10px 0 8px}
+.v15-why svg{width:15px;height:15px;color:#8fbb31;flex:none}
+.v15-rec-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:14px;color:#666}
+.v15-brand-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #f0f0f0}
+.v15-brand-row:first-of-type{border-top:0}
+.v15-brand-logo{width:44px;height:44px;border-radius:9px;object-fit:cover;flex:none;background:#f2f5ea}
+.v15-brand-row b{font-size:16px}
+.v15-brand-row p{font-size:13px;color:#8d8d8d;margin:4px 0 6px}
+
+/* ---------- 优惠券 ---------- */
+.v15-balance{display:flex;align-items:center;gap:12px;padding:14px}
+.v15-balance svg{width:30px;height:30px;color:#609b00;flex:none}
+.v15-balance>div{flex:1}
+.v15-balance span{font-size:13px;color:#8d8d8d;display:block}
+.v15-balance b{font-size:22px}
+.v15-balance b small{font-size:13px;color:#8d8d8d}
+.v15-balance p{font-size:12px;color:#9a9a9a}
+.v15-tabs{display:flex;gap:8px;margin:14px 0 10px}
+.v15-tabs button{flex:1;padding:9px 0;border-radius:8px;background:#f2f5ea;color:#7c8a63;font-size:14px}
+.v15-tabs button.on{background:#609b00;color:#fff;font-weight:600}
+.v15-coupon-list{display:flex;flex-direction:column;gap:10px}
+.v15-coupon{display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:14px 12px}
+.v15-coupon-amount{flex:none;width:66px;text-align:center;color:#609b00}
+.v15-coupon-amount b{font-size:28px}
+.v15-coupon-amount span{font-size:13px}
+.v15-coupon-main{flex:1;min-width:0}
+.v15-coupon-main>b{font-size:16px}
+.v15-coupon-main>p{font-size:13px;color:#8d8d8d;margin-top:5px}
+.v15-coupon>i{color:#c8c8c8}
+.v15-coupon-detail{padding:18px 16px}
+.v15-coupon-big{color:#609b00}
+.v15-coupon-big b{font-size:38px}
+.v15-coupon-big span{font-size:14px;margin-left:4px}
+.v15-coupon-detail h2{font-size:20px;margin-top:6px}
+.v15-coupon-detail>p{font-size:14px;color:#8d8d8d;margin-top:8px;line-height:1.6}
+.v15-dl{margin-top:12px;border-top:1px solid #f0f0f0}
+.v15-dl>div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #f4f4f4;font-size:14px}
+.v15-dl dt{color:#8d8d8d;flex:none}
+.v15-dl dd{text-align:right;word-break:break-all}
+
+/* ---------- 邀请码 ---------- */
+.v15-invite-hero{padding:18px 16px;text-align:center}
+.v15-invite-label{font-size:13px;color:#8d8d8d}
+.v15-code{display:block;font-size:34px;letter-spacing:4px;margin:10px 0 6px;color:#3f6a12}
+.v15-invite-live{font-size:13px;color:#7c8a63}
+.v15-invite-hero .v15-actions-row{margin-top:14px}
+.v15-rule b{font-size:16px}
+.v15-rule p{font-size:14px;color:#6f6f6f;line-height:1.6;margin-top:6px}
+.v15-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #f2f2f2}
+.v15-row:first-of-type{border-top:0}
+.v15-row b{font-size:15px}
+.v15-row p{font-size:12px;color:#9a9a9a;margin-top:3px}
+.v15-row-right{display:flex;align-items:center;gap:8px;flex:none}
+.v15-row-right em{font-style:normal;font-size:12px;color:#7c8a63}
+.v15-poster{margin:0 auto;width:100%;border-radius:14px;padding:24px 18px;background:linear-gradient(150deg,#eaf7c9,#ffffff 60%,#f6fbe8);text-align:center;box-shadow:0 6px 18px rgba(80,110,40,.10)}
+.v15-poster-brand{font-size:14px;color:#7c8a63;letter-spacing:2px}
+.v15-poster h2{font-size:22px;margin-top:10px}
+.v15-poster>p{font-size:14px;color:#6f6f6f;margin-top:8px}
+.v15-poster-code{margin:18px 0 12px}
+.v15-poster-code b{font-size:30px;letter-spacing:4px;color:#3f6a12}
+.v15-poster-code span{display:block;font-size:12px;color:#9a9a9a;margin-top:5px}
+.v15-poster-qr{width:118px;height:118px;margin:0 auto;border-radius:10px;background:#fff;display:grid;place-items:center;gap:4px;color:#b9c9a1;border:1px dashed #cdd9b4}
+.v15-poster-qr svg{width:30px;height:30px}
+.v15-poster-qr span{font-size:11px}
+.v15-poster-tip{font-size:12px;color:#9a9a9a;margin-top:14px}
+
+/* ---------- 饮食记录 ---------- */
+.v15-diet-hero{padding:16px 15px}
+.v15-date-row{display:flex;align-items:center;justify-content:center;gap:16px;font-size:16px}
+.v15-date-row button{font-size:20px;color:#609b00;padding:0 8px}
+.v15-date-row button[disabled]{color:#d6d6d6}
+.v15-intake{display:flex;align-items:baseline;gap:10px;margin-top:14px}
+.v15-intake b{font-size:30px}
+.v15-intake b small{font-size:14px;color:#8d8d8d;font-weight:400}
+.v15-intake span{font-size:13px;color:#7c8a63}
+.v15-macros{display:flex;justify-content:space-between;gap:8px;margin-top:14px}
+.v15-macros>div{flex:1;text-align:center;background:#fff;border-radius:9px;padding:9px 4px}
+.v15-macros span{display:block;font-size:12px;color:#9a9a9a}
+.v15-macros b{font-size:15px}
+.v15-minerals{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:12px;color:#7c8a63}
+.v15-minerals span{background:#fff;border-radius:8px;padding:4px 9px}
+.v15-meal{padding:14px}
+.v15-food-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #f2f2f2}
+.v15-food-row:first-of-type{border-top:0}
+.v15-food-row b{font-size:16px}
+.v15-food-row p{font-size:13px;color:#8d8d8d;margin-top:4px}
+.v15-pending{font-style:normal;color:#c98a2a;margin-right:6px}
+.v15-del{flex:none;color:#c8c8c8;padding:6px}
+.v15-del svg{width:17px;height:17px}
+.v15-add{display:block;width:100%;margin-top:10px;border:1px dashed #cdd9b4;border-radius:9px;padding:11px 0;color:#4b7a1a;font-size:15px;background:#fafdf3}
+.v15-search{display:flex;gap:8px;margin-bottom:12px}
+.v15-search input{flex:1;border:1px solid #e2e2e2;border-radius:9px;padding:11px 12px;font-size:15px}
+.v15-search button{background:#609b00;color:#fff;border-radius:9px;padding:0 16px;font-size:15px}
+.v15-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.v15-food-list{display:flex;flex-direction:column;gap:9px}
+.v15-food-item{display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:13px 12px;text-align:left}
+.v15-food-item>div{flex:1;min-width:0}
+.v15-food-item b{font-size:16px}
+.v15-food-item p{font-size:12px;color:#8d8d8d;margin-top:4px}
+.v15-food-item>span{font-size:12px;color:#7c8a63;flex:none;max-width:96px;text-align:right}
+.v15-food-item svg{width:15px;height:15px;color:#c8c8c8;flex:none}
+.v15-units{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.v15-field{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f2f2;font-size:15px}
+.v15-field label{flex:none;width:110px;color:#6f6f6f}
+.v15-field input{flex:1;min-width:0;border:1px solid #e6e6e6;border-radius:8px;padding:9px 10px;font-size:15px}
+.v15-field span{flex:none;color:#9a9a9a;font-size:13px}
+.v15-photo-frame{height:150px;border-radius:12px;background:#f4f7ec;display:grid;place-items:center;color:#b9c9a1;margin:6px 0 14px;border:1px dashed #cdd9b4}
+.v15-scan-icon{width:44px;height:44px}
+.v15-analyzing{font-size:16px;color:#7c8a63}
+.v15-cands{display:flex;flex-direction:column;gap:9px}
+.v15-cand{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e6e6e6;border-radius:10px;padding:13px 12px;text-align:left;font-size:16px}
+.v15-cand span{font-size:13px;color:#8d8d8d}
+.v15-cand em{font-style:normal;font-size:12px;color:#c98a2a;background:#fdf4e6;border-radius:10px;padding:2px 8px}
+
+/* ---------- 弹层与下单页优惠券 ---------- */
+.v15-sheet-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.v15-sheet-grid button{background:#f4f8ea;border-radius:10px;padding:18px 0;font-size:15px;color:#3f6a12;font-weight:600}
+.v15-menu-list{display:flex;flex-direction:column;gap:9px;padding:14px}
+.v15-menu-list button{display:flex;flex-direction:column;gap:5px;border:1px solid #ececec;border-radius:10px;padding:12px;text-align:left}
+.v15-menu-list b{font-size:16px}
+.v15-menu-list span{font-size:12px;color:#8d8d8d}
+.v15-checkout-coupon{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:12px 0;border-top:1px dashed #e6e6e6;font-size:15px}
+.v15-checkout-coupon button{color:#609b00;font-size:15px;font-weight:600}
+.v15-checkout-total{display:flex;align-items:center;justify-content:space-between;padding:6px 0 2px;font-size:15px;color:#6f6f6f}
+.v15-checkout-total b{font-size:20px;color:#121212}
+.shop-pay-amount small{display:block;font-size:13px;color:#609b00;font-weight:400;margin-top:4px}
+.v15-coupon-picker{display:flex;flex-direction:column;gap:9px;padding:14px}
+.v15-coupon-pick{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #ececec;border-radius:10px;padding:13px 12px;text-align:left}
+.v15-coupon-pick b{font-size:15px}
+.v15-coupon-pick span{font-size:12px;color:#8d8d8d;display:block;margin-top:4px}
+.v15-coupon-pick em{font-style:normal;color:#c25b2a;font-size:14px;font-weight:600}
+.v15-coupon-pick.off{opacity:.55}
+.r2-food-line{display:flex;align-items:center;gap:4px;min-width:0}.r2-food-line .v15-food-item{flex:1;min-width:0}.r2-star{font-size:25px;color:#729624;padding:12px 7px;flex:none}.v15-rewards input,.v15-field input{max-width:100%;box-sizing:border-box}.v15-goal-switch{flex-wrap:wrap}.v15-question h2{overflow-wrap:anywhere}

@@ -1,0 +1,19 @@
+/* Independent claim/use facts: scoped to reward and benefit projections. */
+html[data-local-role=admin] .rev-status{display:grid;grid-template-columns:auto auto;align-items:center;justify-content:center;gap:6px 8px;white-space:normal}
+html[data-local-role=admin] .rev-status>.rev-state-label{font-size:11px;color:#809188;font-weight:400}
+html[data-local-role=admin] .rev-status>small{grid-column:1/-1;overflow-wrap:anywhere;max-width:240px}
+html[data-local-role=admin] .r31-native-table td:has(>.r3-badge){text-align:center;min-width:100px}
+html[data-local-role=admin] .r31-native-table td>small{display:block;overflow-wrap:anywhere}
+html[data-local-role=admin] .r37-record-filters,html[data-local-role=admin] .r37-filter-grid{display:flex!important;flex-wrap:wrap!important;align-items:flex-end;gap:14px}
+html[data-local-role=admin] .r37-record-filters>label,html[data-local-role=admin] .r37-filter-grid>label{flex:0 1 165px;min-width:140px}
+html[data-local-role=admin] .r37-record-filters .g19-filter-actions,html[data-local-role=admin] .r37-filter-grid .g19-filter-actions{display:flex;flex-wrap:nowrap;gap:8px}
+html[data-local-role=mini] .r37-reward-pair{display:flex!important;flex-wrap:wrap;gap:6px 12px;white-space:normal;line-height:1.6}
+html[data-local-role=mini] .r37-reward-pair>span{display:inline-flex!important;align-items:center;gap:4px;border:0!important;background:none!important;padding:0!important;white-space:nowrap}
+html[data-local-role=mini] .r37-reward-pair small{display:inline!important;color:#87958b!important;font-size:10px!important;margin:0!important;font-weight:400}
+html[data-local-role=mini] .r37-reward-pair b{font-size:11px!important;color:#547a2f!important;font-weight:500!important;background:#f0f5e9;border-radius:12px;padding:2px 7px;white-space:nowrap}
+html[data-local-role=mini] .r36-reward-card>header{flex-wrap:wrap;align-items:flex-start;gap:8px}
+html[data-local-role=mini] .r36-reward-card .r36-reward-status{display:block!important;max-width:100%;text-align:left;flex-basis:100%}
+html[data-local-role=mini] .r37-reward-order{display:block!important;overflow-wrap:anywhere;color:#87958b;font-size:10px!important;white-space:normal;margin:5px 0}
+html[data-local-role=mini] .r33m-ticket-info>.r37-reward-pair{margin-top:7px}
+html[data-local-role=mini] .r33m-ticket-info header{display:block}
+html[data-local-role=mini] .r36-meal-card>.r37-reward-pair{margin-top:8px}

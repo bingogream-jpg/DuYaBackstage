@@ -1,0 +1,57 @@
+html[data-local-role=mini] .r27-food-page{background:#fff!important}
+html[data-local-role=mini] .r27-food-search{display:flex!important;align-items:center;background:#fff!important;border:1px solid #dae4dc!important;border-radius:28px!important;overflow:hidden;box-shadow:0 3px 12px #183b2510;margin-bottom:14px}
+html[data-local-role=mini] .r27-food-search input{display:block!important;visibility:visible!important;flex:1;min-width:0;border:0!important;background:transparent!important;padding:13px!important;color:#193c35!important;font-size:14px!important}
+html[data-local-role=mini] .r27-view-tabs{display:flex;gap:16px}
+html[data-local-role=mini] .r27-view-tabs button{background:transparent!important;border:0!important;color:#8c9890!important;padding:8px 0!important;border-radius:0!important;font-size:14px!important}
+html[data-local-role=mini] .r27-view-tabs button.on{color:#608c12!important;border-bottom:2px solid #608c12!important;box-shadow:none!important}
+html[data-local-role=mini] .r27-food-card{background:#f7faf7!important;border:1px solid #e7ece7;box-shadow:0 3px 12px #1d3c2510}
+html[data-local-role=mini] .r37h-intake .r29-home-macros{background:#f7f8f7!important}
+html[data-local-role=mini] .r37p-macros dl>div{display:flex!important;justify-content:flex-start!important;align-items:center;gap:.35em!important;flex-wrap:wrap}
+html[data-local-role=mini] .r37p-macros dd{margin:0!important}
+html[data-local-role=mini] .r36-assets-page{background:#fff!important}
+html[data-local-role=mini] .r36-assets-page .r36-asset-tabs,html[data-local-role=mini] .r36-assets-page .r36-asset-tabs button{border:0!important;box-shadow:none!important}
+html[data-local-role=mini] .r33m-ticket header{display:block;position:relative;padding-right:56px}
+html[data-local-role=mini] .r37f-usage-badge{font-size:10px;padding:4px 8px;border-radius:12px;background:#eff5e8;color:#64813a;white-space:nowrap;position:absolute;right:0;top:0;font-weight:400}
+html[data-local-role=mini] .r36-meal-card header{position:relative;padding-right:58px}
+html[data-local-role=mini] .r36-reward-card header{position:relative}
+html[data-local-role=mini] .r36-reward-status{position:absolute!important;right:0;top:0;background:none!important}
+html[data-local-role=mini] .r37f-claim-badge{display:inline-block;background:#e9f5de;color:#5d8b1d;padding:4px 9px;border-radius:14px;font-size:11px}
+html[data-local-role=mini] .r37f-claim-badge.claimed{background:#fff0da;color:#c28127}
+html[data-local-role=mini] .r37f-used{background:#ddd!important;color:#929992!important;cursor:default}
+html[data-local-role=mini] .r37f-activity-card{background:#fff!important;border:1px solid #f1f2ef!important;box-shadow:0 4px 16px #143c2010;padding:20px!important}
+html[data-local-role=mini] .r37f-card-badges{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#69912b}
+html[data-local-role=mini] .r37f-activity-card h2{font-size:23px!important;margin:18px 0 10px!important;line-height:1.45}
+html[data-local-role=mini] .r37f-intro{font-size:13px;color:#89928a;line-height:1.8;margin-bottom:22px}
+html[data-local-role=mini] .r37f-activity-grid{display:grid;grid-template-columns:1fr 1fr;margin:0!important}
+html[data-local-role=mini] .r37f-activity-grid>div{border-top:1px solid #eee;padding:15px 10px 15px 0;min-width:0}
+html[data-local-role=mini] .r37f-activity-grid dt{color:#889487;font-size:12px;margin-bottom:7px}
+html[data-local-role=mini] .r37f-activity-grid dd{margin:0;font-size:12px;line-height:1.8;overflow-wrap:anywhere;color:#455748}
+html[data-local-role=mini] .r36n-activity-detail>header{padding:12px 6px!important;margin-bottom:8px!important;min-height:0!important}
+html[data-local-role=mini] .r36n-activity-detail>header h1{margin:12px 0!important;font-size:23px}
+html[data-local-role=mini] .r36n-activity-detail .r37c-detail-info{display:block!important;background:#fff!important;padding:0 16px!important}
+html[data-local-role=mini] .r36n-activity-detail .r37c-detail-info>div{display:flex!important;gap:12px!important;border-bottom:1px dashed #dce5dc!important;background:transparent!important;border-radius:0!important;padding:13px 0!important}
+html[data-local-role=mini] .r37c-detail-info>div>span{flex:0 0 70px;font-size:12px}
+html[data-local-role=mini] .r37c-detail-info p{margin:0!important;flex:1;min-width:0;line-height:1.8}
+html[data-local-role=mini] .r36n-back-activities,html[data-local-role=mini] .r37f-outline{border:1px solid #719d18!important;background:#fff!important;color:#719d18!important;box-shadow:none!important}
+html[data-local-role=mini] .r37f-water{padding:20px 16px;background:#f9fcff;min-height:90vh;color:#20353c}
+.r37f-water section{background:#fff;border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 4px 18px #4679a00a}
+.r37f-water .r37f-water-hero{background:#f1f8ff;display:grid;grid-template-columns:85px 1fr;gap:18px;align-items:center}
+.r37f-water-hero p{font-size:14px;margin:0 0 7px}.r37f-water-hero strong{font-size:40px;white-space:nowrap;color:#182c39}.r37f-water-hero em{font-size:26px;color:#53b4ec;font-style:normal}.r37f-water-hero small{display:block;color:#9ba7af;font-size:11px;margin:8px 0}
+.r37f-glass{height:112px;width:70px;border:2px solid #a1d1f2;border-radius:6px 6px 20px 20px;position:relative;background:#e5f3ff;overflow:hidden;transform:perspective(150px) rotateX(-8deg)}.r37f-glass i{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(90deg,#6dcafb,#3cb0ed);border-radius:40% 40% 0 0}
+.r37f-water-progress{height:8px;border-radius:5px;background:#dfedf9;overflow:hidden;margin-top:12px}.r37f-water-progress i{height:100%;display:block;background:#58b9f1}.r37f-water-hero footer{display:flex;justify-content:space-between;font-size:10px;color:#9ca8b0;margin-top:8px}
+.r37f-water-form>label{display:flex;align-items:center;gap:10px;font-size:14px;border-bottom:1px dashed #e2e8e0;padding-bottom:17px}.r37f-water input{border:1px solid #e1e9e3;border-radius:8px;padding:9px;max-width:100%;min-width:0;font:inherit;color:inherit;background:#fff}
+.r37f-water-presets{display:flex;gap:8px;justify-content:space-between;margin:20px 0}.r37f-water-presets button{width:50px;height:50px;border-radius:50%;border:1px solid #e7eae3;background:#fff;color:#6e7774;font-size:13px;padding:4px}.r37f-water-presets small{display:block;font-size:11px}.r37f-water-presets button.on{border-color:#8dac51;background:#f3f8e9;color:#82a638;font-weight:bold}
+.r37f-water-custom{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}.r37f-water-custom label{display:flex;gap:5px;align-items:center;font-size:11px}.r37f-water-custom input[type=number]{width:78px}.r37f-water-custom input[type=time]{width:103px}.r37f-water-save{width:100%;padding:12px;background:#84a745;color:#fff;border:0;border-radius:24px;font-size:17px}.r37f-water-history h2{font-size:17px;margin:0 0 15px}.r37f-water-history article{display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f2ef;padding:13px 0}.r37f-water-history article>span{font-size:26px}.r37f-water-history article>div{flex:1}.r37f-water-history small{display:block;color:#a0aaa6;font-size:11px;margin-top:7px}.r37f-water-history button{background:none;border:0;color:#8c9991}.r37f-water-menu{display:grid;gap:10px;padding:20px}.r37f-water-menu button{padding:14px;border:1px solid #e1e8dc;background:#fff;border-radius:12px}
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs .tab-button,html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs .tab-button{background:transparent!important;border:0!important;box-shadow:none!important;color:#667e75!important;border-radius:0!important;padding:10px 17px!important;font-weight:600}
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs .tab-button.active,html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs .tab-button.active{color:#0c5244!important;background:transparent!important;border-bottom:3px solid #15bb8f!important}
+html[data-local-role=admin] .g6-filters select[data-r28-flat=native],html[data-local-role=admin] .rev-modal-filters select[data-r28-flat=native]{display:block!important;visibility:visible!important}
+html[data-local-role=admin] [name=a37ModalQuery]{width:240px!important;max-width:100%;flex:none!important}
+html[data-local-role=admin] .a37-filters:has([name=a37ModalQuery]){display:flex!important;align-items:flex-end;gap:10px}
+html[data-local-role=admin] .a37-filters:has([name=a37ModalQuery])>label{flex:0 1 240px!important}
+.r37f-binding-editor{padding:20px;margin:18px 0}.r37f-binding-editor>p{color:#788d83;font-size:12px;line-height:1.7}.r37f-binding-editor label{display:flex;flex-direction:column;gap:7px;min-width:160px}.r37f-binding-editor input,.r37f-binding-editor select{min-height:36px;border:1px solid #cfdfd7;border-radius:7px;background:#fff;padding:8px;color:#234f41}.r37f-binding-tier{display:flex;flex-wrap:wrap;gap:12px;padding:12px 0;align-items:flex-end}.r37f-binding-editor>label{max-width:320px}.r37f-stack-label{display:block;font-size:12px;font-weight:600;margin:0 0 7px;color:#567468}
+@media(max-width:340px){html[data-local-role=mini] .r37f-activity-grid{grid-template-columns:1fr}.r37f-water .r37f-water-hero{grid-template-columns:65px 1fr;gap:10px}.r37f-glass{width:55px;height:94px}.r37f-water-hero strong{font-size:32px}.r37f-water section{padding:16px}.r37f-water-presets{gap:4px}.r37f-water-presets button{width:43px;height:43px;font-size:12px}}
+
+html[data-local-role=mini] .r36-meal-card[hidden],html[data-local-role=mini] .r37-activity-card[hidden]{display:none!important}
+
+html[data-local-role=mini] .r37-activity-list,html[data-local-role=mini] .r36n-activities,html[data-local-role=mini] .r37c-activity-tabs{background:#fff!important}
+html[data-local-role=mini] .r37c-activity-tabs [data-r37c-tag="builtin-checkin"]:before{content:"☑ ";font-size:16px}html[data-local-role=mini] .r37c-activity-tabs [data-r37c-tag="builtin-invite"]:before{content:"♙ ";font-size:16px}

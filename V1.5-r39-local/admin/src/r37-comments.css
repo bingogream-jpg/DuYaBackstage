@@ -1,0 +1,316 @@
+/* r37 follow-up comments: scoped presentation only. */
+html[data-local-role=mini] .r37-activity-list{
+  padding-top:0!important;
+}
+html[data-local-role=mini] .r37c-activity-tabs{
+  position:sticky;
+  top:0;
+  z-index:3;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:8px 0 13px;
+  margin:0 0 4px;
+  background:#f7faf0;
+  scrollbar-width:none;
+}
+html[data-local-role=mini] .r37c-activity-tabs::-webkit-scrollbar{
+  display:none;
+}
+html[data-local-role=mini] .r37c-activity-tabs button,
+html[data-local-role=mini] .r36v-reward-tabs button{
+  flex:0 0 auto;
+  min-width:max-content;
+  min-height:34px;
+  padding:7px 13px;
+  border:1px solid #dce7d4;
+  border-radius:18px;
+  background:#fff;
+  color:#5d7354;
+  font:600 11px/1.4 "Microsoft YaHei",Arial,sans-serif;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r37c-activity-tabs button.on,
+html[data-local-role=mini] .r36v-reward-tabs button.on{
+  border-color:#5f8f12;
+  background:#5f8f12;
+  color:#fff;
+  box-shadow:0 4px 12px #5f8f1230;
+}
+html[data-local-role=mini] .r37-activity-card{
+  overflow:hidden;
+}
+html[data-local-role=mini] .r37-activity-title{
+  padding-bottom:11px;
+  border-bottom:1px dashed #dce6d8;
+}
+html[data-local-role=mini] .r37-activity-fields{
+  display:block!important;
+}
+html[data-local-role=mini] .r37-activity-fields>div{
+  display:grid!important;
+  grid-template-columns:76px minmax(0,1fr);
+  align-items:start;
+  gap:10px;
+  padding:10px 0!important;
+  border:0!important;
+  border-bottom:1px dashed #dce6d8!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+html[data-local-role=mini] .r37-activity-fields>div:last-child{
+  grid-column:auto!important;
+  border-bottom:0!important;
+}
+html[data-local-role=mini] .r37-activity-fields dt{
+  margin:0!important;
+  color:#788a6f!important;
+  font-size:11px!important;
+  line-height:1.65!important;
+}
+html[data-local-role=mini] .r37-activity-fields dd{
+  margin:0!important;
+  color:#314c39!important;
+  font-size:12px!important;
+  line-height:1.65!important;
+}
+html[data-local-role=mini] .r37-activity-card>footer{
+  justify-content:flex-end!important;
+  border-top:0!important;
+  padding-top:10px!important;
+}
+html[data-local-role=mini] .r37c-detail-info{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px!important;
+  background:transparent!important;
+  padding:0!important;
+  margin:12px 0!important;
+}
+html[data-local-role=mini] .r37-activity-detail .r37c-detail-info>div{
+  min-width:0;
+  padding:13px;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 4px 18px #61791a08;
+}
+html[data-local-role=mini] .r37c-detail-info span{
+  display:block;
+  margin-bottom:7px;
+  color:#849874;
+  font-size:10px;
+}
+html[data-local-role=mini] .r37c-detail-info p{
+  margin:0!important;
+  color:#304d36!important;
+  font-size:12px!important;
+  line-height:1.65!important;
+  overflow-wrap:anywhere;
+}
+html[data-local-role=mini] .r37c-detail-badges{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+html[data-local-role=mini] .r37c-expand{
+  display:block;
+  width:100%;
+  margin:10px 0 0;
+  padding:9px;
+  border:0;
+  border-radius:12px;
+  background:#eef5e4;
+  color:#5c8620;
+  font:600 11px/1.5 "Microsoft YaHei",Arial,sans-serif;
+}
+html[data-local-role=mini] .r37h-intake .r29-target-entry.r37c-goal-entry{
+  display:inline-flex;
+  width:auto!important;
+  height:32px!important;
+  max-width:62%;
+  padding:0 10px;
+  gap:6px;
+  color:#597b24;
+  font:650 11px/1.35 "Microsoft YaHei",Arial,sans-serif;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r37c-goal-entry>span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+html[data-local-role=mini] .r37c-goal-entry>svg{
+  width:16px!important;
+  height:16px!important;
+  flex:0 0 auto;
+}
+html[data-local-role=mini] .r37c-white-food{
+  background:#fff!important;
+}
+html[data-local-role=mini] .r37c-white-food .r27-cats{
+  background:#f4f7f1!important;
+}
+html[data-local-role=mini] .r37c-white-food .r27-food-card{
+  background:#fafcf8!important;
+  border:1px solid #edf2e8!important;
+  box-shadow:0 5px 16px #3452200d!important;
+}
+html[data-local-role=mini] .r37p-unit{
+  align-items:flex-start!important;
+  flex-direction:column!important;
+}
+html[data-local-role=mini] .r37c-unit-options{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  width:100%;
+}
+html[data-local-role=mini] .r37c-unit-options button{
+  min-width:62px;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid #dce7d8;
+  border-radius:19px;
+  background:#fff;
+  color:#607357;
+  font:600 12px/1.4 "Microsoft YaHei",Arial,sans-serif;
+}
+html[data-local-role=mini] .r37c-unit-options button.on{
+  border-color:#6f991b;
+  background:#6f991b;
+  color:#fff;
+}
+html[data-local-role=mini] .r36-meal-card .r36-meal-count b i{
+  margin-left:3px;
+  font-size:11px;
+  font-style:normal;
+  font-weight:600;
+}
+html[data-local-role=mini] .r36-meal-card .r36-meal-count small{
+  margin-top:2px;
+}
+html[data-local-role=mini] .r36-meal-card .r36-meal-count span{
+  display:block;
+  margin-top:6px;
+  color:#7f8f75;
+  font-size:10px;
+  font-weight:500;
+}
+html[data-local-role=mini] .r37c-activity-entry{
+  margin-top:12px;
+}
+html[data-local-role=mini] .r37-state-green{
+  background:#e8f5e9!important;
+  color:#2f7d42!important;
+}
+html[data-local-role=mini] .r37-state-orange{
+  background:#fff0da!important;
+  color:#a86511!important;
+}
+html[data-local-role=mini] .r37-state-neutral{
+  background:#eef1ef!important;
+  color:#64736a!important;
+}
+html[data-local-role=mini] .r36v-reward-tabs button{
+  min-height:38px;
+  border-radius:20px;
+}
+html[data-local-role=mini] :is(.r36-asset-tabs,.r33m-coupon-tabs,.r27-view-tabs,.r25-mode-tabs,.r29-mode-tabs) button{
+  min-height:34px;
+  padding:7px 12px;
+  border:1px solid #dce7d8;
+  border-radius:18px;
+  background:#fff;
+  color:#617557;
+  font-weight:650;
+}
+html[data-local-role=mini] :is(.r36-asset-tabs,.r33m-coupon-tabs,.r27-view-tabs,.r25-mode-tabs,.r29-mode-tabs) button.on,
+html[data-local-role=mini] :is(.r36-asset-tabs,.r33m-coupon-tabs,.r27-view-tabs,.r25-mode-tabs,.r29-mode-tabs) button.active,
+html[data-local-role=mini] :is(.r36-asset-tabs,.r33m-coupon-tabs,.r27-view-tabs,.r25-mode-tabs,.r29-mode-tabs) button[aria-pressed=true]{
+  border-color:#5f8f12;
+  background:#5f8f12;
+  color:#fff;
+}
+html[data-local-role=mini] .r37c-detail-info:last-of-type{
+  margin-bottom:16px!important;
+}
+@media(max-width:350px){
+  html[data-local-role=mini] .r37c-detail-info{
+    grid-template-columns:1fr;
+  }
+  html[data-local-role=mini] .r37-activity-fields>div{
+    grid-template-columns:68px minmax(0,1fr);
+  }
+}
+
+html[data-local-role=admin] .r37-admin-tabs,
+html[data-local-role=admin] .tabs.r37-admin-tabs,
+html[data-local-role=admin] .g7-tabs.r37-admin-tabs,
+html[data-local-role=admin] .g6-tabs{
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:8px!important;
+  margin:0 0 16px!important;
+}
+html[data-local-role=admin] .r37-admin-tabs button,
+html[data-local-role=admin] .tabs>button.tab-button,
+html[data-local-role=admin] .g6-tabs button{
+  min-height:36px;
+  padding:8px 15px!important;
+  border:1px solid #cad9d4!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#365a50!important;
+  font-weight:650!important;
+  opacity:1!important;
+}
+html[data-local-role=admin] .r37-admin-tabs button.active,
+html[data-local-role=admin] .r37-admin-tabs button[aria-pressed=true],
+html[data-local-role=admin] .tabs>button.tab-button.active,
+html[data-local-role=admin] .tabs>button.tab-button[aria-pressed=true],
+html[data-local-role=admin] .g6-tabs button.active,
+html[data-local-role=admin] .g6-tabs button[aria-pressed=true]{
+  border-color:#0d3b32!important;
+  background:#0d3b32!important;
+  color:#fff!important;
+}
+html[data-local-role=admin] .r37-activity-merged{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  min-width:150px;
+}
+html[data-local-role=admin] .r37-activity-merged .r37-table-link{
+  font-weight:650;
+}
+html[data-local-role=admin] .r37-activity-name{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+html[data-local-role=admin] .r37-activity-name>small{
+  color:#829188;
+  font-size:10px;
+}
+html[data-local-role=admin] .rev-category-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:22px;
+  padding:3px 8px;
+  border:1px solid #dbe6df;
+  border-radius:999px;
+  background:#edf5f0;
+  color:#4e725f;
+  font-size:10px;
+  font-weight:600;
+  line-height:1.35;
+  white-space:nowrap;
+}
+html[data-local-role=admin] button[data-action=rev-revoke-audit],
+html[data-local-role=admin] .r37-withdraw-log{
+  display:none!important;
+}

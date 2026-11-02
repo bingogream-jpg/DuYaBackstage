@@ -1,0 +1,56 @@
+html[data-local-role=mini] .r33m-coupons,html[data-local-role=mini] .r33m-poster-page{font-family:"Microsoft YaHei",Arial,sans-serif;box-sizing:border-box;min-height:100%;padding:16px;color:#192513}
+html[data-local-role=mini] .r33m-coupons{background:linear-gradient(145deg,#f4f8e3,#f7f9ef 50%,#f8faf4);padding-top:17px}
+html[data-local-role=mini] .r33m-coupons button,html[data-local-role=mini] .r33m-poster-page button{font:inherit;cursor:pointer}
+html[data-local-role=mini] .r33m-art{display:block;position:relative;overflow:hidden;pointer-events:none;flex-shrink:0}
+html[data-local-role=mini] .r33m-art img{position:absolute;max-width:none;object-fit:fill}
+html[data-local-role=mini] .r33m-coupon-hero{height:98px;position:relative;padding-top:1px;box-sizing:border-box}
+html[data-local-role=mini] .r33m-coupon-hero>small{font-size:9px;color:#a0b47a;letter-spacing:2px;position:relative;z-index:2}
+html[data-local-role=mini] .r33m-coupon-hero h1{font-size:24px;line-height:1.3;margin:8px 0 9px;font-weight:800;position:relative;z-index:2}
+html[data-local-role=mini] .r33m-coupon-hero>p{font-size:12px;color:#a3ad96;margin:0;position:relative;z-index:2}
+html[data-local-role=mini] .r33m-art-coupons{position:absolute;right:-5px;top:-17px;width:56%;clip-path:polygon(0 0,75% 0,75% 52%,100% 52%,100% 100%,26% 100%,26% 70%,0 70%);mix-blend-mode:multiply;mask-image:radial-gradient(ellipse at 50% 54%,#000 52%,transparent 76%)}
+html[data-local-role=mini] .r33m-available{position:absolute;right:0;top:1px;border-radius:18px;background:#f9fbf1dd;min-width:43px;padding:8px 5px;text-align:center;z-index:3}
+html[data-local-role=mini] .r33m-available>b{font-size:23px;line-height:1.1;color:#426c0d;display:block}
+html[data-local-role=mini] .r33m-available>small{font-size:9px;color:#929d82;display:block;margin-top:3px}
+html[data-local-role=mini] .r33m-coupon-tabs{display:flex;gap:8px;position:relative;z-index:3;margin-bottom:17px;overflow-x:auto;scrollbar-width:none}
+html[data-local-role=mini] .r33m-coupon-tabs>button{flex:0 0 auto;min-width:66px;border:0;background:#ffffffed;border-radius:24px;padding:9px 13px;color:#929a89;font-size:12px;white-space:nowrap}
+html[data-local-role=mini] .r33m-coupon-tabs b{font-weight:400}
+html[data-local-role=mini] .r33m-coupon-tabs>button.on{background:linear-gradient(110deg,#7eab1c,#619409);color:white;font-weight:600}
+html[data-local-role=mini] .r33m-coupon-tabs>button.on b{font-weight:600}
+html[data-local-role=mini] .r33m-coupon-list{display:flex;flex-direction:column;gap:12px}
+html[data-local-role=mini] .r33m-ticket{border:2px solid white;border-radius:16px;background:white;display:grid;grid-template-columns:27% minmax(0,1fr);overflow:hidden;box-shadow:0 4px 12px #7d9a2910;position:relative;min-height:86px}
+html[data-local-role=mini] .r33m-ticket:before{content:"";position:absolute;left:-8px;top:calc(50% - 7px);width:14px;height:14px;border:2px solid white;border-radius:50%;background:#f5f8e9;z-index:2}
+html[data-local-role=mini] .r33m-ticket-value{background:linear-gradient(100deg,#f8fbed,#edf4d8);border-right:1px dashed #d6e2b9;color:#486e0d;display:flex;flex-direction:column;justify-content:center;padding:10px 6px 10px 11px;min-width:0;box-sizing:border-box}
+html[data-local-role=mini] .r33m-ticket-value>small{font-size:12px;line-height:1;align-self:flex-start;margin-bottom:1px}
+html[data-local-role=mini] .r33m-ticket-value>b{display:block;text-align:center;font-size:33px;line-height:1.05;overflow-wrap:normal;white-space:nowrap;letter-spacing:-1px}
+html[data-local-role=mini] .r33m-ticket-value>span{display:block;color:#99a185;font-size:9px;text-align:center;margin-top:7px;line-height:1.4}
+html[data-local-role=mini] .r33m-ticket-info{padding:9px 10px 9px 13px;display:flex;flex-direction:column;min-width:0;gap:7px}
+html[data-local-role=mini] .r33m-ticket-info header{display:flex;justify-content:space-between;gap:5px;align-items:flex-start}
+html[data-local-role=mini] .r33m-ticket-info h2{font-size:13px;line-height:1.5;font-weight:700;margin:0;overflow-wrap:anywhere;min-width:0}
+html[data-local-role=mini] .r33m-ticket-info em{background:#f0f6e0;color:#819f3d;border-radius:14px;font-size:9px;padding:3px 6px;white-space:nowrap;font-style:normal;flex-shrink:0;line-height:1.4}
+html[data-local-role=mini] .r33m-ticket-info>p{font-size:10px;color:#999f94;margin:0;line-height:1.5;overflow-wrap:anywhere}
+html[data-local-role=mini] .r33m-ticket-info footer{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:auto}
+html[data-local-role=mini] .r33m-ticket-info footer>span{font-size:8px;line-height:1.4;color:#98a18f;min-width:0}
+html[data-local-role=mini] .r33m-ticket-info footer i{font-style:normal;font-size:11px}
+html[data-local-role=mini] .r33m-ticket-info button{border:0;border-radius:20px;background:linear-gradient(110deg,#7ba418,#63950c);color:white;font-size:11px;padding:7px 12px;white-space:nowrap;flex-shrink:0}
+html[data-local-role=mini] .r33m-ticket.muted .r33m-ticket-value{background:#f3f4ef;color:#a6ad9a}
+html[data-local-role=mini] .r33m-ticket.muted h2{color:#858e7d}
+html[data-local-role=mini] .r33m-ticket.muted em{background:#f2f3ef;color:#a1a796}
+html[data-local-role=mini] .r33m-ticket button:disabled{background:#e9ede1;color:#a6af99;cursor:default}
+html[data-local-role=mini] .r33m-empty{background:#ffffffd9;border-radius:16px;text-align:center;padding:40px 12px;color:#8d9e75;font-size:14px}
+html[data-local-role=mini] .r33m-empty p{font-size:11px;color:#a1ac94;margin:10px 0 0}
+html[data-local-role=mini] .r33m-poster-page{background:#eef1e9;padding:13px 14px 20px}
+html[data-local-role=mini] .r33m-poster{border-radius:18px;overflow:hidden;background:#f7f7e9;box-shadow:0 10px 25px #29390e0b}
+html[data-local-role=mini] .r33m-art-poster{width:100%}
+html[data-local-role=mini] .r33m-uploaded-art{width:100%;aspect-ratio:1860/2245;overflow:hidden}
+html[data-local-role=mini] .r33m-uploaded-art img{width:100%;height:100%;object-fit:cover;display:block}
+html[data-local-role=mini] .r33m-poster-footer{position:relative;background:linear-gradient(105deg,#f3f5e4,#faf9ee);border-radius:25px 25px 0 0;margin-top:-4px;padding:20px 20px 18px;display:grid;grid-template-columns:58% 42%;align-items:center;gap:0;color:#23472b}
+html[data-local-role=mini] .r33m-poster-code{min-width:0;padding-right:12px}
+html[data-local-role=mini] .r33m-poster-code>small{font-size:10px;display:block;margin-bottom:7px}
+html[data-local-role=mini] .r33m-poster-code>b{display:block;font:bold clamp(20px,7.3vw,30px)/1.25 Arial,sans-serif;overflow-wrap:anywhere;letter-spacing:0}
+html[data-local-role=mini] .r33m-poster-code>span{font-size:9px;color:#a0a58e;display:block;margin-top:9px;line-height:1.5;overflow-wrap:anywhere}
+html[data-local-role=mini] .r33m-qr{border-left:1px solid #dde4ca;padding-left:16px;display:flex;align-items:center;flex-direction:column;min-width:0}
+html[data-local-role=mini] .r33m-qr img{display:block;width:84px;max-width:100%;padding:7px;box-sizing:border-box;background:white;border-radius:9px;image-rendering:pixelated}
+html[data-local-role=mini] .r33m-qr small{font-size:9px;line-height:1.5;white-space:nowrap;margin-top:7px;color:#6e7d53}
+html[data-local-role=mini] .r33m-save-poster{display:block;border:0;border-radius:30px;background:linear-gradient(100deg,#92a75b,#758e3e);color:white;font-size:14px;font-weight:600!important;margin:17px auto 0;padding:13px 27px}
+html[data-local-role=mini] .app:has(.r33m-coupons),html[data-local-role=mini] .app:has(.r33m-poster-page){width:100%}
+@media(max-width:350px){html[data-local-role=mini] .r33m-coupons{padding-left:12px;padding-right:12px}html[data-local-role=mini] .r33m-coupon-hero h1{font-size:22px}html[data-local-role=mini] .r33m-coupon-hero>p{font-size:11px}html[data-local-role=mini] .r33m-ticket-info{padding-left:9px;padding-right:7px}html[data-local-role=mini] .r33m-ticket-info h2{font-size:12px}html[data-local-role=mini] .r33m-ticket-info button{font-size:10px;padding:7px 9px}html[data-local-role=mini] .r33m-ticket-value>b{font-size:29px}html[data-local-role=mini] .r33m-poster-footer{padding:16px 14px}html[data-local-role=mini] .r33m-qr{padding-left:10px}}

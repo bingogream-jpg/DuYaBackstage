@@ -1,0 +1,45 @@
+html[data-local-role="admin"] .r37-admin-tabs{margin:0 0 16px!important;display:flex!important;flex-wrap:nowrap!important;gap:4px!important;overflow-x:auto;padding:0 0 4px!important}
+html[data-local-role="admin"] .r37-admin-tabs .tab-button{flex:0 0 auto!important;border-radius:9px!important;border:1px solid #dbe7e1!important;background:#fff!important;color:#4f675b!important;min-height:36px!important;padding:0 18px!important}
+html[data-local-role="admin"] .r37-admin-tabs .tab-button.active{background:#0d3b32!important;border-color:#0d3b32!important;color:#fff!important}
+html[data-local-role="admin"] .r37-actions-row{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;min-height:34px!important;padding:0 0 10px!important;margin:0!important}
+html[data-local-role="admin"] .r37-filter-grid{align-items:flex-end!important}
+html[data-local-role="admin"] .r37-table-link,
+html[data-local-role="admin"] table td:not([data-r32-col="actions"]):not(.a37-ops) button.cell-link,
+html[data-local-role="admin"] table td:not([data-r32-col="actions"]):not(.a37-ops) .g12-invite-count{border:0!important;background:transparent!important;box-shadow:none!important;color:#0d3b32!important;height:auto!important;min-height:0!important;padding:1px 2px!important;font:inherit!important;font-weight:650!important;text-decoration:none!important;white-space:normal!important;cursor:pointer}
+html[data-local-role="admin"] .r37-table-link:hover{text-decoration:underline!important;text-underline-offset:3px}
+html[data-local-role="admin"] .r37-table-link:focus-visible{outline:2px solid #0d3b32;outline-offset:2px;border-radius:4px}
+html[data-local-role="admin"] .r37-checkin-query{flex:0 1 320px!important;min-width:260px!important;max-width:320px!important}
+html[data-local-role="admin"] .r37-unified-pager{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;padding:11px 12px!important;margin:12px 0 0!important;border-top:1px solid #dfe7e1!important;background:#fff!important;color:#64786c!important;font-size:11px!important}
+html[data-local-role="admin"] .r37-unified-pager .g8-pager{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
+html[data-local-role="admin"] .r37-unified-pager .pagination{display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:wrap!important}
+html[data-local-role="admin"] .r37-unified-pager button{min-width:30px!important;height:30px!important;padding:0 8px!important;border:1px solid #d6e1d9!important;border-radius:7px!important;background:#fff!important;color:#24503b!important;cursor:pointer!important;font:inherit!important}
+html[data-local-role="admin"] .r37-unified-pager button.active,
+html[data-local-role="admin"] .r37-unified-pager .r28-choice-row button.on{background:#0d3b32!important;border-color:#0d3b32!important;color:#fff!important}
+html[data-local-role="admin"] .r37-unified-pager button:disabled{opacity:.38!important;cursor:not-allowed!important}
+html[data-local-role="admin"] .r37-unified-pager .g8-jump{display:flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
+html[data-local-role="admin"] .r37-unified-pager .g8-jump input{width:54px!important;height:30px!important;border:1px solid #d6e1d9!important;border-radius:7px!important;padding:0 6px!important}
+html[data-local-role="admin"] .r37-unified-pager .r28-choice-row{display:flex!important;gap:4px!important;flex-wrap:nowrap!important}
+html[data-local-role="admin"] .r37-choice{display:flex!important;flex-wrap:wrap!important;gap:6px!important;min-height:38px;align-items:center}
+html[data-local-role="admin"] .r37-choice button{border:1px solid #d4e1da!important;background:#fff!important;color:#405b4d!important;border-radius:8px!important;min-height:34px!important;padding:0 13px!important;font:inherit!important;font-size:12px!important;cursor:pointer!important;white-space:nowrap}
+html[data-local-role="admin"] .r37-choice button.on{background:#0d3b32!important;border-color:#0d3b32!important;color:#fff!important}
+html[data-local-role="admin"] .r37-coupon-field{padding-bottom:2px!important}
+html[data-local-role="admin"] .r37-coupon-picker{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;width:100%!important;min-height:48px!important;border:1px solid #c8d9d4!important;border-radius:8px!important;background:#fff!important;color:#24443b!important;padding:7px 10px!important;text-align:left!important;cursor:pointer!important}
+html[data-local-role="admin"] .r37-coupon-picker small{font-size:10px;color:#7b9085}
+html[data-local-role="admin"] .r37-coupon-modal{display:grid;gap:12px}
+html[data-local-role="admin"] .r37-coupon-modal>label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:650}
+html[data-local-role="admin"] .r37-coupon-modal input{height:36px;border:1px solid #c8d9d4;border-radius:8px;padding:0 10px}
+html[data-local-role="admin"] .r37-coupon-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:52vh;overflow:auto;padding:2px}
+html[data-local-role="admin"] .r37-coupon-options button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1px solid #d6e2dc;border-radius:9px;background:#fff;color:#294a3e;padding:10px 12px;text-align:left;cursor:pointer}
+html[data-local-role="admin"] .r37-coupon-options button.on{border-color:#0d3b32;background:#edf5ef}
+html[data-local-role="admin"] .r37-coupon-options span{font-size:11px;color:#70867b}
+html[data-local-role="admin"] .r37-offline-note{margin:14px 0 0;padding:11px 13px;border-radius:8px;background:#fff6dd;color:#7c6217;font-size:12px}
+html[data-local-role="admin"] .r37-modal-scroll{max-height:62vh;overflow:auto}
+html[data-local-role="admin"] .r37-filter-grid label:has(input[name="r37RewardUser"]),
+html[data-local-role="admin"] .r37-filter-grid label:has(input[name="r37RewardActivity"]),
+html[data-local-role="admin"] .r37-record-filters label:has(input[name="r37RecordActivityQuery"]),
+html[data-local-role="admin"] .r37-record-filters label:has(input[name="r37RecordUserQuery"]){flex:1 1 230px!important;min-width:210px!important;max-width:none!important}
+@media(max-width:900px){
+ html[data-local-role="admin"] .r37-unified-pager{align-items:flex-start!important}
+ html[data-local-role="admin"] .r37-unified-pager>.g8-pager{width:100%!important}
+ html[data-local-role="admin"] .r37-coupon-options{grid-template-columns:1fr}
+}

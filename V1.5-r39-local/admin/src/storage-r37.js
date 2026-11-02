@@ -1,0 +1,9 @@
+// Lossless storage envelope avoids duplicating several megabytes of legacy JSON.
+// The r36 cache is only read. Both current r37 data and backups retain checksums.
+(()=>{
+ const prefix='r37:lzw1:';
+ const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16);};
+ function packRaw(raw){const bytes=new TextEncoder().encode(raw);if(!bytes.length)return prefix+hash(raw)+':';const dict=new Map();let next=256,word=String.fromCharCode(bytes[0]);const out=[];for(let i=1;i<bytes.length;i++){const c=String.fromCharCode(bytes[i]),pair=word+c;if(dict.has(pair))word=pair;else{out.push(String.fromCharCode(word.length===1?word.charCodeAt(0):dict.get(word)));if(next<65536)dict.set(pair,next++);word=c;}}out.push(String.fromCharCode(word.length===1?word.charCodeAt(0):dict.get(word)));return prefix+hash(raw)+':'+out.join('');}
+ function unpackRaw(raw){if(!raw.startsWith(prefix))return raw;const split=raw.indexOf(':',prefix.length),checksum=raw.slice(prefix.length,split),packed=raw.slice(split+1);const dict=Array.from({length:256},(_,i)=>String.fromCharCode(i));let word=packed.length?dict[packed.charCodeAt(0)]:'';if(word==null)throw Error('r37缓存编码无效');const chunks=[word];for(let i=1;i<packed.length;i++){const code=packed.charCodeAt(i),entry=dict[code]??(code===dict.length?word+word[0]:null);if(entry==null)throw Error('r37缓存损坏');chunks.push(entry);if(dict.length<65536)dict.push(word+entry[0]);word=entry;}const bin=chunks.join(''),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);const decoded=new TextDecoder('utf-8',{fatal:true}).decode(bytes);if(hash(decoded)!==checksum)throw Error('r37缓存校验失败，原数据已保留');return decoded;}
+ window.R37Storage={packRaw,unpackRaw,encode:data=>packRaw(JSON.stringify(data)),decode:raw=>JSON.parse(unpackRaw(raw))};
+})();

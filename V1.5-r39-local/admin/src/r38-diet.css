@@ -1,0 +1,484 @@
+/* r38 standard food selection, batch cart and portion sheet. */
+html[data-local-role=mini] .x38-food-page{
+  min-height:100%;
+  padding:10px 14px 118px;
+  background:#fff!important;
+  color:#183a2d;
+  box-sizing:border-box;
+}
+html[data-local-role=mini] .x38-food-page .r27-food-card{
+  position:relative;
+  padding-right:52px!important;
+  background:#fff!important;
+  border-color:#e8eee6!important;
+  box-shadow:0 3px 12px #173d2810!important;
+}
+html[data-local-role=mini] .x38-food-page .r27-food-main{
+  padding-right:0!important;
+}
+html[data-local-role=mini] .x38-food-page .r27-food-main em{
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:6px;
+  color:#7d9184!important;
+  white-space:normal!important;
+}
+html[data-local-role=mini] .x38-food-page .r27-food-main em span{
+  display:inline-flex;
+  align-items:center;
+  min-height:20px;
+  padding:1px 6px;
+  border-radius:10px;
+  background:#edf4ea;
+  font-size:11px;
+  line-height:1.4;
+}
+html[data-local-role=mini] .x38-food-page .r27-food-main small b{
+  color:#547d24;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-plus{
+  position:absolute;
+  right:12px;
+  bottom:13px;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:linear-gradient(120deg,#83a72f,#5f8c10);
+  color:#fff;
+  font:600 24px/1 Arial,sans-serif;
+  box-shadow:0 4px 12px #557d1738;
+}
+html[data-local-role=mini] .x38-cart{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  z-index:38;
+  width:min(430px,100%);
+  transform:translateX(-50%);
+  padding:0;
+  box-sizing:border-box;
+  pointer-events:none;
+}
+html[data-local-role=mini] .x38-cart>*{
+  pointer-events:auto;
+}
+html[data-local-role=mini] .x38-cart-details{
+  max-height:235px;
+  overflow:auto;
+  margin-bottom:8px;
+  padding:13px 14px 8px;
+  border:1px solid #e3ebe1;
+  border-radius:17px;
+  background:#fff;
+  box-shadow:0 -8px 30px #1636241a;
+}
+html[data-local-role=mini] .x38-cart-details h3{
+  margin:0 0 8px;
+  color:#1d3f30;
+  font-size:14px;
+}
+html[data-local-role=mini] .x38-cart-details>div{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 30px;
+  align-items:center;
+  gap:8px;
+  min-height:50px;
+  border-top:1px dashed #e8eee7;
+}
+html[data-local-role=mini] .x38-cart-details>div:first-of-type{
+  border-top:0;
+}
+html[data-local-role=mini] .x38-cart-details button{
+  min-width:0;
+  border:0;
+  background:transparent;
+  color:#294f3b;
+  text-align:left;
+}
+html[data-local-role=mini] .x38-cart-details button b,
+html[data-local-role=mini] .x38-cart-details button small{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .x38-cart-details button b{
+  font-size:12px;
+}
+html[data-local-role=mini] .x38-cart-details button small{
+  margin-top:4px;
+  color:#8b9a90;
+  font-size:10px;
+}
+html[data-local-role=mini] .x38-cart-details [data-act=x38-batch-remove]{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#f4f6f3;
+  color:#8e9a93;
+  font-size:18px;
+  text-align:center;
+}
+html[data-local-role=mini] .x38-cart-bar{
+  display:grid;
+  grid-template-columns:65px minmax(0,1fr) 68px;
+  align-items:center;
+  min-height:68px;
+  overflow:hidden;
+  border:1px solid #e2ebe0;
+  border-radius:0;
+  background:#fff;
+  box-shadow:0 10px 30px #102f201f;
+}
+html[data-local-role=mini] .x38-cart-bar>button{
+  align-self:stretch;
+  min-width:0;
+  border:0;
+  background:transparent;
+  color:#47604f;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand]{
+  overflow:hidden;
+  color:#5b6f62;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand] b{
+  color:#6c9224;
+}
+html[data-local-role=mini] .x38-cart-bar .x38-confirm{
+  height:42px;
+  margin:5px;
+  border-radius:22px;
+  background:linear-gradient(120deg,#83a936,#5d8b0d);
+  color:#fff;
+  font-size:12px;
+  font-weight:650;
+}
+html[data-local-role=mini] .x38-cart-bar .x38-confirm:disabled{
+  background:#e6ebe4;
+  color:#9aa69e;
+}
+html[data-local-role=mini] .x38-portion{
+  display:grid;
+  gap:15px;
+  color:#173b2e;
+}
+html[data-local-role=mini] .x38-times{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+html[data-local-role=mini] .x38-times label{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+  color:#768c80;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-times input{
+  width:100%;
+  height:39px;
+  min-width:0;
+  box-sizing:border-box;
+  padding:7px 8px;
+  border:1px solid #e1e9e0;
+  border-radius:11px;
+  background:#fff;
+  color:#294d3c;
+  font-size:12px;
+}
+html[data-local-role=mini] .x38-meal-row{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  color:#768c80;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-meal-options{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  min-width:0;
+}
+html[data-local-role=mini] .x38-meal-options button{
+  min-width:0;
+  min-height:36px;
+  padding:7px 3px;
+  border:1px solid #e1e9e0;
+  border-radius:11px;
+  background:#fff;
+  color:#6f8176;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-meal-options button.on{
+  border-color:#719622;
+  background:#eef5e7;
+  color:#547b12;
+  font-weight:650;
+}
+html[data-local-role=mini] .x38-food-info{
+  padding:17px 15px;
+  border:1px solid #e7eee5;
+  border-radius:18px;
+  background:linear-gradient(145deg,#fff,#f7fbf3);
+}
+html[data-local-role=mini] .x38-food-info h2{
+  margin:0 0 12px;
+  color:#193e2e;
+  font-size:21px;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+html[data-local-role=mini] .x38-food-info h3{
+  margin:0 0 10px;
+  color:#4e7d16;
+  font-size:23px;
+  line-height:1.3;
+}
+html[data-local-role=mini] .x38-food-info h3 b{
+  color:#173d2b;
+  font-size:31px;
+}
+html[data-local-role=mini] .x38-popup-macros{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  color:#73867b;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-popup-macros span{
+  padding:5px 8px;
+  border-radius:11px;
+  background:#eef5e8;
+}
+html[data-local-role=mini] .x38-popup-macros b{
+  color:#456c24;
+}
+html[data-local-role=mini] .x38-energy-bar{
+  display:flex;
+  height:6px;
+  overflow:hidden;
+  margin-top:13px;
+  border-radius:6px;
+  background:#edf1ea;
+}
+html[data-local-role=mini] .x38-energy-bar i{
+  display:block;
+  height:100%;
+}
+html[data-local-role=mini] .x38-quantity{
+  padding:16px 14px;
+  border:1px solid #e7eee5;
+  border-radius:18px;
+  background:#fff;
+}
+html[data-local-role=mini] .x38-quantity>p{
+  margin:0 0 12px;
+  color:#687e71;
+  font-size:12px;
+}
+html[data-local-role=mini] .x38-quantity>p b{
+  color:#456d1e;
+  font-size:15px;
+}
+html[data-local-role=mini] .x38-quantity>label{
+  display:grid;
+  grid-template-columns:30px minmax(48px,1fr) auto;
+  align-items:center;
+  gap:6px;
+  color:#75897e;
+  font-size:13px;
+}
+html[data-local-role=mini] .x38-quantity input{
+  width:100%;
+  min-width:0;
+  height:48px;
+  box-sizing:border-box;
+  padding:8px 10px;
+  border:1px solid #dfe8dd;
+  border-radius:11px;
+  color:#173d2b;
+  font-size:25px;
+  font-weight:700;
+  text-align:right;
+}
+html[data-local-role=mini] .x38-unit-tabs{
+  display:flex;
+  gap:5px;
+}
+html[data-local-role=mini] .x38-unit-tabs button{
+  min-width:32px;
+  height:36px;
+  padding:0 7px;
+  border:1px solid #e0e8de;
+  border-radius:10px;
+  background:#fff;
+  color:#74887c;
+  font-size:13px;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .x38-unit-tabs button.on{
+  border-color:#6e9420;
+  background:#6e9420;
+  color:#fff;
+}
+html[data-local-role=mini] .x38-quantity>small{
+  display:block;
+  margin:14px 0 7px;
+  color:#88988e;
+  font-size:10px;
+}
+html[data-local-role=mini] .x38-history{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+html[data-local-role=mini] .x38-history button{
+  padding:6px 9px;
+  border:1px solid #e0e8de;
+  border-radius:14px;
+  background:#f7faf5;
+  color:#607667;
+  font-size:10px;
+}
+html[data-local-role=mini] .x38-primary{
+  width:100%;
+  min-height:47px;
+  border:0;
+  border-radius:25px;
+  background:linear-gradient(115deg,#83a92f,#5d8c0b);
+  color:#fff;
+  font-size:15px;
+  font-weight:650;
+  box-shadow:0 8px 18px #527a1826;
+}
+html[data-local-role=mini] .x38-meal-picker{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+html[data-local-role=mini] .x38-meal-picker button{
+  min-height:48px;
+  border:1px solid #e1e9df;
+  border-radius:14px;
+  background:#f8fbf7;
+  color:#496351;
+  font-size:14px;
+}
+html[data-local-role=mini] .x38-calendar{
+  display:inline-grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  margin-left:5px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#f0f6e9;
+  color:#61851f;
+  font-size:15px;
+  vertical-align:middle;
+}
+@media(max-width:340px){
+  html[data-local-role=mini] .x38-food-page{padding-right:10px;padding-left:10px}
+  html[data-local-role=mini] .x38-cart{padding:0 6px}
+  html[data-local-role=mini] .x38-cart-bar{grid-template-columns:58px minmax(0,1fr) 62px}
+  html[data-local-role=mini] .x38-times{gap:7px}
+  html[data-local-role=mini] .x38-meal-row{grid-template-columns:36px minmax(0,1fr)}
+  html[data-local-role=mini] .x38-meal-options{gap:5px}
+  html[data-local-role=mini] .x38-quantity>label{gap:7px}
+  html[data-local-role=mini] .x38-unit-tabs button{min-width:38px;padding:0 6px}
+}
+
+/* Local, explicit food-card layout: no legacy b/small/em or entry arrow. */
+html[data-local-role=mini] .x38-food-page .r27-food-main::after {content:none!important;display:none!important}
+html[data-local-role=mini] .x38-food-page .r27-food-card {padding:13px 48px 13px 13px!important;border:1px solid #e8eee8!important;border-radius:16px!important;margin:0 0 9px!important;min-height:112px;box-sizing:border-box}
+html[data-local-role=mini] .x38-food-page .r27-food-main {display:flex!important;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;width:100%;background:transparent;text-align:left}
+html[data-local-role=mini] .x38-food-name {font-size:16px;line-height:1.4;color:#204d3c;overflow-wrap:anywhere}
+html[data-local-role=mini] .x38-food-energy {display:block;white-space:nowrap;font-size:13px;color:#8c9b91;line-height:1.4}
+html[data-local-role=mini] .x38-food-energy b {display:inline!important;font-size:19px;color:#6e981e}
+html[data-local-role=mini] .x38-food-nutrients {display:flex;flex-wrap:wrap;gap:5px;font-style:normal}
+html[data-local-role=mini] .x38-food-nutrients>span {display:inline-flex;padding:3px 7px;border-radius:14px;font-size:11px;white-space:nowrap}
+html[data-local-role=mini] .x38-macro-carb {background:#fff5db!important;color:#b77b06!important}
+html[data-local-role=mini] .x38-macro-protein {background:#e9f5ff!important;color:#248dd1!important}
+html[data-local-role=mini] .x38-macro-fat {background:#ffeded!important;color:#de5055!important}
+html[data-local-role=mini] .x38-food-page .r27-food-fav {right:12px;top:12px;background:transparent;box-shadow:none}
+html[data-local-role=mini] .x38-cart-bar {display:grid;grid-template-columns:72px minmax(0,1fr) 77px;min-height:74px;border:0;border-top:1px solid #e7ece8;background:white;border-radius:0;box-shadow:0 -3px 16px #183b2910;padding:8px;box-sizing:border-box;gap:6px}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-meal] {display:flex;align-items:center;justify-content:center;gap:4px;font-size:16px;color:#618e1e;white-space:nowrap;padding:0;border-right:1px solid #e6eae5}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-meal] i {display:flex;width:19px;height:23px}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-meal] svg {width:100%;height:100%}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand] {display:grid;grid-template-columns:auto auto;align-items:center;justify-content:space-evenly;gap:5px;font-size:12px;white-space:normal;text-overflow:clip;padding:0;line-height:1.5}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand]>span {white-space:nowrap}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand]>span:first-child {border-right:1px solid #e6eae5;padding-right:7px}
+html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand] b {font-size:19px;color:#6b951e}
+html[data-local-role=mini] .x38-cart-bar .x38-confirm {border:0;border-radius:24px;color:white;background:linear-gradient(120deg,#7ca527,#5d900c);font-size:17px;height:43px;margin:0}
+html[data-local-role=mini] .x38-cart-bar .x38-confirm:disabled {background:#dfe7d7;color:#96a58d;box-shadow:none}
+html[data-local-role=mini] .x38-cart-details {margin:0;border-radius:20px 20px 0 0;max-height:42vh}
+html[data-local-role=mini] .x38-portion {gap:16px;padding:2px 0 12px}
+html[data-local-role=mini] .x38-basis {font-size:13px;color:#8a9b90;margin:-6px 0 18px}
+html[data-local-role=mini] .x38-food-info h3 {font-size:17px;font-weight:400;color:#779184}
+html[data-local-role=mini] .x38-food-info h3 b {font-size:35px}
+html[data-local-role=mini] .x38-popup-macros {gap:6px;font-size:13px}
+html[data-local-role=mini] .x38-popup-macros b {color:inherit}
+html[data-local-role=mini] .x38-quantity>.x38-amount-row {display:grid;grid-template-columns:30px minmax(45px,1fr) auto;gap:5px;align-items:center}
+html[data-local-role=mini] .x38-unit-tabs {display:flex;flex-wrap:nowrap;gap:2px;align-items:center;white-space:nowrap}
+html[data-local-role=mini] .x38-unit-tabs button {border:0;border-radius:0;background:transparent;color:#879a8d;min-width:30px;height:38px;padding:0 6px;font-size:15px}
+html[data-local-role=mini] .x38-unit-tabs button.on {background:#edf5e5;color:#648c18;box-shadow:inset 0 -2px #739b24;font-weight:700}
+@media(max-width:350px){
+ html[data-local-role=mini] .x38-food-page {padding:8px 9px 100px}
+ html[data-local-role=mini] .x38-food-name {font-size:14px}
+ html[data-local-role=mini] .x38-food-nutrients>span {font-size:10px;padding:3px 5px}
+ html[data-local-role=mini] .x38-cart-bar {grid-template-columns:62px minmax(0,1fr) 65px;gap:4px;padding:8px 5px}
+ html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand] {grid-template-columns:1fr;gap:0;font-size:12px}
+ html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-expand]>span:first-child {border-right:0;padding-right:0}
+ html[data-local-role=mini] .x38-cart-bar>[data-act=x38-batch-meal] {font-size:14px}
+ html[data-local-role=mini] .x38-quantity {padding:13px 10px}
+}
+
+/* Nutrition belongs to the metabolism card, using today's authoritative totals. */
+html[data-local-role=mini] .track-met .x38-met-nutrition {display:grid;grid-template-columns:minmax(90px,.8fr) minmax(0,1.5fr);gap:16px;align-items:center;margin:16px 0 0;padding:18px 0 0;border:0;border-top:1px solid #edf0ed;border-radius:0;background:white;box-shadow:none}
+html[data-local-role=mini] .x38-met-nutrition .r25-calorie-ring {width:100%;max-width:128px;aspect-ratio:1;height:auto;margin:auto;border-radius:50%;background:conic-gradient(#80b742 var(--r25-pct),#eff2f0 0);padding:8px;box-sizing:border-box}
+html[data-local-role=mini] .x38-met-nutrition .r25-calorie-ring>div {border-radius:50%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:white}
+html[data-local-role=mini] .x38-met-nutrition .r25-calorie-ring b {font-size:32px;color:#171f1b;line-height:1.2}
+html[data-local-role=mini] .x38-met-nutrition .r25-calorie-ring span {font-size:13px;color:#798780}
+html[data-local-role=mini] .x38-met-nutrition .r25-calorie-ring small {font-size:12px;color:#8b9990}
+html[data-local-role=mini] .x38-met-nutrition .r25-record-macros {min-width:0;padding-left:12px;border-left:1px solid #edf0ed;display:grid;gap:15px}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro {display:grid;grid-template-columns:29px minmax(0,1fr);gap:7px;align-items:center}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-icon {display:grid;place-items:center;width:29px;height:29px;border-radius:50%}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-icon svg {width:19px;height:19px}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-detail>div {display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:12px;color:#4a5d51}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-detail b {font-size:12px;color:#263b30}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-detail>i {height:7px;background:#f0f3f1;border-radius:7px;display:block;overflow:hidden;margin-top:5px}
+html[data-local-role=mini] .x38-met-nutrition .r37d-macro-detail em {height:100%;display:block;border-radius:inherit}
+html[data-local-role=mini] .x38-met-nutrition .macro-carb .r37d-macro-icon {background:#e4f5fd;color:#3aafe0}
+html[data-local-role=mini] .x38-met-nutrition .macro-carb em {background:#45b6e6}
+html[data-local-role=mini] .x38-met-nutrition .macro-protein .r37d-macro-icon {background:#fff6dc;color:#efb938}
+html[data-local-role=mini] .x38-met-nutrition .macro-protein em {background:#f5c84d}
+html[data-local-role=mini] .x38-met-nutrition .macro-fat .r37d-macro-icon {background:#ffeaf1;color:#ee7ba5}
+html[data-local-role=mini] .x38-met-nutrition .macro-fat em {background:#ee7ba5}
+html[data-local-role=mini] .x38-met-actions {grid-column:1/-1;display:flex;justify-content:space-between;gap:12px}
+html[data-local-role=mini] .x38-met-actions button {border:0;background:transparent;color:#70954d;font-size:12px;padding:5px 0}
+html[data-local-role=mini] .x38-ml-note {color:#8c9a91;font-size:11px;line-height:1.7;margin-top:10px;display:block}
+html[data-local-role=mini] .x38-unit-tabs button {min-width:27px;padding:0 5px}
+html[data-local-role=mini] .x38-custom {display:grid;gap:16px;padding-bottom:12px}
+html[data-local-role=mini] .x38-custom>p {font-size:12px;color:#819286;margin:0}
+html[data-local-role=mini] .x38-custom-fields {padding:0 12px;border:1px solid #e9eee6;border-radius:16px}
+html[data-local-role=mini] .x38-custom-fields label {display:grid;grid-template-columns:70px minmax(0,1fr) 32px;align-items:center;gap:8px;min-height:58px;border-bottom:1px solid #edf1ea;color:#3c5748;font-size:14px}
+html[data-local-role=mini] .x38-custom-fields label:last-child {border:0}
+html[data-local-role=mini] .x38-custom-fields input {width:100%;min-width:0;border:0;background:transparent;font-size:16px;text-align:right;color:#214c32;padding:8px 0;outline:none}
+html[data-local-role=mini] .x38-custom-fields small {color:#96a094}
+html[data-local-role=mini] .x38-custom .x38-times select {height:39px;border:1px solid #e1e9e0;border-radius:11px;background:white;color:#294d3c;padding:8px;font-size:13px}
+html[data-local-role=mini] .r4-quick>div {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+html[data-local-role=mini] .r4-quick .quick-item {display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;border:0;background:transparent;color:#334b40;font-size:11px}
+html[data-local-role=mini] .r4-quick .quick-item .quick-icon {display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#eef6e6;color:#739e29;margin:0}
+html[data-local-role=mini] .r4-quick .quick-item svg {width:24px;height:24px}

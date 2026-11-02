@@ -1,0 +1,3008 @@
+(() => {
+  'use strict';
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const tomorrow = new Date(Date.now() + 86400000);
+  const isoDate = (date) => date.toISOString().slice(0, 10);
+  const todayISO = isoDate(new Date());
+  const tomorrowISO = isoDate(tomorrow);
+  const formatDate = (value) => new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(`${value}T00:00:00`));
+  const money = (value) => `¥${Number(value).toLocaleString('zh-CN', { minimumFractionDigits: Number(value) % 1 ? 1 : 0 })}`;
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const escapeHTML = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+  const normalizeAddress = (value = '') => value.replace(/[\s，,。.-]/g, '').replace(/室$/g, '');
+
+  const icons = {
+    home:'<path d="M3 10.5 8 6l5 4.5V15H9.7v-3.3H6.3V15H3v-4.5Z"/>',
+    brand:'<rect x="2.5" y="4" width="11" height="10" rx="2"/><path d="M5 4V2.5h6V4M5 8h6M8 8v6"/>',
+    quote:'<path d="M3 5h4v4H4c0 2-1 3-2 3M9 5h4v4h-3c0 2-1 3-2 3"/>',
+    box:'<path d="m2.5 5 5.5-3 5.5 3v6L8 14l-5.5-3V5Z"/><path d="m2.5 5 5.5 3 5.5-3M8 8v6"/>',
+    receipt:'<path d="M4 2.5h8v11l-2-1.2L8 13.5l-2-1.2-2 1.2v-11ZM6 6h4M6 9h4"/>',
+    layers:'<path d="m8 2 6 3-6 3-6-3 6-3Z"/><path d="m2 8 6 3 6-3M2 11l6 3 6-3"/>',
+    calendar:'<rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M5 2v3M11 2v3M2.5 7h11M5 10h2"/>',
+    truck:'<path d="M2 4h8v7H2V4Zm8 3h2l2 2v2h-4V7Z"/><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/>',
+    chart:'<path d="M3 13V8m5 5V3m5 10V6"/>',
+    users:'<path d="M6.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM2 14c.3-3 1.7-4.5 4.5-4.5S10.7 11 11 14M11 4.5a2 2 0 0 1 0 4M12 10c1.4.5 2 1.7 2 3.5"/>',
+    file:'<path d="M4 2.5h5l3 3v8H4v-11Z"/><path d="M9 2.5v3h3M6 9h4M6 11h3"/>',
+    settings:'<circle cx="8" cy="8" r="2.2"/><path d="M13.5 9.5v-3l-1.8-.5-.5-1.2.9-1.6-2.2-1.3-1.2 1.4H7.3L6.1 1.9 3.9 3.2 4.8 5 4.3 6 2.5 6.5v3l1.8.5.5 1.2-.9 1.6 2.2 1.3 1.2-1.4h1.4l1.2 1.4 2.2-1.3-.9-1.6.5-1.2 1.8-.5Z"/>',
+    search:'<circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>',
+    bell:'<path d="M3.5 11h9l-1.2-2V6a3.3 3.3 0 0 0-6.6 0v3l-1.2 2ZM6.5 13.5h3"/>',
+    chevronDown:'<path d="m4 6 4 4 4-4"/>',
+    chevronRight:'<path d="m6 4 4 4-4 4"/>',
+    arrowRight:'<path d="M2.5 8h11M10 4.5 13.5 8 10 11.5"/>',
+    plus:'<path d="M8 3v10M3 8h10"/>',
+    download:'<path d="M8 2.5v8M5 7.5l3 3 3-3M3 13.5h10"/>',
+    refresh:'<path d="M13 5V2.5L11.5 4A5.5 5.5 0 1 0 13 9"/>',
+    lock:'<rect x="3.5" y="7" width="9" height="7" rx="2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/>',
+    eye:'<path d="M1.5 8s2.5-4 6.5-4 6.5 4 6.5 4-2.5 4-6.5 4S1.5 8 1.5 8Z"/><circle cx="8" cy="8" r="2"/>',
+    user:'<circle cx="8" cy="5" r="2.7"/><path d="M3 14c.5-3 2.2-4.5 5-4.5s4.5 1.5 5 4.5"/>',
+    spark:'<path d="m8 1 .9 4.1L13 6l-4.1.9L8 11l-.9-4.1L3 6l4.1-.9L8 1ZM12.5 10l.4 1.6 1.6.4-1.6.4-.4 1.6-.4-1.6-1.6-.4 1.6-.4.4-1.6Z"/>',
+    close:'<path d="m4 4 8 8M12 4l-8 8"/>',
+    edit:'<path d="m3 11.5-.5 2 2-.5 7.8-7.8-1.5-1.5L3 11.5ZM9.8 4.7l1.5 1.5"/>',
+    check:'<path d="m3 8 3 3 7-7"/>',
+    alert:'<path d="M8 2 1.8 13h12.4L8 2Z"/><path d="M8 6v3M8 11.5v.1"/>',
+    logout:'<path d="M7 3H3v10h4M10 5l3 3-3 3M13 8H6"/>',
+    help:'<circle cx="8" cy="8" r="6"/><path d="M6.5 6a1.7 1.7 0 0 1 3.3.5c0 1.5-1.8 1.5-1.8 3M8 12v.1"/>',
+    filter:'<path d="M2 3h12L9.5 8v4L6.5 14V8L2 3Z"/>',
+    map:'<path d="M8 14s4-4.2 4-7.5a4 4 0 1 0-8 0C4 9.8 8 14 8 14Z"/><circle cx="8" cy="6.5" r="1.4"/>',
+    package:'<path d="M2.5 5.5h11v8h-11v-8ZM5 5.5V4a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 11 4v1.5M2.5 9h11"/>',
+    tag:'<path d="M2 2h5.2L14 8.8 8.8 14 2 7.2V2Z"/><circle cx="5.3" cy="5.3" r="1.2"/>',
+    chevronUp:'<path d="m4 10 4-4 4 4"/>',
+    chevronLeft:'<path d="m10 4-4 4 4 4"/>',
+    grip:'<circle cx="6" cy="5" r="1.2"/><circle cx="10" cy="5" r="1.2"/><circle cx="6" cy="11" r="1.2"/><circle cx="10" cy="11" r="1.2"/>'
+  };
+  function icon(name, size = 16) { return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 16 16" aria-hidden="true">${icons[name] || icons.file}</svg>`; }
+
+  function buildMenuWeeks() {
+    const base=new Date(2026,7,10),fmt=d=>`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`,iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const weeks=[];
+    for(let i=-8;i<=8;i++){
+      const start=new Date(base);start.setDate(start.getDate()+i*7);const end=new Date(start);end.setDate(end.getDate()+6);
+      const label=i<0?(i===-1?'上周':`${-i} 周前`):i===0?'本周':i===1?'下周':`未来第 ${i} 周`;
+      weeks.push({id:'W'+(33+i),label,range:`${fmt(start)} - ${fmt(end)}`,startDate:iso(start),endDate:iso(end),switchAt:i<0?'历史菜单':i===0?'本周菜单':'未来菜单'});
+    }
+    return weeks;
+  }
+
+  const initialData = {
+    brands: [
+      {id:'B001',name:'薄荷晨间',abbr:'轻盈早餐 · 元气开场',tone:'mint',types:['西式冷餐'],tags:['健康食材','低卡轻负担'],priceRange:'¥25-35',note:'重点品牌，每周菜单需提前上传',status:'上架',area:'全市核心城区',contact:'周店长 021-6688 2101',meals:8,packages:3,subs:286,tomorrow:86,logo:'',detailBlocks:[{id:'DB01',type:'image',content:'assets/meal-seasonal-fruit-nuts.jpg'},{id:'DB02',type:'text',content:'薄荷晨间主打轻盈冷餐与低负担沙拉，选用健康食材，每一份都控制热量与营养配比。'},{id:'DB03',type:'image',content:'assets/weekly-menu-july.jpg'},{id:'DB04',type:'text',content:'配送范围覆盖全市核心城区，午餐 11:30 前、晚餐 17:30 前送达。'}]},
+      {id:'B002',name:'谷物碗社',abbr:'东方谷物 · 日常均衡',tone:'amber',types:['能量碗'],tags:['营养均衡','高饱腹'],priceRange:'¥22-32',note:'门店备餐产能稳定',status:'上架',area:'全市核心城区',contact:'顾店长 021-6688 2102',meals:10,packages:4,subs:228,tomorrow:72,logo:'',detailBlocks:[{id:'DB01',type:'text',content:'谷物碗社专注东方谷物与能量碗，日常均衡、高饱腹，适合工作日常备餐。'},{id:'DB02',type:'image',content:'assets/healthy-package-7day.jpg'},{id:'DB03',type:'text',content:'每份能量碗均标注热量与营养结构，可按健康目标自由搭配。'}]},
+      {id:'B003',name:'鲜面研究所',abbr:'时蔬鲜面 · 清爽低负担',tone:'mint',types:['中式热食'],tags:['健康食材','少油少盐'],priceRange:'¥26-38',note:'面食需当日现做，出货时间略晚',status:'上架',area:'浦东、黄浦、静安',contact:'林店长 021-6688 2103',meals:6,packages:2,subs:112,tomorrow:48,logo:'',detailBlocks:[{id:'DB01',type:'image',content:'assets/package-cover-7day-premium.jpg'},{id:'DB02',type:'text',content:'鲜面研究所每日现做时蔬鲜面，清爽低负担，少油少盐。'},{id:'DB03',type:'text',content:'覆盖浦东、黄浦、静安，面食需当日现做，出货时间略晚。'}]},
+      {id:'B004',name:'暖汤小馆',abbr:'慢炖热汤 · 温润滋养',tone:'amber',types:['汤品'],tags:['营养均衡','暖胃'],priceRange:'¥24-34',note:'汤品保温要求高，冬季高峰期留意',status:'上架',area:'徐汇、长宁、静安',contact:'陈店长 021-6688 2104',meals:7,packages:3,subs:94,tomorrow:39,logo:'',detailBlocks:[{id:'DB01',type:'text',content:'暖汤小馆慢炖热汤，温润滋养，注重保温与食材原味。'},{id:'DB02',type:'image',content:'assets/package-cover-14day-premium.jpg'},{id:'DB03',type:'text',content:'覆盖徐汇、长宁、静安，汤品保温要求高，冬季高峰期请留意配送时间。'}]},
+      {id:'B005',name:'四季食桌',abbr:'时令鲜食 · 原味轻享',tone:'mint',types:['轻食沙拉'],tags:['健康食材','时令鲜食'],priceRange:'¥23-33',note:'已下架，22 名订购用户待安排替换',status:'下架',area:'浦东新区',contact:'宋店长 021-6688 2105',meals:5,packages:1,subs:22,tomorrow:0,logo:'',detailBlocks:[{id:'DB01',type:'image',content:'assets/healthy-package-14day.jpg'},{id:'DB02',type:'text',content:'四季食桌主打时令鲜食与轻食沙拉，原味轻享。'},{id:'DB03',type:'text',content:'当前品牌已下架，订购用户替换方案由运营跟进。'}]},
+      {id:'B006',name:'青禾轻食',abbr:'时蔬谷物 · 清新鲜甜',tone:'mint',types:['轻食沙拉'],tags:['健康食材','素食友好'],priceRange:'¥22-32',note:'主打轻食沙拉，学生群体友好',status:'上架',area:'杨浦、虹口',contact:'沈店长 021-6688 2106',meals:6,packages:2,subs:78,tomorrow:31,logo:''},
+      {id:'B007',name:'燕麦研究所',abbr:'燕麦谷物 · 慢碳饱腹',tone:'amber',types:['能量碗'],tags:['高饱腹','营养均衡'],priceRange:'¥20-30',note:'燕麦基底，饱腹感强',status:'上架',area:'静安、普陀',contact:'韩店长 021-6688 2107',meals:8,packages:2,subs:64,tomorrow:26,logo:''},
+      {id:'B008',name:'净素厨房',abbr:'植物料理 · 轻盈无负担',tone:'mint',types:['汤品','轻食沙拉'],tags:['素食友好','低卡轻负担'],priceRange:'¥21-31',note:'全素菜单，标注蛋白质来源',status:'上架',area:'黄浦、徐汇',contact:'于店长 021-6688 2108',meals:9,packages:3,subs:52,tomorrow:19,logo:''},
+      {id:'B009',name:'深海渔集',abbr:'深海蛋白 · 鲜味满格',tone:'mint',types:['中式热食'],tags:['高蛋白','少油少盐'],priceRange:'¥28-40',note:'鱼类蛋白，冷链要求高',status:'上架',area:'浦东、静安',contact:'冯店长 021-6689 2109',meals:7,packages:2,subs:41,tomorrow:15,logo:''},
+      {id:'B010',name:'果香公社',abbr:'鲜果轻食 · 元气满满',tone:'amber',types:['轻食沙拉'],tags:['低卡轻负担','时令鲜食'],priceRange:'¥19-29',note:'水果占比高，适合加餐场景',status:'上架',area:'长宁、闵行',contact:'陆店长 021-6688 2110',meals:5,packages:1,subs:33,tomorrow:12,logo:''}
+    ],
+    brandTags: [
+      {id:'T01',category:'type',name:'中式热食',status:'启用',sort:10},
+      {id:'T02',category:'type',name:'西式冷餐',status:'启用',sort:20},
+      {id:'T03',category:'type',name:'能量碗',status:'启用',sort:30},
+      {id:'T04',category:'type',name:'汤品',status:'启用',sort:40},
+      {id:'T05',category:'type',name:'轻食沙拉',status:'启用',sort:50},
+      {id:'T06',category:'type',name:'轻食便当',status:'停用',sort:60},
+      {id:'F01',category:'feature',name:'健康食材',status:'启用',sort:10},
+      {id:'F02',category:'feature',name:'营养均衡',status:'启用',sort:20},
+      {id:'F03',category:'feature',name:'低卡轻负担',status:'启用',sort:30},
+      {id:'F04',category:'feature',name:'高蛋白',status:'启用',sort:40},
+      {id:'F05',category:'feature',name:'高饱腹',status:'启用',sort:50},
+      {id:'F06',category:'feature',name:'少油少盐',status:'启用',sort:60},
+      {id:'F07',category:'feature',name:'素食友好',status:'启用',sort:70},
+      {id:'F08',category:'feature',name:'时令鲜食',status:'启用',sort:80},
+      {id:'F09',category:'feature',name:'暖胃',status:'启用',sort:90}
+    ],
+    meals: [
+      {id:'M001',brand:'薄荷晨间',name:'香草鸡胸藜麦碗',type:'午餐',kcal:486,nutrition:'蛋白质 38g · 膳食纤维 12g',status:'已上架',image:'assets/meal-seasonal-fruit-nuts.jpg'},
+      {id:'M002',brand:'薄荷晨间',name:'牛油果温泉蛋沙拉',type:'晚餐',kcal:428,nutrition:'蛋白质 24g · 膳食纤维 15g',status:'已上架',image:'assets/weekly-menu-july.jpg'},
+      {id:'M003',brand:'谷物碗社',name:'五谷三蔬能量碗',type:'午餐',kcal:505,nutrition:'蛋白质 29g · 膳食纤维 17g',status:'已上架',image:'assets/healthy-package-7day.jpg'},
+      {id:'M004',brand:'谷物碗社',name:'菌菇豆腐杂粮饭',type:'晚餐',kcal:462,nutrition:'蛋白质 26g · 膳食纤维 16g',status:'已上架',image:'assets/healthy-package-14day.jpg'},
+      {id:'M005',brand:'鲜面研究所',name:'鲜虾蔬菜荞麦面',type:'午餐',kcal:518,nutrition:'蛋白质 35g · 膳食纤维 11g',status:'已上架',image:'assets/package-cover-7day-premium.jpg'},
+      {id:'M006',brand:'暖汤小馆',name:'菌菇鸡肉暖汤',type:'晚餐',kcal:395,nutrition:'蛋白质 32g · 膳食纤维 9g',status:'已上架',image:'assets/package-cover-14day-premium.jpg'}
+    ],
+    phrases: [
+      {id:'PH001',text:'把每一餐安排好，把生活的主动权握在自己手里。',scene:'首页',uploadedAt:'2026-08-14 09:10'},
+      {id:'PH002',text:'好好吃饭，是照顾身体最温柔也最坚定的方式。',scene:'计划',uploadedAt:'2026-08-13 18:30'},
+      {id:'PH003',text:'看见每一点进步，也允许自己从容地慢慢来。',scene:'择食',uploadedAt:'2026-08-12 15:05'},
+      {id:'PH004',text:'持续比完美更重要，今天依然值得肯定。',scene:'订单',uploadedAt:'2026-08-11 11:40'},
+      {id:'PH005',text:'清晨的一份选择，为今天积蓄稳定的力量。',scene:'首页',uploadedAt:'2026-08-10 09:20'},
+      {id:'PH006',text:'每一份坚持都算数，下周继续向前就好。',scene:'订单',uploadedAt:'2026-08-14 10:30',scheduled:true,replaceAt:'2026-08-20T09:00'},
+      {id:'PH007',text:'每一口都认真对待，身体会给你答案。',scene:'择食',uploadedAt:'2026-08-14 08:40'},
+      {id:'PH008',text:'规律的节奏，比偶尔的用力更长久。',scene:'计划',uploadedAt:'2026-08-14 07:55'},
+      {id:'PH009',text:'好好照顾自己，从今天的每一餐开始。',scene:'订单',uploadedAt:'2026-08-13 20:15'},
+      {id:'PH010',text:'慢一点没关系，方向对了就好。',scene:'首页',uploadedAt:'2026-08-13 09:05'},
+      {id:'PH011',text:'把今天的每一餐认真吃完，明天的你会感谢自己。',scene:'首页',uploadedAt:'2026-08-21 09:00',scheduled:true,replaceAt:'2026-08-25T09:00'}
+    ],
+    packages: [
+      {id:'PK001',name:'试餐套餐',brands:['薄荷晨间'],meals:2,days:1,price:19.9,desc:'适合初次体验',tag:'尝鲜',intro:'用 2 餐快速体验轻食订购，适合第一次尝试的用户。',advantages:['低负担','方便','易坚持'],note:'主推引流款',status:'启用',orders:184,subs:126,remaining:121},
+      {id:'PK002',name:'7天体验套餐',brands:['谷物碗社'],meals:14,days:7,price:299,desc:'一周均衡轻食',tag:'均衡',intro:'一周 14 餐均衡搭配，帮助建立规律饮食习惯。',advantages:['均衡','省心','可暂停'],note:'销量主力款',status:'启用',orders:392,subs:228,remaining:2984},
+      {id:'PK003',name:'14天进阶套餐',brands:['薄荷晨间'],meals:28,days:14,price:549,desc:'两周进阶管理',tag:'进阶',intro:'两周完整周期，覆盖午餐晚餐，营养师搭配。',advantages:['专业配比','周期完整','适合减重'],note:'营养师推荐款',status:'启用',onceOnly:'是',onceScope:'多品牌生效',orders:476,subs:286,remaining:4832},
+      {id:'PK004',name:'28天管理套餐',brands:['暖汤小馆'],meals:56,days:28,price:999,desc:'28 天全周期管理',tag:'周期',intro:'28 天全程管理，含体重与饮食复盘支持。',advantages:['全程管理','专人跟进','效果明显'],note:'需营养师确认后启用',status:'禁用',orders:0,subs:0,remaining:0},
+      {id:'PK005',name:'低钠轻盈套餐',brands:['四季食桌'],meals:28,days:14,price:369,desc:'低钠轻盈饮食',tag:'低钠',intro:'低钠饮食管理，适合控盐人群。',advantages:['低钠','轻盈','控盐'],note:'原品牌已下架，待重新下发',status:'禁用',orders:83,subs:22,remaining:186},
+      {id:'PK006',name:'3天轻体验套餐',brands:['青禾轻食'],meals:6,days:3,price:129,desc:'三天快速体验',tag:'轻体验',intro:'3 天 6 餐，适合出差或短期尝试轻食节奏。',advantages:['短周期','灵活'],note:'限时体验款',status:'启用',onceOnly:'是',onceScope:'单品牌生效',orders:96,subs:78,remaining:412},
+      {id:'PK007',name:'10天均衡套餐',brands:['燕麦研究所'],meals:20,days:10,price:399,desc:'十天均衡饮食',tag:'均衡',intro:'10 天 20 餐，谷物为主，饱腹感强。',advantages:['高饱腹','易坚持'],note:'销量稳定款',status:'启用',orders:210,subs:64,remaining:986},
+      {id:'PK008',name:'21天轻体管理套餐',brands:['净素厨房'],meals:42,days:21,price:759,desc:'三周轻体管理',tag:'轻体',intro:'21 天 42 餐，全素+轻食组合，适合控卡人群。',advantages:['全素','控卡'],note:'营养师推荐',status:'启用',onceOnly:'是',onceScope:'多品牌生效',orders:88,subs:52,remaining:1560},
+      {id:'PK009',name:'深海蛋白月卡',brands:['深海渔集'],meals:56,days:28,price:1049,desc:'高蛋白月卡',tag:'高蛋白',intro:'28 天 56 餐，深海蛋白为主，增肌友好。',advantages:['高蛋白','增肌'],note:'增肌人群首选',status:'启用',orders:67,subs:41,remaining:1720},
+      {id:'PK010',name:'鲜果轻食体验',brands:['果香公社'],meals:6,days:3,price:99,desc:'鲜果轻食尝鲜',tag:'尝鲜',intro:'3 天 6 餐，鲜果占比高，清新低负担。',advantages:['清新','低卡'],note:'学生党友好',status:'启用',orders:120,subs:33,remaining:118}
+    ],
+    users: [
+      {id:'U2026070001',name:'轻食用户',phone:'138 6621 8888',gender:'女',age:28,goal:'减重',package:'14天进阶套餐',subscription:'订购中',delivery:'正常',active:'8 分钟前',address:'上海市浦东新区世纪大道100号 3栋502室',height:165,weight:65.2,target:58,activity:'轻度活动',diet:'不吃香菜、少油',allergy:'无',tags:['高活跃','工作日配送']},
+      {id:'U20260116',name:'顾明远',phone:'139 5508 9067',gender:'男',age:32,goal:'增肌',package:'7天体验套餐',subscription:'订购中',delivery:'正常',active:'24 分钟前',address:'上海市黄浦区西藏南路358号2号楼1201室',height:178,weight:72.4,target:76,activity:'高度活动',diet:'牛肉优先',allergy:'花生过敏',tags:['高蛋白','每日配送']},
+      {id:'U20260203',name:'林知夏',phone:'186 2176 1712',gender:'女',age:24,goal:'均衡饮食',package:'7天体验套餐',subscription:'订购中',delivery:'明日首单',active:'1 小时前',address:'上海市静安区南京西路1551号嘉里中心2座901室',height:162,weight:52.8,target:52,activity:'中度活动',diet:'少辣',allergy:'乳制品过敏',tags:['新用户','需关注']},
+      {id:'U20260229',name:'陈奕川',phone:'156 1893 3028',gender:'男',age:35,goal:'减重',package:'14天进阶套餐',subscription:'已暂停',delivery:'地址异常',active:'2 小时前',address:'',height:176,weight:80.1,target:72,activity:'轻度活动',diet:'不吃葱',allergy:'无',tags:['配送异常','电话确认']},
+      {id:'U20260307',name:'宋清禾',phone:'188 7724 4431',gender:'女',age:27,goal:'改善习惯',package:'低钠轻盈套餐',subscription:'订购中',delivery:'正常',active:'昨天',address:'上海市徐汇区漕溪北路88号圣爱大厦603室',height:160,weight:57.3,target:54,activity:'久坐不动',diet:'低钠',allergy:'坚果过敏',tags:['低钠','晚餐配送']},
+      {id:'U20260411',name:'周若宁',phone:'177 8899 6655',gender:'女',age:26,goal:'均衡饮食',package:'-',subscription:'0订购',delivery:'正常',active:'3 天前',address:'上海市普陀区长寿路800号 8楼',height:163,weight:54.6,target:52,activity:'中度活动',diet:'无',allergy:'无',tags:['新用户']},
+      {id:'U20260412',name:'许安然',phone:'135 2233 4455',gender:'女',age:29,goal:'减重',package:'3天轻体验套餐',subscription:'订购中',delivery:'正常',active:'40 分钟前',address:'上海市闵行区莘松路500号 2号楼1101室',height:166,weight:61.8,target:55,activity:'轻度活动',diet:'少糖',allergy:'无',tags:['高活跃','工作日配送']},
+      {id:'U20260413',name:'郑一鸣',phone:'182 6677 8899',gender:'男',age:31,goal:'增肌',package:'10天均衡套餐',subscription:'订购中',delivery:'正常',active:'昨天',address:'上海市杨浦区五角场万达广场B座2205室',height:180,weight:78.5,target:82,activity:'高度活动',diet:'牛肉优先',allergy:'海鲜过敏',tags:['高蛋白']},
+      {id:'U20260414',name:'沈嘉树',phone:'159 3344 5566',gender:'男',age:25,goal:'均衡饮食',package:'-',subscription:'0订购',delivery:'正常',active:'5 天前',address:'上海市虹口区四川北路888号 3楼',height:174,weight:68.9,target:68,activity:'中度活动',diet:'无',allergy:'无',tags:['新用户','待转化']},
+      {id:'U20260415',name:'唐雨薇',phone:'138 9900 1122',gender:'女',age:30,goal:'改善习惯',package:'21天轻体管理套餐',subscription:'订购中',delivery:'正常',active:'2 小时前',address:'上海市宝山区淞南路100号 6栋302室',height:158,weight:58.4,target:53,activity:'久坐不动',diet:'少油',allergy:'乳制品过敏',tags:['低卡','晚餐配送']},
+      {id:'U20260816',name:'韩若曦',phone:'137 0000 1617',gender:'女',age:17,goal:'均衡饮食',package:'-',subscription:'0订购',delivery:'正常',active:'2 天前',address:'上海市长宁区仙霞路200号 1号楼502室',height:162,weight:50.2,target:50,activity:'轻度活动',diet:'无',allergy:'无',tags:['新用户']},
+      {id:'U20260817',name:'方以安',phone:'136 0000 1742',gender:'男',age:42,goal:'减重',package:'-',subscription:'0订购',delivery:'正常',active:'3 天前',address:'上海市静安区万航渡路88号 2号楼803室',height:175,weight:82.4,target:76,activity:'轻度活动',diet:'少油',allergy:'无',tags:['新用户']},
+      {id:'U20260818',name:'钟淑华',phone:'135 0000 1848',gender:'女',age:48,goal:'改善习惯',package:'-',subscription:'0订购',delivery:'正常',active:'昨天',address:'上海市徐汇区宜山路600号 3栋1201室',height:160,weight:61.5,target:58,activity:'中度活动',diet:'少糖',allergy:'无',tags:['新用户']},
+      {id:'U20260819',name:'陆文博',phone:'134 0000 1952',gender:'男',age:52,goal:'改善习惯',package:'-',subscription:'0订购',delivery:'正常',active:'1 天前',address:'上海市普陀区曹杨路450号 5号楼1106室',height:172,weight:75.8,target:72,activity:'轻度活动',diet:'无',allergy:'无',tags:['新用户']},
+      {id:'U20260820',name:'郑慧珍',phone:'133 0000 2057',gender:'女',age:57,goal:'均衡饮食',package:'-',subscription:'0订购',delivery:'正常',active:'4 天前',address:'上海市虹口区广中路168号 2号楼702室',height:158,weight:59.0,target:57,activity:'久坐不动',diet:'低盐',allergy:'无',tags:['新用户']},
+      {id:'U20260821',name:'周柏年',phone:'132 0000 2163',gender:'男',age:63,goal:'改善习惯',package:'-',subscription:'0订购',delivery:'正常',active:'昨天',address:'上海市黄浦区中华路260号 6号楼1501室',height:170,weight:70.3,target:68,activity:'轻度活动',diet:'无',allergy:'无',tags:['新用户']},
+      {id:'U20260822',name:'苏念安',phone:'131 0000 2268',subscription:'0订购',delivery:'正常',active:'3 天前',tags:['新用户','待完善资料']}
+    ],
+    admins: [
+      {id:'AD001',account:'admin',name:'林方',roleId:'R001',phone:'138 0000 2026',status:'启用',last:'今天 10:42'},
+      {id:'AD002',account:'zhangxue',name:'张雪',roleId:'R002',phone:'139 1111 2233',status:'启用',last:'今天 09:15'},
+      {id:'AD003',account:'wangning',name:'王宁',roleId:'R003',phone:'186 2222 3344',status:'停用',last:'昨天 18:20'},
+      {id:'AD004',account:'lifang',name:'李芳',roleId:'R002',phone:'137 5555 6666',status:'启用',last:'今天 08:50'},
+      {id:'AD005',account:'chenhao',name:'陈浩',roleId:'R004',phone:'188 7777 8888',status:'启用',last:'今天 08:12'},
+      {id:'AD006',account:'zhoushu',name:'周书',roleId:'R005',phone:'150 2222 3333',status:'启用',last:'昨天 17:40'},
+      {id:'AD007',account:'wuting',name:'吴婷',roleId:'R003',phone:'186 5555 4444',status:'启用',last:'昨天 16:05'},
+      {id:'AD008',account:'sunlei',name:'孙磊',roleId:'R006',phone:'139 8888 9999',status:'启用',last:'昨天 11:30'},
+      {id:'AD009',account:'hexin',name:'何欣',roleId:'R007',phone:'158 1111 2222',status:'停用',last:'3 天前'},
+      {id:'AD010',account:'luoyang',name:'罗洋',roleId:'R008',phone:'133 4444 5555',status:'启用',last:'今天 07:55'}
+    ],
+    roles: [
+      {id:'R001',name:'超级管理员',desc:'拥有全部模块权限',status:'启用',perms:{all:true}},
+      {id:'R002',name:'运营专员',desc:'负责商品、内容与配送履约',status:'启用',perms:{brands:true,meals:true,phrases:true,packages:true,articles:true,announcements:true,coupons:true,surveys:true,habits:true,plans:true,daily:true,reports:true,redemptions:true}},
+      {id:'R003',name:'客服专员',desc:'负责订单、订购与用户服务',status:'启用',perms:{orders:true,subscriptions:true,users:true,logs:true,redemptions:true}},
+      {id:'R004',name:'财务专员',desc:'负责财务报表、退款复核与对账',status:'启用',perms:{finance:true,orders:true,redemptions:true}},
+      {id:'R005',name:'配送专员',desc:'负责配送计划与每日配送中心',status:'启用',perms:{plans:true,daily:true,addresses:true}},
+      {id:'R006',name:'品牌运营',desc:'负责品牌、套餐与每周菜单',status:'启用',perms:{brands:true,packages:true,menu:true}},
+      {id:'R007',name:'内容编辑',desc:'负责激励词语、营养咨询与公告',status:'启用',perms:{phrases:true,articles:true,announcements:true}},
+      {id:'R008',name:'用户运营',desc:'负责用户数据、地址与登录用户',status:'启用',perms:{users:true,addresses:true,'login-users':true}},
+      {id:'R009',name:'数据观察员',desc:'只读查看运营数据',status:'启用',perms:{dashboard:true,finance:true,users:true}},
+      {id:'R010',name:'门店店长',desc:'查看本品牌配送与菜单',status:'停用',perms:{menu:true,daily:true}}
+    ],
+    logins: [
+      {id:'LG001',userId:'U2026070001',userName:'轻食用户',time:'2026-08-13 10:42',device:'iPhone 小程序',ip:'192.168.1.28'},
+      {id:'LG002',userId:'U2026070001',userName:'轻食用户',time:'2026-08-12 22:05',device:'微信 PC 小程序',ip:'192.168.1.28'},
+      {id:'LG003',userId:'U20260116',userName:'顾明远',time:'2026-08-13 09:15',device:'Android 小程序',ip:'192.168.1.43'},
+      {id:'LG004',userId:'U20260116',userName:'顾明远',time:'2026-08-10 12:30',device:'iPhone 小程序',ip:'192.168.1.43'},
+      {id:'LG005',userId:'U20260203',userName:'林知夏',time:'2026-08-11 08:20',device:'iPhone 小程序',ip:'192.168.1.66'},
+      {id:'LG006',userId:'U20260229',userName:'陈奕川',time:'2026-07-20 18:40',device:'Android 小程序',ip:'192.168.1.91'},
+      {id:'LG007',userId:'U20260307',userName:'宋清禾',time:'2026-08-01 11:12',device:'iPhone 小程序',ip:'192.168.1.102'},
+      {id:'LG008',userId:'U20260412',userName:'许安然',time:'2026-08-14 09:40',device:'iPhone 小程序',ip:'192.168.1.118'},
+      {id:'LG009',userId:'U20260413',userName:'郑一鸣',time:'2026-08-13 21:05',device:'Android 小程序',ip:'192.168.1.135'},
+      {id:'LG010',userId:'U20260415',userName:'唐雨薇',time:'2026-08-14 08:26',device:'iPhone 小程序',ip:'192.168.1.149'},
+      {id:'LG011',userId:'U20260411',userName:'周若宁',time:'2026-08-12 18:30',device:'Android 小程序',ip:'192.168.1.160'},
+      {id:'LG012',userId:'U20260414',userName:'沈嘉树',time:'2026-08-11 20:15',device:'iPhone 小程序',ip:'192.168.1.171'},
+      {id:'LG013',userId:'U20260203',userName:'林知夏',time:'2026-08-06 08:18',device:'iPhone 小程序',ip:'192.168.1.66'},
+      {id:'LG014',userId:'U2026070001',userName:'轻食用户',time:'2026-08-06 09:36',device:'微信 PC 小程序',ip:'192.168.1.28'},
+      {id:'LG015',userId:'U20260116',userName:'顾明远',time:'2026-08-06 10:05',device:'Android 小程序',ip:'192.168.1.43'},
+      {id:'LG016',userId:'U20260229',userName:'陈奕川',time:'2026-08-06 11:20',device:'Android 小程序',ip:'192.168.1.91'},
+      {id:'LG017',userId:'U20260415',userName:'唐雨薇',time:'2026-08-06 12:10',device:'iPhone 小程序',ip:'192.168.1.149'},
+      {id:'LG018',userId:'U20260816',userName:'韩若曦',time:'2026-08-13 07:50',device:'iPhone 小程序',ip:'192.168.1.201'},
+      {id:'LG019',userId:'U20260817',userName:'方以安',time:'2026-08-12 12:40',device:'Android 小程序',ip:'192.168.1.202'},
+      {id:'LG020',userId:'U20260818',userName:'钟淑华',time:'2026-08-14 09:05',device:'iPhone 小程序',ip:'192.168.1.203'},
+      {id:'LG021',userId:'U20260819',userName:'陆文博',time:'2026-08-13 18:25',device:'iPhone 小程序',ip:'192.168.1.204'},
+      {id:'LG022',userId:'U20260820',userName:'郑慧珍',time:'2026-08-12 10:15',device:'Android 小程序',ip:'192.168.1.205'},
+      {id:'LG023',userId:'U20260821',userName:'周柏年',time:'2026-08-14 07:20',device:'iPhone 小程序',ip:'192.168.1.206'},
+      {id:'LG024',userId:'U20260822',userName:'苏念安',time:'2026-08-13 16:35',device:'iPhone 小程序',ip:'192.168.1.207'}
+    ],
+    menuWeeks: buildMenuWeeks(),
+    menuUploads: [
+      {id:'MU001',brand:'薄荷晨间',weekId:'W33',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-08-09 14:20'},
+      {id:'MU002',brand:'谷物碗社',weekId:'W33',image:'assets/package-cover-7day-premium.jpg',uploadedAt:'2026-08-09 15:02'},
+      {id:'MU003',brand:'鲜面研究所',weekId:'W33',image:'assets/package-cover-14day-premium.jpg',uploadedAt:'2026-08-09 15:40'},
+      {id:'MU004',brand:'暖汤小馆',weekId:'W33',image:'assets/healthy-package-7day.jpg',uploadedAt:'2026-08-10 09:10'},
+      {id:'MU005',brand:'四季食桌',weekId:'W33',image:'assets/healthy-package-14day.jpg',uploadedAt:'2026-08-10 10:25'},
+      {id:'MU006',brand:'薄荷晨间',weekId:'W34',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-08-12 11:00'},
+      {id:'MU007',brand:'谷物碗社',weekId:'W34',image:'assets/healthy-package-7day.jpg',uploadedAt:'2026-08-13 09:30'},
+      {id:'MU008',brand:'薄荷晨间',weekId:'W32',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-08-02 10:12'},
+      {id:'MU009',brand:'谷物碗社',weekId:'W32',image:'assets/healthy-package-7day.jpg',uploadedAt:'2026-08-02 14:30'},
+      {id:'MU010',brand:'鲜面研究所',weekId:'W32',image:'assets/package-cover-7day-premium.jpg',uploadedAt:'2026-08-03 09:18'},
+      {id:'MU011',brand:'暖汤小馆',weekId:'W32',image:'assets/package-cover-14day-premium.jpg',uploadedAt:'2026-08-03 11:45'},
+      {id:'MU012',brand:'四季食桌',weekId:'W32',image:'assets/healthy-package-14day.jpg',uploadedAt:'2026-08-03 16:02'},
+      {id:'MU013',brand:'薄荷晨间',weekId:'W31',image:'assets/meal-seasonal-fruit-nuts.jpg',uploadedAt:'2026-07-28 13:10'},
+      {id:'MU014',brand:'谷物碗社',weekId:'W31',image:'assets/package-cover-28day-premium.jpg',uploadedAt:'2026-07-29 10:22'},
+      {id:'MU015',brand:'鲜面研究所',weekId:'W31',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-07-29 15:40'},
+      {id:'MU016',brand:'薄荷晨间',weekId:'W30',image:'assets/package-cover-14day-premium.jpg',uploadedAt:'2026-07-21 11:30'},
+      {id:'MU017',brand:'暖汤小馆',weekId:'W30',image:'assets/meal-seasonal-fruit-nuts.jpg',uploadedAt:'2026-07-22 10:05'},
+      {id:'MU018',brand:'薄荷晨间',weekId:'W29',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-07-14 11:00'},
+      {id:'MU019',brand:'谷物碗社',weekId:'W29',image:'assets/healthy-package-7day.jpg',uploadedAt:'2026-07-15 09:40'},
+      {id:'MU020',brand:'鲜面研究所',weekId:'W28',image:'assets/package-cover-7day-premium.jpg',uploadedAt:'2026-07-07 15:10'},
+      {id:'MU021',brand:'暖汤小馆',weekId:'W28',image:'assets/package-cover-14day-premium.jpg',uploadedAt:'2026-07-08 10:25'},
+      {id:'MU022',brand:'薄荷晨间',weekId:'W26',image:'assets/meal-seasonal-fruit-nuts.jpg',uploadedAt:'2026-06-23 14:20'},
+      {id:'MU023',brand:'薄荷晨间',weekId:'W35',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-08-18 11:20'},
+      {id:'MU024',brand:'谷物碗社',weekId:'W35',image:'assets/healthy-package-7day.jpg',uploadedAt:'2026-08-18 15:05'},
+      {id:'MU025',brand:'鲜面研究所',weekId:'W36',image:'assets/package-cover-14day-premium.jpg',uploadedAt:'2026-08-20 09:30'},
+      {id:'MU026',brand:'四季食桌',weekId:'W36',image:'assets/healthy-package-14day.jpg',uploadedAt:'2026-08-20 13:45'},
+      {id:'MU027',brand:'暖汤小馆',weekId:'W37',image:'assets/package-cover-28day-premium.jpg',uploadedAt:'2026-08-21 10:15'},
+      {id:'MU028',brand:'薄荷晨间',weekId:'W38',image:'assets/weekly-menu-july.jpg',uploadedAt:'2026-08-21 16:40'},
+      {id:'MU029',brand:'谷物碗社',weekId:'W39',image:'assets/healthy-package-14day.jpg',uploadedAt:'2026-08-22 09:10'}
+    ],
+    appRules:{cutoff:'17:30',deliverySlots:[{time:'11:30',meals:['午餐','晚餐']},{time:'17:30',meals:['午餐','晚餐']}],pauseLimits:{week:1,month:3,quarter:6,year:12},servicePhone:'400-118-2026',serviceWechat:'raven-life-2026',serviceHours:'周一至周日 09:00-20:00',refundWechatId:'raven-life-2026',refundWechat:'raven-life-2026',refundPhone:'400-118-2026',refundQr:'',loginBg:'assets/article-balanced-hydration.jpg'},
+    collaborations:[
+      {id:'CO001',userId:'U2026070001',userName:'轻食用户',userPhone:'138 6621 8888',submittedName:'李女士',submittedContact:'微信 raven_food',content:'希望以企业团餐方式合作，为园区员工提供工作日午餐。',backendNote:'已发送品牌与套餐资料',followed:true},
+      {id:'CO002',userId:'U20260116',userName:'顾明远',userPhone:'139 5508 9067',submittedName:'顾明远',submittedContact:'13955089067',content:'健身工作室希望联合推出高蛋白套餐。',backendNote:'',followed:false},
+      {id:'CO003',userId:'U20260203',userName:'林知夏',userPhone:'186 2176 1712',submittedName:'林小姐',submittedContact:'邮箱 linxia@example.com',content:'咨询内容合作及营养科普文章联合发布。',backendNote:'',followed:false},
+      {id:'CO004',userId:'U20260412',userName:'许安然',userPhone:'135 2233 4455',submittedName:'许安然',submittedContact:'微信 anxu_coop',content:'社区健康活动希望申请试吃赞助与优惠券合作。',backendNote:'待确认活动日期',followed:true}
+    ],
+    paymentMethods:[
+      {id:'PM001',name:'小程序支付',system:true,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'PM002',name:'微信支付',system:false,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'PM003',name:'支付宝',system:false,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'PM004',name:'银联云闪付',system:false,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'PM005',name:'现金',system:false,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'PM006',name:'银行转账',system:false,status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'}
+    ],
+    refundTypes:[
+      {id:'RT001',name:'用户原因',status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'RT002',name:'配送异常',status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'RT003',name:'商品质量',status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'RT004',name:'重复付款',status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'},
+      {id:'RT005',name:'其他',status:'启用',creator:'系统',createdAt:'2026-08-01 00:00'}
+    ],
+    finance: [
+      {id:'FN20260805001',time:'2026-08-05 09:12',type:'收款',orderId:'OD202608050018',user:'轻食用户',amount:549,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805002',time:'2026-08-05 08:44',type:'收款',orderId:'OD202608050017',user:'顾明远',amount:299,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260804001',time:'2026-08-04 18:30',type:'收款',orderId:'OD202608040091',user:'陈奕川',amount:549,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:412,refundTime:'2026-08-03 14:20',refundNote:'人工退款：未核销餐次退款'},
+      {id:'FN20260803001',time:'2026-08-03 12:16',type:'收款',orderId:'OD202608030066',user:'宋清禾',amount:369,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805003',time:'2026-08-05 11:02',type:'收款',orderId:'OD202608050019',user:'轻食用户',amount:129,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805004',time:'2026-08-05 10:37',type:'收款',orderId:'OD202608050020',user:'顾明远',amount:399,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805005',time:'2026-08-05 09:58',type:'收款',orderId:'OD202608050022',user:'陈奕川',amount:759,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805006',time:'2026-08-05 09:20',type:'收款',orderId:'OD202608050023',user:'宋清禾',amount:99,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:99,refundTime:'2026-08-05 11:40',refundNote:'用户申请退款'},
+      {id:'FN20260805007',time:'2026-08-05 08:18',type:'收款',orderId:'OD202608050024',user:'许安然',amount:129,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260805008',time:'2026-08-05 07:50',type:'收款',orderId:'OD202608050025',user:'唐雨薇',amount:759,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''},
+      {id:'FN20260804002',time:'2026-08-04 16:25',type:'收款',orderId:'OD202608040092',user:'周若宁',amount:299,channel:'微信支付',operator:'系统',note:'订单支付',refundAmount:0,refundNote:''}
+    ],
+    addresses: [
+      {id:'ADDR001',userId:'U2026070001',userName:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',region:'上海市浦东新区',street:'世纪大道100号',building:'3栋502室',tag:'家',isDefault:true},
+      {id:'ADDR002',userId:'U2026070001',userName:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',region:'上海市黄浦区',street:'南京东路200号',building:'18楼1801室',tag:'公司',isDefault:false},
+      {id:'ADDR003',userId:'U20260116',userName:'顾明远',contact:'顾明远',phone:'139 5508 9067',region:'上海市黄浦区',street:'西藏南路358号',building:'2号楼1201室',tag:'家',isDefault:true},
+      {id:'ADDR004',userId:'U20260203',userName:'林知夏',contact:'林知夏',phone:'186 2176 1712',region:'上海市静安区',street:'南京西路1551号',building:'嘉里中心2座901室',tag:'公司',isDefault:true},
+      {id:'ADDR005',userId:'U20260307',userName:'宋清禾',contact:'宋清禾',phone:'188 7724 4431',region:'上海市徐汇区',street:'漕溪北路88号',building:'圣爱大厦603室',tag:'家',isDefault:true},
+      {id:'ADDR006',userId:'U20260412',userName:'许安然',contact:'许安然',phone:'135 2233 4455',region:'上海市闵行区',street:'莘松路500号',building:'2号楼1101室',tag:'家',isDefault:true},
+      {id:'ADDR007',userId:'U20260412',userName:'许安然',contact:'许安然',phone:'135 2233 4455',region:'上海市徐汇区',street:'漕溪北路111号',building:'12楼1205室',tag:'公司',isDefault:false},
+      {id:'ADDR008',userId:'U20260413',userName:'郑一鸣',contact:'郑一鸣',phone:'182 6677 8899',region:'上海市杨浦区',street:'五角场万达广场',building:'B座2205室',tag:'公司',isDefault:true},
+      {id:'ADDR009',userId:'U20260415',userName:'唐雨薇',contact:'唐雨薇',phone:'138 9900 1122',region:'上海市宝山区',street:'淞南路100号',building:'6栋302室',tag:'家',isDefault:true},
+      {id:'ADDR010',userId:'U2026070001',userName:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',region:'上海市徐汇区',street:'宜山路700号',building:'A座201室',tag:'其他',isDefault:false}
+    ],
+    orders: [
+      {id:'OD202608050018',user:'轻食用户',package:'14天进阶套餐',brand:'薄荷晨间',amount:549,status:'进行中',paid:'2026-08-05 09:12',channel:'微信支付',note:'企业福利券抵扣 30 元'},
+      {id:'OD202608050017',user:'顾明远',package:'7天体验套餐',brand:'谷物碗社',amount:299,status:'待使用',paid:'2026-08-05 08:44',channel:'微信支付',note:'已付款，等待建立配送计划'},
+      {id:'OD202608050016',user:'林知夏',package:'7天体验套餐',brand:'谷物碗社',amount:299,status:'待付款',paid:'-',channel:'微信支付',note:'15 分钟后关闭'},
+      {id:'OD202608040091',user:'陈奕川',package:'14天进阶套餐',brand:'薄荷晨间',amount:549,status:'退款',paid:'2026-08-04 18:30',channel:'微信支付',note:'用户申请未使用餐次退款'},
+      {id:'OD202608030066',user:'宋清禾',package:'低钠轻盈套餐',brand:'四季食桌',amount:369,status:'已完成',paid:'2026-08-03 12:16',channel:'微信支付',note:'套餐已用完'},
+      {id:'OD202608050019',user:'轻食用户',package:'3天轻体验套餐',brand:'青禾轻食',amount:129,status:'待使用',paid:'2026-08-05 11:02',channel:'微信支付',note:'新用户首单'},
+      {id:'OD202608050020',user:'顾明远',package:'10天均衡套餐',brand:'燕麦研究所',amount:399,status:'进行中',paid:'2026-08-05 10:37',channel:'微信支付',note:'续购'},
+      {id:'OD202608050021',user:'林知夏',package:'深海蛋白月卡',brand:'深海渔集',amount:1049,status:'待付款',paid:'-',channel:'微信支付',note:'15 分钟后关闭'},
+      {id:'OD202608050022',user:'陈奕川',package:'21天轻体管理套餐',brand:'净素厨房',amount:759,status:'已完成',paid:'2026-08-05 09:58',channel:'微信支付',note:'套餐已用完'},
+      {id:'OD202608050023',user:'宋清禾',package:'鲜果轻食体验',brand:'果香公社',amount:99,status:'退款',paid:'2026-08-05 09:20',channel:'微信支付',note:'用户申请退款'},
+      {id:'OD202608050024',user:'许安然',package:'3天轻体验套餐',brand:'青禾轻食',amount:129,status:'进行中',paid:'2026-08-05 08:18',channel:'微信支付',note:'新客首购'},
+      {id:'OD202608050025',user:'唐雨薇',package:'21天轻体管理套餐',brand:'净素厨房',amount:759,status:'待使用',paid:'2026-08-05 07:50',channel:'微信支付',note:'营养师推荐购买'},
+      {id:'OD202608040092',user:'周若宁',package:'7天体验套餐',brand:'谷物碗社',amount:299,status:'已完成',paid:'2026-08-04 16:25',channel:'微信支付',note:'套餐已用完'}
+    ],
+    subscriptions: [
+      {id:'SUB26080501',orderId:'OD202608050018',user:'轻食用户',brand:'薄荷晨间',package:'14天进阶套餐',bought:28,used:8,remaining:18,frozen:2,status:'进行中',valid:'2026.08.05 - 2026.09.18',last:'今日午餐',plan:'工作日午晚餐计划'},
+      {id:'SUB26080502',orderId:'OD202608050017',user:'顾明远',brand:'谷物碗社',package:'7天体验套餐',bought:14,used:8,remaining:4,frozen:2,status:'进行中',valid:'2026.08.05 - 2026.08.24',last:'今日晚餐',plan:'每日午晚餐计划',adjustments:[{type:'赠送',count:3,note:'首次配送延迟补偿',operator:'林方',time:'2026-08-05 10:16'}]},
+      {id:'SUB26080503',orderId:'OD202608050016',user:'林知夏',brand:'谷物碗社',package:'7天体验套餐',bought:14,used:0,remaining:13,frozen:1,status:'未开始',valid:'2026.08.06 - 2026.08.26',last:'-',plan:'工作日午餐计划'},
+      {id:'SUB26080407',orderId:'OD202608040091',user:'陈奕川',brand:'薄荷晨间',package:'14天进阶套餐',bought:28,used:10,remaining:18,frozen:0,status:'已暂停',valid:'2026.08.01 - 2026.09.20',last:'08月04日晚餐',plan:'工作日午晚餐计划',adjustments:[{type:'扣除',count:2,note:'退款同步扣除餐次',operator:'林方',time:'2026-08-05 11:42'}],pauseLogs:[{start:'2026-08-20',end:'2026-08-27',occupied:true,operator:'林方',time:'2026-08-20 10:20'}]},
+      {id:'SUB26080309',orderId:'OD202608030066',user:'宋清禾',brand:'四季食桌',package:'低钠轻盈套餐',bought:28,used:28,remaining:0,frozen:0,status:'已完成',valid:'2026.07.12 - 2026.08.03',last:'08月03日晚餐',plan:'每日晚餐计划',adjustments:[{type:'赠送',count:2,note:'活动赠送',operator:'张雪',time:'2026-07-15 09:30'},{type:'扣除',count:1,note:'重复赠送修正',operator:'林方',time:'2026-07-15 10:05'}]},
+      {id:'SUB26080504',orderId:'OD202608050019',user:'轻食用户',brand:'青禾轻食',package:'3天轻体验套餐',bought:6,used:2,remaining:4,frozen:0,status:'进行中',valid:'2026.08.05 - 2026.08.08',last:'今日午餐',plan:'工作日午晚餐计划'},
+      {id:'SUB26080505',orderId:'OD202608050020',user:'顾明远',brand:'燕麦研究所',package:'10天均衡套餐',bought:20,used:6,remaining:12,frozen:2,status:'进行中',valid:'2026.08.05 - 2026.08.15',last:'今日晚餐',plan:'每日午晚餐计划'},
+      {id:'SUB26080506',orderId:'OD202608050022',user:'陈奕川',brand:'净素厨房',package:'21天轻体管理套餐',bought:42,used:42,remaining:0,frozen:0,status:'已完成',valid:'2026.07.10 - 2026.08.05',last:'08月05日午餐',plan:'工作日午晚餐计划'},
+      {id:'SUB26080507',orderId:'OD202608050023',user:'宋清禾',brand:'果香公社',package:'鲜果轻食体验',bought:6,used:0,remaining:6,frozen:0,status:'已暂停',valid:'2026.08.05 - 2026.08.12',last:'-',plan:'每日晚餐计划',pauseLogs:[{start:'2026-08-05',end:'2026-08-12',occupied:true,operator:'林方',time:'2026-08-05 15:30'}]},
+      {id:'SUB26080508',orderId:'OD202608040092',user:'周若宁',brand:'谷物碗社',package:'7天体验套餐',bought:14,used:14,remaining:0,frozen:0,status:'已完成',valid:'2026.07.20 - 2026.08.04',last:'08月04日午餐',plan:'每日午晚餐计划'},
+      {id:'SUB26080509',orderId:'OD202608050024',user:'许安然',brand:'青禾轻食',package:'3天轻体验套餐',bought:6,used:1,remaining:5,frozen:0,status:'进行中',valid:'2026.08.05 - 2026.08.08',last:'今日午餐',plan:'工作日午晚餐计划'},
+      {id:'SUB26080510',orderId:'OD202608050025',user:'唐雨薇',brand:'净素厨房',package:'21天轻体管理套餐',bought:42,used:4,remaining:36,frozen:2,status:'进行中',valid:'2026.08.05 - 2026.08.26',last:'今日晚餐',plan:'每日晚餐计划'}
+    ],
+    plans: [
+      {id:'PL260701',user:'轻食用户',name:'工作日午晚餐计划',cycle:'工作日配送',meals:'午餐 + 晚餐',time:'午餐 11:30前 · 晚餐 17:30前',contact:'轻食用户',phone:'138 6621 8888',address:'上海市浦东新区世纪大道100号 3栋502室',diet:'不吃香菜、少油',allergy:'无',note:'前台代收，午晚餐可一起放置',status:'进行中',startDate:'2026.07.31',endDate:'2026.08.27',lunchBrand:'薄荷晨间',dinnerBrand:'薄荷晨间',overrides:2,overridesList:[{time:'08月05日 19:22',source:'小程序',detail:'次日订单调整：晚餐时间改为 18:00 前'},{time:'08月04日 21:10',source:'小程序',detail:'次日订单调整：午餐时间改为 12:00 前'}]},
+      {id:'PL260711',user:'轻食用户',name:'周末晚餐计划',cycle:'周末+节假日配送',meals:'晚餐',time:'晚餐 18:00前',contact:'轻食用户',phone:'138 6621 8888',address:'上海市浦东新区世纪大道100号 3栋502室',diet:'不吃香菜、少油',allergy:'无',note:'周末晚餐送至前台',status:'未开始',startDate:'2026.08.08',endDate:'2026.09.05',lunchBrand:'青禾轻食',dinnerBrand:'青禾轻食',overrides:0,overridesList:[]},
+      {id:'PL260702',user:'顾明远',name:'每日午晚餐计划',cycle:'每日配送',meals:'午餐 + 晚餐',time:'午餐 12:00前 · 晚餐 18:00前',contact:'顾明远',phone:'139 5508 9067',address:'上海市黄浦区西藏南路358号2号楼1201室',diet:'牛肉优先',allergy:'花生过敏',note:'送到一楼健身房前台',status:'进行中',startDate:'2026.08.01',endDate:'2026.08.28',lunchBrand:'谷物碗社',dinnerBrand:'谷物碗社',overrides:0,overridesList:[]},
+      {id:'PL260703',user:'林知夏',name:'工作日午餐计划',cycle:'工作日配送',meals:'午餐',time:'午餐 11:45前',contact:'林知夏',phone:'186 2176 1712',address:'上海市静安区南京西路1551号嘉里中心2座901室',diet:'少辣',allergy:'乳制品过敏',note:'到达前电话联系',status:'进行中',startDate:'2026.08.03',endDate:'2026.08.28',lunchBrand:'谷物碗社',dinnerBrand:'谷物碗社',overrides:1,overridesList:[{time:'08月03日 08:12',source:'小程序',detail:'次日订单调整：配送地址改为公司'}]},
+      {id:'PL260704',user:'陈奕川',name:'工作日午晚餐计划',cycle:'工作日配送',meals:'午餐 + 晚餐',time:'午餐 11:30前 · 晚餐 17:30前',contact:'陈奕川',phone:'',address:'',diet:'不吃葱',allergy:'无',note:'用户搬家，待补充地址',status:'已暂停',startDate:'2026.07.31',endDate:'2026.08.27',lunchBrand:'薄荷晨间',dinnerBrand:'薄荷晨间',overrides:3,overridesList:[{time:'08月01日 10:05',source:'小程序',detail:'暂停配送'},{time:'07月31日 16:40',source:'小程序',detail:'修改配送地址（待补充）'},{time:'07月31日 09:20',source:'后台',detail:'电话确认：用户搬家后补充地址'}]},
+      {id:'PL260705',user:'宋清禾',name:'每日晚餐计划',cycle:'每日配送',meals:'晚餐',time:'晚餐 17:45前',contact:'宋清禾',phone:'188 7724 4431',address:'上海市徐汇区漕溪北路88号圣爱大厦603室',diet:'低钠',allergy:'坚果过敏',note:'不要放快递柜',status:'进行中',startDate:'2026.07.12',endDate:'2026.08.08',lunchBrand:'四季食桌',dinnerBrand:'四季食桌',overrides:0,overridesList:[]},
+      {id:'PL260706',user:'许安然',name:'工作日午晚餐计划',cycle:'工作日配送',meals:'午餐 + 晚餐',time:'午餐 11:30前 · 晚餐 17:30前',contact:'许安然',phone:'135 2233 4455',address:'上海市闵行区莘松路500号 2号楼1101室',diet:'少糖',allergy:'无',note:'前台代收',status:'进行中',startDate:'2026.08.05',endDate:'2026.09.01',lunchBrand:'青禾轻食',dinnerBrand:'青禾轻食',overrides:0,overridesList:[]},
+      {id:'PL260707',user:'郑一鸣',name:'每日午餐计划',cycle:'每日配送',meals:'午餐',time:'午餐 12:00前',contact:'郑一鸣',phone:'182 6677 8899',address:'上海市杨浦区五角场万达广场B座2205室',diet:'牛肉优先',allergy:'海鲜过敏',note:'到达前电话联系',status:'进行中',startDate:'2026.08.05',endDate:'2026.08.28',lunchBrand:'燕麦研究所',dinnerBrand:'燕麦研究所',overrides:0,overridesList:[]},
+      {id:'PL260708',user:'唐雨薇',name:'每日晚餐计划',cycle:'每日配送',meals:'晚餐',time:'晚餐 17:45前',contact:'唐雨薇',phone:'138 9900 1122',address:'上海市宝山区淞南路100号 6栋302室',diet:'少油',allergy:'乳制品过敏',note:'不要放快递柜',status:'进行中',startDate:'2026.08.05',endDate:'2026.08.26',lunchBrand:'净素厨房',dinnerBrand:'净素厨房',overrides:0,overridesList:[]},
+      {id:'PL260709',user:'周若宁',name:'工作日午餐计划',cycle:'工作日配送',meals:'午餐',time:'午餐 11:45前',contact:'周若宁',phone:'177 8899 6655',address:'上海市普陀区长寿路800号 8楼',diet:'无',allergy:'无',note:'送到前台',status:'待开始',startDate:'2026.08.10',endDate:'2026.09.05',lunchBrand:'谷物碗社',dinnerBrand:'谷物碗社',overrides:0,overridesList:[]},
+      {id:'PL260710',user:'沈嘉树',name:'自定义周末计划',cycle:'自定义配送',days:'6,7',meals:'午餐',time:'午餐 11:00前',contact:'沈嘉树',phone:'159 3344 5566',address:'上海市虹口区四川北路888号 3楼',diet:'无',allergy:'无',note:'周末配送',status:'未开始',startDate:'2026.08.15',endDate:'2026.09.15',lunchBrand:'果香公社',dinnerBrand:'果香公社',overrides:0,overridesList:[]}
+      ,{id:'PL260712',user:'周若宁',name:'工作日定制餐计划',cycle:'工作日配送',days:'1,2,3,4,5',meals:'午餐 + 晚餐',time:'按星期分别设置',contact:'周若宁',phone:'177 8899 6655',address:'上海市普陀区长寿路800号 8楼',diet:'无',allergy:'无',note:'按天分别设置示例',status:'未使用',startDate:'2026.08.17',endDate:'2026.09.18',lunchBrand:'谷物碗社',dinnerBrand:'燕麦研究所',overrides:0,overridesList:[],settingMode:'daily',dailySettings:{1:{mealCount:'one',lunchTime:'11:00~12:00',lunchAddress:'上海市普陀区长寿路800号 8楼'},2:{mealCount:'two',lunchTime:'11:30~12:30',dinnerTime:'17:30~18:30',lunchAddress:'上海市普陀区长寿路800号 8楼',dinnerAddress:'上海市普陀区长寿路800号 8楼'},3:{mealCount:'one',lunchTime:'11:00~12:00',lunchAddress:'上海市普陀区长寿路800号 8楼'},4:{mealCount:'two',lunchTime:'11:30~12:30',dinnerTime:'17:30~18:30',lunchAddress:'上海市普陀区长寿路800号 8楼',dinnerAddress:'上海市普陀区长寿路800号 8楼'},5:{mealCount:'one',dinnerTime:'17:30~18:30',dinnerAddress:'上海市普陀区长寿路800号 8楼'}}}
+    ],
+    tasks: [
+      {id:'DL001',date:tomorrowISO,brand:'薄荷晨间',package:'14天进阶套餐',userId:'U2026070001',user:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',address:'上海市浦东新区世纪大道100号 3栋502室',meal:'午餐',qty:1,time:'11:30前',area:'浦东新区',diet:'不吃香菜、少油',allergy:'无',note:'前台代收，午晚餐可一起放置',plan:'工作日配送',status:'待确认',version:'V1'},
+      {id:'DL002',date:tomorrowISO,brand:'薄荷晨间',package:'14天进阶套餐',userId:'U2026070001',user:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',address:'上海市浦东新区世纪大道100号 3栋502室',meal:'晚餐',qty:1,time:'17:30前',area:'浦东新区',diet:'不吃香菜、少油',allergy:'无',note:'前台代收，午晚餐可一起放置',plan:'工作日配送',status:'待确认',version:'V1'},
+      {id:'DL003',date:tomorrowISO,brand:'谷物碗社',package:'7天体验套餐',userId:'U20260116',user:'顾明远',contact:'顾明远',phone:'139 5508 9067',address:'上海市黄浦区西藏南路358号2号楼1201室',meal:'午餐',qty:1,time:'12:00前',area:'黄浦区',diet:'牛肉优先',allergy:'花生过敏',note:'送到一楼健身房前台',plan:'每日配送',status:'待确认',version:'V1'},
+      {id:'DL004',date:tomorrowISO,brand:'谷物碗社',package:'7天体验套餐',userId:'U20260116',user:'顾明远',contact:'顾明远',phone:'139 5508 9067',address:'上海市黄浦区西藏南路358号2号楼1201室',meal:'晚餐',qty:1,time:'18:00前',area:'黄浦区',diet:'牛肉优先',allergy:'花生过敏',note:'送到一楼健身房前台',plan:'每日配送',status:'待确认',version:'V1'},
+      {id:'DL005',date:tomorrowISO,brand:'谷物碗社',package:'7天体验套餐',userId:'U20260203',user:'林知夏',contact:'林知夏',phone:'186 2176 1712',address:'上海市静安区南京西路1551号嘉里中心2座901室',meal:'午餐',qty:1,time:'11:45前',area:'静安区',diet:'少辣',allergy:'乳制品过敏',note:'到达前电话联系',plan:'工作日配送',status:'待确认',version:'V1'},
+      {id:'DL006',date:tomorrowISO,brand:'暖汤小馆',package:'28天管理套餐',userId:'U2026070001',user:'轻食用户',contact:'轻食用户',phone:'138 6621 8888',address:'上海市浦东新区世纪大道100号 3栋502室',meal:'晚餐',qty:1,time:'18:00前',area:'浦东新区',diet:'少油',allergy:'无',note:'临时调整品牌',plan:'临时调整',status:'待确认',version:'V1'},
+      {id:'DL007',date:tomorrowISO,brand:'鲜面研究所',package:'试餐套餐',userId:'U20260318',user:'许安然',contact:'许安然',phone:'177 2188 9045',address:'上海市长宁区仙霞路99号尚嘉中心1706室',meal:'午餐',qty:2,time:'11:30前',area:'长宁区',diet:'不吃辣',allergy:'无',note:'两份一起送',plan:'自定义配送',status:'待确认',version:'V1'},
+      {id:'DL008',date:tomorrowISO,brand:'薄荷晨间',package:'试餐套餐',userId:'U20260319',user:'唐予安',contact:'唐予安',phone:'',address:'上海市浦东新区张江路88号科创中心5号楼',meal:'午餐',qty:1,time:'11:45前',area:'浦东新区',diet:'无',allergy:'无',note:'联系电话待补充',plan:'首次配送',status:'资料异常',version:'V1'},
+      {id:'DL009',date:tomorrowISO,brand:'谷物碗社',package:'7天体验套餐',userId:'U20260320',user:'苏晚晴',contact:'苏晚晴',phone:'189 0032 6618',address:'',meal:'晚餐',qty:1,time:'17:30前',area:'待确认',diet:'少盐',allergy:'甲壳类过敏',note:'用户正在补充新地址',plan:'地址变更',status:'资料异常',version:'V1'},
+      {id:'DL010',date:tomorrowISO,brand:'鲜面研究所',package:'试餐套餐',userId:'U20260321',user:'韩松',contact:'韩松',phone:'135 8821 0971',address:'上海市静安区江宁路445号时美大厦702室',meal:'晚餐',qty:1,time:'17:45前',area:'静安区',diet:'加辣',allergy:'无',note:'保温袋挂门把手',plan:'工作日配送',status:'待确认',version:'V1'}
+    ],
+    reports: [
+      {id:'R080501',date:'2026-08-05',brand:'薄荷晨间',area:'浦东新区',meal:'午餐',user:'轻食用户',time:'11:28',status:'已送达',issue:'-',handler:'系统自动完成'},
+      {id:'R080502',date:'2026-08-05',brand:'谷物碗社',area:'黄浦区',meal:'午餐',user:'顾明远',time:'12:06',status:'延迟送达',issue:'骑手超时 6 分钟',handler:'王宁'},
+      {id:'R080503',date:'2026-08-05',brand:'薄荷晨间',area:'静安区',meal:'晚餐',user:'林知夏',time:'-',status:'已改期',issue:'用户主动调整',handler:'系统自动完成'},
+      {id:'R080504',date:'2026-08-05',brand:'暖汤小馆',area:'徐汇区',meal:'晚餐',user:'宋清禾',time:'17:41',status:'已送达',issue:'-',handler:'系统自动完成'},
+      {id:'R080505',date:'2026-08-05',brand:'鲜面研究所',area:'长宁区',meal:'午餐',user:'许安然',time:'-',status:'配送失败',issue:'地址无法进入',handler:'张雪'}
+    ],
+    content: [
+      {id:'C001',type:'营养咨询',title:'减脂期蛋白质摄入指南：每天该吃多少？',tag:'增肌',author:'林方',publishDate:'2026-08-14',image:'assets/article-protein-guide.jpg',body:'根据研究，减脂期每日蛋白质摄入量建议为每公斤体重 1.6-2.2 克，覆盖鸡胸肉、三文鱼、鸡蛋等优质蛋白。',showHome:'是',homeOrder:1,status:'已上架',views:12840,favorites:526},
+      {id:'C002',type:'营养咨询',title:'每日饮水量计算公式：体重 × 30ml 的科学依据',tag:'均衡营养',author:'张雪',publishDate:'2026-08-13',image:'assets/article-balanced-hydration.jpg',body:'成年人每日饮水量 = 体重 × 30ml；运动时按流汗量额外补充。',showHome:'是',homeOrder:2,status:'已上架',views:9632,favorites:418},
+      {id:'C003',type:'营养咨询',title:'早餐怎么吃更扛饿？蛋白质 + 膳食纤维组合',tag:'科学饮食',author:'林方',publishDate:'2026-08-12',image:'assets/weekly-menu-july.jpg',body:'早餐加入蛋白质与膳食纤维，饱腹感更持久，帮助控制全天食欲。',showHome:'是',homeOrder:3,status:'已上架',views:8120,favorites:302},
+      {id:'C004',type:'营养咨询',title:'轻食不等于挨饿：减重期间的饱腹感管理',tag:'减重',author:'张雪',publishDate:'2026-08-11',image:'assets/meal-seasonal-fruit-nuts.jpg',body:'选择高纤维、高蛋白的轻食搭配，在控制热量的同时保持饱腹。',showHome:'是',homeOrder:4,status:'已上架',views:7564,favorites:289},
+      {id:'C005',type:'营养咨询',title:'晚餐提前吃，睡眠质量更好？',tag:'科学饮食',author:'林方',publishDate:'2026-08-10',image:'assets/package-cover-14day-premium.jpg',body:'晚餐提前 2-3 小时有助于改善睡眠质量，建议选择易消化的食材。',showHome:'是',homeOrder:5,status:'已上架',views:6403,favorites:176},
+      {id:'C006',type:'营养咨询',title:'增肌期怎么吃：每公斤体重 1.6g 蛋白质够吗？',tag:'增肌',author:'张雪',publishDate:'2026-08-08',image:'assets/healthy-package-7day.jpg',body:'增肌期蛋白质建议每公斤体重 1.6-2.2g，配合力量训练效果更佳。',showHome:'否',status:'已上架',views:5120,favorites:198},
+      {id:'C007',type:'营养咨询',title:'外食族减脂点餐指南',tag:'减重',author:'林方',publishDate:'2026-08-05',image:'assets/package-cover-7day-premium.jpg',body:'外食时优先选择蒸煮类、少油少盐的菜品，主食减半并增加蔬菜。',showHome:'否',status:'已上架',views:4380,favorites:120},
+      {id:'C008',type:'首页公告',title:'新增代谢计算功能上线',tag:'',author:'',publishDate:'2026-08-01',image:'assets/weekly-menu-july.jpg',body:'个人中心新增代谢计算器，输入身高体重即可计算 BMR 和 TDEE。',showHome:'否',status:'已上架',views:1980,favorites:0},
+      {id:'C009',type:'首页公告',title:'配送时间优化通知',tag:'',author:'',publishDate:'2026-06-28',image:'assets/article-balanced-hydration.jpg',body:'午餐配送 11:30-12:30，晚餐 17:30-18:30。',showHome:'否',status:'已上架',views:2450,favorites:0},
+      {id:'C010',type:'营养咨询',title:'便当备餐指南：一周减脂餐提前备好',tag:'科学饮食',author:'林方',publishDate:'2026-08-07',image:'assets/package-cover-28day-premium.jpg',body:'周末花 2 小时备餐一周的减脂便当，能大幅降低外食概率。',showHome:'否',status:'已上架',views:3890,favorites:145},
+      {id:'C011',type:'营养咨询',title:'运动后吃什么：恢复窗口期的营养选择',tag:'增肌',author:'张雪',publishDate:'2026-08-06',image:'assets/meal-seasonal-fruit-nuts.jpg',body:'运动后 30-60 分钟补充蛋白质与碳水，帮助肌肉恢复。',showHome:'否',status:'已上架',views:3320,favorites:168},
+      {id:'C012',type:'营养咨询',title:'减脂期外卖怎么点？记住这三条原则',tag:'减重',author:'林方',publishDate:'2026-08-04',image:'assets/article-protein-guide.jpg',body:'优先蒸煮类、少油少盐，主食减半并增加蔬菜。',showHome:'否',status:'已上架',views:2980,favorites:132},
+      {id:'C013',type:'首页公告',title:'新品套餐上线通知',tag:'上新通知',author:'',publishDate:'2026-08-12',image:'assets/healthy-package-7day.jpg',body:'深海蛋白月卡与鲜果轻食体验已上线，欢迎选购。',showHome:'否',status:'已上架',views:1560,favorites:0},
+      {id:'C014',type:'首页公告',title:'配送时间调整提醒',tag:'配送通知',author:'',publishDate:'2026-08-10',image:'assets/article-balanced-hydration.jpg',body:'午餐配送调整为 11:00-12:30，晚餐 17:00-18:30。',showHome:'否',status:'已上架',views:1720,favorites:0},
+      {id:'C015',type:'首页公告',title:'会员日活动预告',tag:'活动通知',author:'',publishDate:'2026-08-08',image:'assets/package-cover-14day-premium.jpg',body:'8 月 18 日会员日，全场套餐 9 折。',showHome:'否',status:'已上架',views:2030,favorites:0},
+      {id:'C016',type:'首页公告',title:'高温天气配送提示',tag:'配送通知',author:'',publishDate:'2026-08-06',image:'assets/weekly-menu-july.jpg',body:'高温天气配送将使用保温箱，请及时取餐。',showHome:'否',status:'已上架',views:980,favorites:0},
+      {id:'C017',type:'首页公告',title:'国庆假期配送安排',tag:'配送通知',author:'',publishDate:'2026-08-04',image:'assets/healthy-package-14day.jpg',body:'国庆假期正常配送，具体安排请见公告。',showHome:'否',status:'已上架',views:760,favorites:0},
+      {id:'C018',type:'首页公告',title:'老用户回馈活动',tag:'活动通知',author:'',publishDate:'2026-08-02',image:'assets/package-cover-28day-premium.jpg',body:'老用户续订享 95 折，活动至月底。',showHome:'否',status:'已上架',views:1240,favorites:0},
+      {id:'C019',type:'首页公告',title:'新地址确认提醒',tag:'服务通知',author:'',publishDate:'2026-07-31',image:'assets/article-balanced-hydration.jpg',body:'请用户及时确认配送地址，避免配送延迟。',showHome:'否',status:'已下架',views:640,favorites:0},
+      {id:'C020',type:'首页公告',title:'客服服务时间调整',tag:'服务通知',author:'',publishDate:'2026-07-29',image:'assets/weekly-menu-july.jpg',body:'客服服务时间调整为每日 09:00-21:00。',showHome:'否',status:'已下架',views:520,favorites:0}
+    ],
+    contentTags:[
+      {id:'CT01',name:'减重'},
+      {id:'CT02',name:'增肌'},
+      {id:'CT03',name:'均衡营养'},
+      {id:'CT04',name:'科学饮食'},
+      {id:'CT05',name:'食材科普'},
+      {id:'CT06',name:'上新通知'},
+      {id:'CT07',name:'配送通知'},
+      {id:'CT08',name:'活动通知'},
+      {id:'CT09',name:'服务通知'}
+    ],
+    logs: [
+      {time:'10:42',user:'林方',action:'确认次日配送数据',detail:'共 10 条配送任务'},
+      {time:'10:18',user:'林方',action:'更新套餐',detail:'14天进阶套餐价格说明'},
+      {time:'09:36',user:'系统',action:'生成次日配送任务',detail:'根据 8 个有效计划生成'},
+      {time:'09:12',user:'林方',action:'处理退款申请',detail:'OD202608040091'},
+      {time:'08:55',user:'系统',action:'同步小程序数据',detail:'用户、订单与配送计划'}
+    ]
+  };
+
+  ['2026-08-06','2026-07-10','2026-07-18','2026-07-22','2026-07-25','2026-08-01','2026-08-02','2026-08-03','2026-08-05','2026-08-06'].forEach((date,index)=>{if(initialData.users[index])initialData.users[index].createdAt=date;});
+  const brandDeliverySplits=[[48,38],[40,32],[27,21],[18,21],[0,0],[18,13],[14,12],[10,9],[9,6],[7,5]],brandPageViews=[12840,10960,8750,7340,4210,6890,6250,5740,4980,4520],brandTargetGroups=[['健康饮食'],['健康饮食','增肌'],['减脂'],['减重'],['减脂'],['健康饮食','减重'],['减重'],['减脂','增肌'],['增肌'],['健康饮食','减脂']];
+  initialData.brands.forEach((brand,index)=>{const nums=String(brand.priceRange||'').match(/[\d.]+/g)||[];brand.priceMin=Number(nums[0]||0);brand.priceMax=Number(nums[1]||nums[0]||0);brand.historicalBuyers=Math.max(brand.subs,brand.subs+62+index*17);brand.tomorrowLunch=brandDeliverySplits[index][0];brand.tomorrowDinner=brandDeliverySplits[index][1];brand.pageViews=brandPageViews[index];brand.targetGroups=brandTargetGroups[index]||[];});
+  initialData.users.forEach(user=>{if(user.goal==='均衡饮食')user.goal='健康饮食';if(user.goal==='改善习惯')user.goal='减脂';});
+  initialData.paymentMethods=initialData.paymentMethods.filter(method=>method.name!=='微信支付');
+  initialData.orders.forEach(order=>{if(order.channel==='微信支付')order.channel='小程序支付';if(order.paymentMethodName==='微信支付')order.paymentMethodName='小程序支付';});
+  initialData.finance.forEach(record=>{if(record.channel==='微信支付')record.channel='小程序支付';});
+  const incompletePlan=initialData.plans.find(plan=>plan.id==='PL260704');if(incompletePlan){incompletePlan.phone='156 1893 3028';incompletePlan.address='上海市徐汇区宜山路900号科技产业大厦C座1208室';incompletePlan.note='用户新地址已确认';}
+  initialData.tasks.forEach(task=>{task.status='待配送';if(task.id==='DL008')task.phone='137 1182 0916';if(task.id==='DL009'){task.address='上海市徐汇区宜山路900号科技产业大厦C座1208室';task.area='徐汇区';}});
+  initialData.tasks.push(...initialData.tasks.slice(0,4).map((task,index)=>({...clone(task),id:`DT${String(index+1).padStart(3,'0')}`,date:todayISO,status:['已送达','已送达','未送达','待配送'][index],note:index===2?'配送未成功，等待运营跟进':task.note})));
+  initialData.collaborations.forEach(item=>{item.followStatus=item.followStatus||(item.followed?'已达成':'待跟进');delete item.followed;});
+  function hydrateDemoData(value) {
+    value.users.forEach((user,index) => {
+      if(!user.birthday && Number(user.age)>0) {
+        const year=2026-Number(user.age),month=String(index%12+1).padStart(2,'0'),day=String(index%20+5).padStart(2,'0');
+        user.birthday=`${year}-${month}-${day}`;
+      }
+    });
+    value.subscriptions.forEach(s=>{
+      (s.pauseLogs||[]).forEach(l=>{
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(String(l.start||'')))return;
+        const dt=new Date(todayISO+'T00:00:00Z');
+        dt.setUTCDate(dt.getUTCDate()-2);
+        l.start=isoDate(dt);
+        const e=new Date(dt);
+        e.setUTCDate(e.getUTCDate()+7);
+        l.end=isoDate(e);
+      });
+    });
+    value.redemptions=buildRedemptionRecords(value);
+    return value;
+  }
+  function buildRedemptionRecords(value){
+    const out=[];let seq=0;
+    const rid=()=>`RV${String(++seq).padStart(6,'0')}`;
+    const norm=d=>String(d||'').replace(/\./g,'-');
+    value.subscriptions.forEach(sub=>{
+      const user=value.users.find(x=>x.name===sub.user)||{id:'',phone:''};
+      const plan=value.plans.find(p=>p.user===sub.user&&(p.name===sub.plan||p.name===''));
+      const planName=sub.plan&&sub.plan!=='待创建配送计划'?sub.plan:'—';
+      const planCycle=plan?plan.cycle:'—';
+      const address=(plan&&plan.address)||user.address||'—';
+      const receiver=plan?(plan.contact||'—'):'—';
+      const receiverPhone=plan?(plan.phone||'—'):'—';
+      const meals=plan?plan.meals:sub.plan||'';
+      const hasLunch=meals.includes('午餐'),hasDinner=meals.includes('晚餐');
+      const start=norm((sub.valid||'').split(' - ')[0])||'2026-08-01';
+      const base=new Date(start+'T00:00:00Z');
+      const used=Number(sub.used||0);
+      for(let i=0;i<used;i++){
+        const d=new Date(base);d.setUTCDate(d.getUTCDate()+i);
+        const iso=isoDate(d);
+        const meal=hasDinner&&!hasLunch?'晚餐':(hasLunch&&!hasDinner?'午餐':(i%2===0?'午餐':'晚餐'));
+        out.push({id:rid(),time:`${iso} ${meal==='午餐'?'12':'18'}:00`,userId:user.id||'',userName:sub.user,phone:user.phone||'—',brand:sub.brand,orderId:sub.orderId||sub.id,plan:planName,planCycle,meal,qty:1,address,receiver,receiverPhone,source:'小程序自动扣除',operator:'系统',note:'配送完成自动核销'});
+      }
+      (sub.adjustments||[]).forEach(adj=>{
+        if(adj.type!=='扣除')return;
+        out.push({id:rid(),time:adj.time||nowStamp(),userId:user.id||'',userName:sub.user,phone:user.phone||'—',brand:sub.brand,orderId:sub.orderId||sub.id,plan:planName,planCycle,meal:'—',qty:Number(adj.count||1),address,receiver,receiverPhone,source:'后台扣除',operator:adj.operator||'林方',note:adj.note||'—'});
+      });
+    });
+    return out;
+  }
+  let data = hydrateDemoData(clone(initialData));
+  const state = { loggedIn:false, page:'dashboard', search:'', filters:{}, profileOpen:false, userTab:'profile', settingsTab:'delivery', appRulesTab:'rules', pausePeriod:'week', backendSettingsTab:'payment', dailyDate:tomorrowISO, dailyDay:'tomorrow', dailyTimeStart:'00:00', dailyTimeEnd:'23:59', dailyView:'brand', dailyBrandView:'summary', dailyStart:todayISO, dailyEnd:tomorrowISO, dashboardTrendMode:'orders', dashboardTrendDim:'week', dashboardTrendStart:'2026-07-08', dashboardTrendEnd:'2026-08-06', dashboardUserDim:'day', dashboardUserStart:'2026-07-08', dashboardUserEnd:'2026-08-06', dashboardLoginDim:'day', dashboardLoginStart:'2026-07-20', dashboardLoginEnd:'2026-08-14', brandEditorId:'', planFormId:'', brandDetailId:'', packageDetailId:'', userDetailId:'', planDetailId:'', orderDetailId:'', subDetailId:'', contentDetailId:'', taskDetailIds:[], snapshot:false, confirmed:false, timeline:'before', dailyVersion:1, collapsedGroups:{}, currentAdminId:'AD001', menuWeek:'W33', menuView:'weeks', menuSwitch:{day:'本周末',time:'20:00'}, menuFocusBrand:'', menuBatchQueue:[], menuGridBrand:'全部品牌', menuGridWeek:'全部', menuGridUploaded:'全部', pagination:{page:1,size:10}, manualOrder:null };
+
+  const navGroups = [
+    {label:'运营总览',items:[['dashboard','home','工作台']]},
+    {label:'商品管理',items:[['brands','brand','品牌管理'],['menu','file','每周菜单'],['packages','box','套餐管理']]},
+    {label:'内容运营',items:[['phrases','quote','激励词语库'],['articles','file','营养咨询'],['announcements','bell','公告管理']]},
+    {label:'交易与订购',items:[['orders','receipt','订单管理'],['redemptions','check','核销明细'],['finance','chart','财务报表']]},
+    {label:'配送履约',items:[['plans','calendar','配送计划'],['daily','truck','每日配送中心']]},
+    {label:'用户运营',items:[['users','users','用户数据'],['addresses','map','用户地址管理'],['login-users','user','登录用户']]},
+    {label:'互动运营',items:[['collaborations','spark','与我合作']]},
+    {label:'权限管理',items:[['admins','users','管理员管理'],['roles','settings','角色管理']]},
+    {label:'系统设置',items:[['backend-settings','settings','后台设置'],['app-rules','settings','小程序规则']]}
+  ];
+  const pageMeta = {
+    dashboard:['运营总览','工作台'],brands:['商品管理','品牌管理'],menu:['商品管理','每周菜单'],packages:['商品管理','套餐管理'],
+    phrases:['内容运营','激励词语库'],articles:['内容运营','营养咨询'],announcements:['内容运营','公告管理'],
+    orders:['交易与订购','订单管理'],subscriptions:['交易与订购','订单管理'],redemptions:['交易与订购','核销明细'],finance:['交易与订购','财务报表'],plans:['配送履约','配送计划'],daily:['配送履约','每日配送中心'],
+    users:['用户运营','用户数据'],addresses:['用户运营','用户地址管理'],'login-users':['用户运营','登录用户'],collaborations:['互动运营','与我合作'],admins:['权限管理','管理员管理'],roles:['权限管理','角色管理'],
+    'backend-settings':['系统设置','后台设置'],'manual-order':['交易与订购','补录订单'],'app-rules':['系统设置','小程序规则'],'export-settings':['系统设置','导出设置'],'validation-settings':['系统设置','校验规则'],'brand-editor':['商品管理','品牌介绍编辑'],'plan-form':['配送履约','配送计划'],'brand-detail':['商品管理','品牌详情'],'package-detail':['商品管理','套餐详情'],'user-detail':['用户运营','用户档案'],'plan-detail':['配送履约','配送计划详情'],'order-detail':['交易与订购','订单详情'],'sub-detail':['交易与订购','购买详情'],'content-detail':['运营内容','内容详情'],'task-detail':['配送履约','配送任务详情'],demo:['系统设置','演示数据']
+  };
+
+  function injectIcons(root = document) {
+    $$('[data-icon]', root).forEach((node) => { node.innerHTML = icon(node.dataset.icon.replace(/-([a-z])/g, (_, c) => c.toUpperCase())); });
+  }
+
+  function toast(title, message = '', type = 'success') {
+    const node = document.createElement('div');
+    node.className = `toast ${type === 'error' ? 'error' : ''}`;
+    node.innerHTML = `<span class="toast-icon">${icon(type === 'error' ? 'alert' : 'check')}</span><span><b>${escapeHTML(title)}</b><small>${escapeHTML(message)}</small></span>`;
+    $('#toast-root').appendChild(node);
+    setTimeout(() => node.remove(), 3300);
+  }
+
+  function statusClass(value) {
+    if (/营业中|上架|销售中|使用中|订购中|已发布|已付款|已完成|已送达|启用|正常|待使用|进行中|未开始|待开始/.test(value)) return 'success';
+    if (/待付款|草稿|待确认|延迟|退款中|明日首单|已冻结/.test(value)) return 'warning';
+    if (/异常|失败|下架|暂停|取消|停用|禁用|结束|失效|退款/.test(value)) return 'danger';
+    return 'info';
+  }
+  function status(value) { return `<span class="status ${statusClass(value)}">${escapeHTML(value)}</span>`; }
+  function planUsageStatus(plan) { return ['进行中','正在使用'].includes(plan.status) ? '正在使用' : '未使用'; }
+  function tags(values = []) { return values.map((value) => `<span class="tag">${escapeHTML(value)}</span>`).join(''); }
+  function tagByName(name) { return data.brandTags.find(t=>t.name===name); }
+  function brandTagChips(b) { const chip=(name,cls)=>{const t=tagByName(name);return `<span class="tag ${cls||''}">${escapeHTML(name)}${t&&t.status==='停用'?'（停用）':''}</span>`;};return [...(b.types||[]).map(n=>chip(n,'tag-type')),...(b.tags||[]).map(n=>chip(n,'tag-amber'))].join(''); }
+  function brandTypeChips(b){const chip=(name,cls)=>{const t=tagByName(name);return `<span class="tag ${cls||''}">${escapeHTML(name)}${t&&t.status==='停用'?'（停用）':''}</span>`;};return [...(b.types||[]).map(n=>chip(n,'tag-type'))].join('');}
+  function brandFeatureChips(b){const chip=(name,cls)=>{const t=tagByName(name);return `<span class="tag ${cls||''}">${escapeHTML(name)}${t&&t.status==='停用'?'（停用）':''}</span>`;};return [...(b.tags||[]).map(n=>chip(n,'tag-amber'))].join('');}
+  function brandTagsBy(category) { return data.brandTags.filter(t=>t.category===category).sort((a,b)=>a.sort-b.sort); }
+  function tagChip(fieldName, t, checked) { const off=t.status==='停用'; return `<label class="tag-chip ${off?'is-off':''}"><input type="checkbox" name="${fieldName}" value="${t.name}" ${checked?'checked':''} ${off?'disabled':''}><span>${t.name}${off?'（停用）':''}</span></label>`; }
+  function tagUsedByBrands(tag) { return data.brands.filter(b=>tag.category==='type'?(b.types||[]).includes(tag.name):(b.tags||[]).includes(tag.name)).length; }
+  function brandAvatar(b) { return b.logo ? `<img class="brand-logo-img" src="${b.logo}" alt="${b.name}" title="${b.name}">` : `<span class="brand-avatar ${b.tone==='amber'?'amber':''}">${escapeHTML((b.abbr||b.name).slice(0,1))}</span>`; }
+  const DETAIL_FONT_SIZES=['12px','14px','16px','18px','20px','24px'];
+  const DETAIL_FONTS={默认:'',黑体:"'SimHei','Microsoft YaHei',sans-serif",宋体:"'SimSun',serif",楷体:"'KaiTi',serif",微软雅黑:"'Microsoft YaHei',sans-serif",仿宋:"'FangSong',serif"};
+  function detailTextStyle(x){const s=(x&&x.style)||{};const p=[];if(s.fontSize)p.push(`font-size:${s.fontSize}`);if(DETAIL_FONTS[s.fontFamily])p.push(`font-family:${DETAIL_FONTS[s.fontFamily]}`);if(s.bold)p.push('font-weight:700');if(s.italic)p.push('font-style:italic');if(s.color)p.push(`color:${s.color}`);return p.join(';');}
+  function detailStyleInputs(x){const s=(x&&x.style)||{},size=s.fontSize||'14px',fam=s.fontFamily||'默认';return `<select name="style-fontSize" class="select-control">${DETAIL_FONT_SIZES.map(v=>`<option ${size===v?'selected':''}>${v}</option>`).join('')}</select><select name="style-fontFamily" class="select-control">${Object.keys(DETAIL_FONTS).map(v=>`<option ${fam===v?'selected':''}>${v}</option>`).join('')}</select><label class="rich-btn" title="加粗"><input type="checkbox" name="style-bold" ${s.bold?'checked':''}><b>B</b></label><label class="rich-btn" title="斜体"><input type="checkbox" name="style-italic" ${s.italic?'checked':''}><i>I</i></label><input type="color" name="style-color" value="${s.color||'#2b2b2b'}" title="文字颜色"><span class="cell-sub">B 加粗 · I 斜体 · 颜色</span>`;}
+  function collectDetailStyle(form){const q=n=>form?form.querySelector(`[name="${n}"]`):null;return {fontSize:q('style-fontSize')?.value||'14px',fontFamily:q('style-fontFamily')?.value||'默认',bold:!!q('style-bold')?.checked,italic:!!q('style-italic')?.checked,color:q('style-color')?.value||'#2b2b2b'};}
+  function renderDetailTextBlock(x){return `<p class="editor-preview-text" style="${detailTextStyle(x)}">${escapeHTML(x.content)}</p>`;}
+  function renderBrandDetailBlocks(b) { return (b.detailBlocks||[]).map(x=>x.type==='image'?`<img class="editor-preview-img" src="${x.content}" alt="">`:renderDetailTextBlock(x)).join(''); }
+  function nowStamp(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${d.toTimeString().slice(0,5)}`;}
+  function todayDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function userBMI(u){const h=(u.height||0)/100;return u.weight&&h?(u.weight/(h*h)).toFixed(1):'—';}
+  function userWeightEntries(u){const w=Number(u.weight||0);if(!w)return[];const dates=['2026-06-08','2026-06-15','2026-06-22','2026-06-29','2026-07-06','2026-07-13','2026-07-20','2026-08-05'],steps=[1.6,1.2,0.9,0.7,0.4,0.2,0.1,0];return dates.map((date,i)=>({date,value:Math.round((w+steps[i])*10)/10}));}
+  function bmiCategory(bmi){const b=parseFloat(bmi);if(isNaN(b))return '—';if(b<18.5)return '偏瘦';if(b<24)return '正常';if(b<28)return '超重';return '肥胖';}
+  function userBMR(u){if(!u.weight||!u.height||!u.age)return '—';const base=10*u.weight+6.25*u.height-5*u.age;return Math.round(u.gender==='男'?base+5:base-161);}
+  function tdeeFactor(a){return a==='久坐不动'?1.2:a==='轻度活动'?1.375:a==='中度活动'?1.55:a==='高度活动'?1.725:1.2;}
+  function userTDEE(u){const bmr=userBMR(u);return bmr==='—'?'—':Math.round(bmr*tdeeFactor(u.activity));}
+  function userLogins(u){return data.logins.filter(l=>l.userId===u.id);}
+  function userLastLogin(u){const ls=userLogins(u);return ls.length?ls.slice().sort((a,b)=>b.time.localeCompare(a.time))[0].time:null;}
+  function userFirstLogin(u){const ls=userLogins(u);return ls.length?ls.slice().sort((a,b)=>a.time.localeCompare(b.time))[0].time:null;}
+  function sevenDayActivity(u){const cut=Date.now()-7*86400000;const n=data.logins.filter(l=>l.userId===u.id&&new Date(l.time.replace(' ','T')).getTime()>=cut).length;return n>5?'高活跃':n>3?'中活跃':n>0?'低活跃':'不活跃';}
+  function activityPill7(a){return a==='高活跃'?'<span class="status success">高活跃</span>':a==='中活跃'?'<span class="status info">中活跃</span>':a==='低活跃'?'<span class="status warning">低活跃</span>':'<span class="status danger">不活跃</span>';}
+  function userSubStatus(u){const subs=data.subscriptions.filter(s=>s.user===u.name);if(!subs.length)return '0订购';return subs.some(s=>['进行中','未开始','已暂停'].includes(s.status))?'订购中':'过往订购';}
+  function subStatusPill(s){return s==='订购中'?'<span class="status success">订购中</span>':s==='过往订购'?'<span class="status">过往订购</span>':'<span class="status warning">0订购</span>';}
+  function userAddresses(u){return data.addresses.filter(a=>a.userId===u.id||a.userName===u.name);}
+  function phraseEffectiveTime(p){if(!p.scheduled)return new Date(p.uploadedAt.replace(' ','T')).getTime();if(p.replaceAt){const t=new Date(p.replaceAt).getTime();if(t<=Date.now())return t;}return null;}
+  function phraseLatest(module){let best=null,bestT=-1;data.phrases.forEach(p=>{if(p.scene!==module)return;const t=phraseEffectiveTime(p);if(t!==null&&t>bestT){bestT=t;best=p;}});return best;}
+  function phraseDisplayTime(p){return p&&p.scheduled&&p.replaceAt?p.replaceAt.replace('T',' '):'';}
+  function phraseIsUpcoming(p){return !!p&&p.scheduled&&!!p.replaceAt&&new Date(p.replaceAt).getTime()>Date.now();}
+  function phraseStatus(p){
+    if(phraseIsUpcoming(p))return '待使用';
+    if(phraseLatest(p.scene)?.id===p.id)return '正在使用';
+    return '已过期';
+  }
+  function currentAdmin(){return data.admins.find(a=>a.id===state.currentAdminId)||data.admins[0]||{name:'林方',roleId:'R001'};}
+  function currentRole(){const a=currentAdmin();return data.roles.find(r=>r.id===a.roleId)||data.roles[0];}
+  function roleCan(page){const r=currentRole();return !r||r.perms.all||!!(r.perms&&(r.perms[page]||(page==='plan-form'&&r.perms.plans)||(page==='brand-editor'&&r.perms.brands)));}
+  function nowTime() { return new Date().toTimeString().slice(0,5); }
+  function addLog(action, detail, user = '林方') { data.logs.unshift({time:nowTime(),user,action,detail}); }
+  let refundDraft = null;
+  let menuRemindDraft = null;
+let bulkDraft = null;
+let editorDraft = null;
+let phraseDraft = null;
+let packageOrderDraft = null;
+let contentHomeDraft = null;
+let articleImageDraft = [];
+  function ledgerOnFail(user, responsibility) {
+    const sub=data.subscriptions.find(s=>s.user===user&&s.status!=='已完成');
+    if(!sub) return '未找到有效订购';
+    const f=sub.frozen||0;
+    if(responsibility==='品牌责任'||responsibility==='不可抗力'){ if(f>0){sub.frozen=f-1;sub.remaining+=1;}else{sub.remaining+=1;} return '释放冻结餐次'; }
+    if(responsibility==='用户原因'){ if(f>0){sub.frozen=f-1;sub.used+=1;}else{sub.used+=1;sub.remaining=Math.max(0,sub.remaining-1);} const u=data.users.find(x=>x.name===user)||{},plan=data.plans.find(p=>p.user===user);data.redemptions=data.redemptions||[];data.redemptions.push({id:`RV${Date.now().toString().slice(-6)}`,time:nowStamp(),userId:u.id||'',userName:user,phone:u.phone||'—',brand:sub.brand,orderId:sub.orderId||sub.id,plan:(sub.plan&&sub.plan!=='待创建配送计划')?sub.plan:'—',planCycle:plan?plan.cycle:'—',meal:'—',qty:1,address:(plan&&plan.address)||u.address||'—',receiver:(plan&&plan.contact)||'—',receiverPhone:(plan&&plan.phone)||'—',source:'小程序自动扣除',operator:'系统',note:'配送失败按已使用扣减'});return '按已使用扣减'; }
+    return '待审核，暂不扣除也不释放';
+  }
+  function pauseLimitBlocked(sub, startDate){
+    const limits=(data.appRules&&data.appRules.pauseLimits)||{week:1,month:3,quarter:6,year:12};
+    const base=new Date(String(startDate||'')+'T00:00:00Z');
+    if(isNaN(base.getTime()))return '';
+    const logs=(sub.pauseLogs||[]).filter(l=>l.occupied&&/^\d{4}-\d{2}-\d{2}$/.test(String(l.start||'')));
+    const windows=[['周',7,limits.week,'7 天'],['月',30,limits.month,'30 天'],['季',90,limits.quarter,'90 天'],['年',365,limits.year,'365 天']];
+    for(const [label,days,limit,text] of windows){
+      if(!(Number(limit)>0))continue;
+      const from=new Date(base.getTime()-days*86400000);
+      const count=logs.filter(l=>{const t=new Date(l.start+'T00:00:00Z');return t>=from&&t<=base;}).length+1;
+      if(count>Number(limit))return `该用户该品牌近${text}的暂停次数已达上限（${limit} 次），如需暂停请取消勾选“占用用户的暂停次数”。`;
+    }
+    return '';
+  }
+
+  function openModal({title, body, footer = '', wide = false}) {
+    if(String(title).startsWith('品牌介绍详情设置')){title=String(title).replace('品牌介绍详情设置','品牌介绍');body=String(body).replaceAll('详情设置','品牌介绍');footer=String(footer).replaceAll('保存详情设置','保存品牌介绍');}
+    $('#modal-root').innerHTML = `<div class="modal-backdrop" data-action="close-modal"><section class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true"><header class="modal-head"><h3>${title}</h3><button class="icon-button plain" data-action="close-modal" aria-label="关闭">${icon('close')}</button></header><div class="modal-body">${body}</div>${footer ? `<footer class="modal-foot">${footer}</footer>` : ''}</section></div>`;
+    styleActionRows();
+  }
+  function closeModal() { $('#modal-root').innerHTML = ''; }
+  function openDrawer({title, body, footer = ''}) {
+    if(title==='品牌详情'){body=String(body).replaceAll('详情设置','品牌介绍').replace('订购用户','订购用户');footer=String(footer).replaceAll('详情设置','品牌介绍');}
+    $('#drawer-root').innerHTML = `<div class="drawer-backdrop" data-action="close-drawer"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title"><header class="drawer-head"><div><small class="drawer-eyebrow">详情信息</small><h3 id="drawer-title">${title}</h3></div><button class="icon-button plain" data-action="close-drawer" aria-label="关闭">${icon('close')}</button></header><div class="drawer-body">${body}</div>${footer ? `<footer class="drawer-foot">${footer}</footer>` : ''}</aside></div>`;
+    const drawer=$('#drawer-root .drawer'),first=$('#drawer-root .drawer-body')?.firstElementChild;if(first)first.classList.add('drawer-summary-card');drawer?.querySelectorAll('.drawer-body>h4').forEach(h=>h.classList.add('drawer-section-heading'));
+    styleActionRows();
+  }
+  function closeDrawer() { $('#drawer-root').innerHTML = ''; }
+  function confirmAction(title, message, confirmLabel, onConfirmAction, id = '', value = '') {
+    openModal({title:'操作确认',body:`<div class="confirm-copy"><div class="confirm-illustration">${icon('alert',26)}</div><h3>${title}</h3><p>${message}</p></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button danger" data-action="${onConfirmAction}" data-id="${id}" data-value="${escapeHTML(value)}">${confirmLabel}</button>`});
+  }
+
+  function renderShell() {
+    const me=currentAdmin(),role=currentRole();
+    const prevScroll=document.querySelector('.sidebar-nav')?document.querySelector('.sidebar-nav').scrollTop:0;
+    $('#sidebar').innerHTML = `
+      <div class="brand-lockup"><img class="brand-mark-img" src="assets/logo.png" alt="渡鸦管家 Logo"><span><b>渡鸦管家</b><small>OPERATIONS</small></span></div>
+      <nav class="sidebar-nav">${navGroups.map(group => { const visible=group.items.filter(([page])=>roleCan(page)); if(!visible.length)return ''; const collapsed=!!state.collapsedGroups[group.label]; return `<section class="nav-section"><button class="nav-label nav-group-toggle" data-action="toggle-nav-group" data-value="${group.label}">${group.label}${icon('chevronDown','11')}</button><div class="nav-group-items" ${collapsed?'style="display:none"':''}>${visible.map(([page, ico, label]) => `<button class="nav-item ${state.page === page || state.backPage === page ? 'active' : ''}" data-action="navigate" data-page="${page}">${icon(ico)}<span>${label}</span></button>`).join('')}</div></section>`; }).join('')}</nav>`;
+    const navEl=document.querySelector('.sidebar-nav');if(navEl)navEl.scrollTop=prevScroll;
+    const meta = pageMeta[state.page]||pageMeta.dashboard;
+    $('#topbar').innerHTML = `<div class="breadcrumb"><small>${meta[0]} / ${meta[1]}</small><h1>${meta[1]}</h1></div><div class="top-actions"><span class="today-chip">2026.08.06 · 星期四</span><button class="operator-button top-operator" data-action="toggle-profile"><span class="operator-avatar">${escapeHTML(me.name.slice(0,1))}</span><span class="operator-meta"><b>${escapeHTML(me.name)}</b><small>${escapeHTML(role?role.name:'管理员')}</small></span>${icon('chevronDown')}</button>${state.profileOpen ? `<div class="profile-menu top-profile-menu"><button data-action="logout">${icon('logout')}退出登录</button></div>` : ''}</div>`;
+  }
+
+  function navigate(page) {
+    if(page==='subscriptions') page='orders';
+    if(page==='sub-users') page='users';
+    if(page==='backend-settings') state.backendSettingsTab='payment';
+    state.page = page;
+    state.backPage = '';
+    state.filters = {};
+    state.pagination = { page:1, size:(state.pagination&&state.pagination.size)||10 };
+    state.profileOpen = false;
+    navGroups.forEach(group => { if(group.items.some(([p])=>p===page)) state.collapsedGroups[group.label]=false; });
+    closeDrawer(); closeModal();
+    renderApp();
+    $('#workspace').focus({preventScroll:true});
+  }
+  function renderApp() {
+    if(!roleCan(state.page)) state.page='dashboard';
+    renderShell();
+    const renderers = {dashboard:renderDashboard,brands:renderBrands,menu:renderMenuWeek,phrases:renderPhrases,packages:renderPackages,articles:()=>renderContentList('营养咨询'),announcements:()=>renderContentList('首页公告'),orders:renderOrders,'manual-order':renderManualOrder,subscriptions:renderOrders,redemptions:renderRedemptions,finance:renderFinance,plans:renderPlans,daily:renderDaily,users:renderUsers,addresses:renderAddresses,'login-users':renderLoginUsers,collaborations:renderCollaborations,admins:renderAdmins,roles:renderRoles,logs:renderLogs,'delivery-settings':renderDeliverySettings,'backend-settings':renderBackendSettings,'app-rules':renderAppRules,'export-settings':renderExportSettings,'validation-settings':renderValidationSettings,'brand-editor':renderBrandEditorPage,'plan-form':renderPlanFormPage,'brand-detail':renderBrandDetailPage,'package-detail':renderPackageDetailPage,'user-detail':renderUserDetailPage,'plan-detail':renderPlanDetailPage,'order-detail':renderOrderDetailPage,'sub-detail':renderSubDetailPage,'content-detail':renderContentDetailPage,'task-detail':renderTaskDetailPage,demo:renderDemo,...V15_PAGES};
+    $('#workspace').innerHTML = renderers[state.page]();
+    enhanceCurrentPageDOM();
+    if(state.page==='dashboard')enhanceDashboardDOM();
+    if(state.page==='brand-editor')bindEditorImageInput();
+    if(state.page==='plan-form')renderPlanDeliveryConfig();
+    if(state.page==='app-rules')bindRuleSlotMeals();
+  }
+  function bindRuleSlotMeals(){document.querySelectorAll('#delivery-slot-rows .slot-meal-option input').forEach(input=>{const sync=()=>input.closest('.slot-meal-option')?.classList.toggle('active',input.checked);input.addEventListener('change',sync);input.addEventListener('click',()=>setTimeout(sync,0));});}
+  function enhanceCurrentPageDOM(){
+    const toolbar=$('#workspace .toolbar-actions');
+    const addExport=(action,label='导出')=>{if(toolbar&&!toolbar.querySelector(`[data-action="${action}"]`)){const b=document.createElement('button');b.className='button secondary';b.dataset.action=action;b.innerHTML=`${icon('download')}${label}`;const anchor=toolbar.querySelector('[data-action="batch-import"]')||toolbar.querySelector('.button.primary');if(anchor)anchor.after(b);else toolbar.appendChild(b);}};
+    const swap=(el,html)=>{if(!el)return;const box=document.createElement('div');box.innerHTML=html.trim();el.replaceWith(box.firstElementChild);};
+    const appendBeforeSearch=(html)=>{const find=$('#workspace [data-action="apply-filters"]'),group=find?.closest('.toolbar-group');if(!group)return;const box=document.createElement('div');box.innerHTML=html.trim();[...box.children].forEach(el=>group.insertBefore(el,find));};
+    if(state.page==='brands')addExport('export-brands');
+    if(state.page==='packages')addExport('export-packages');if(state.page==='plans')addExport('export-plans');
+    if(state.page==='plans')addExport('export-plans');
+    if(state.page==='articles'||state.page==='announcements')addExport('export-content');
+    if(state.page==='orders'){const head=$('#workspace .page-actions [data-action="export-orders"]');if(head){head.remove();addExport('export-orders','导出');}}
+    if(state.page==='login-users')$('#workspace [data-action="open-login"]')?.remove();
+    if(state.page==='app-rules')$('#workspace [name="loginBg"]')?.closest('.form-field')?.querySelector('.upload-clear')?.remove();
+    if(state.page==='brands'){
+      const table=$('#workspace .data-table');if(table){const head=table.querySelector('thead tr'),statusHead=[...head.children].find(th=>th.textContent.trim()==='状态'),th=document.createElement('th');th.textContent='关联套餐';head.insertBefore(th,statusHead);table.querySelectorAll('tbody tr').forEach(row=>{const link=row.querySelector('[data-action="view-brand"]'),brand=data.brands.find(b=>b.id===link?.dataset.id);if(link){const span=document.createElement('span');span.className='cell-title';span.textContent=link.textContent;link.replaceWith(span);}const td=document.createElement('td'),packs=brandAssociatedPackages(brand);td.innerHTML=packs.length?`<button class="cell-link" data-action="brand-packages" data-id="${brand.id}" title="${escapeHTML(packs.map(p=>p.name).join('、'))}">${escapeHTML(packs.slice(0,2).map(p=>p.name).join('、'))}${packs.length>2?'…':''}</button>`:'—';row.insertBefore(td,row.children[row.children.length-2]);});}
+    }
+    if(state.page==='phrases')appendBeforeSearch(`${filterTabs('phraseDisplay','全部显示状态',['正在使用','待开始','已过期'])}<label class="date-range-control">发布时间 <input type="date" data-filter="phraseDateStart" value="${state.filters.phraseDateStart||''}"><span>至</span><input type="date" data-filter="phraseDateEnd" value="${state.filters.phraseDateEnd||''}"></label>`);
+    if(state.page==='articles')appendBeforeSearch(filterTabs('contentHome','全部首页状态',['是','否']));
+    if(state.page==='announcements')appendBeforeSearch(filterTabs('contentTag','全部标签',[...new Set(data.content.filter(c=>c.type==='首页公告').map(c=>c.tag).filter(Boolean))]));
+    if(state.page==='orders'){
+      const paymentOptions=[...new Set([...data.paymentMethods.map(x=>canonicalPaymentName(x.name)),...data.orders.map(orderPaymentMethod)])].filter(Boolean);
+      appendBeforeSearch(`<label class="search-control buyer-search">${icon('search')}<input data-filter="orderBuyer" placeholder="搜索下单人" value="${escapeHTML(state.filters.orderBuyer&&state.filters.orderBuyer!=='全部下单人'?state.filters.orderBuyer:'')}"></label>${filterTabs('orderChannel','全部渠道',['小程序','后台添加'])}${selectFilter('orderPayment','全部支付方式',paymentOptions)}${filterTabs('orderRefund','全部退款状态',['已退款','未退款'])}`);
+      const heads=[...$$('#workspace .orders-table th')].map(th=>th.textContent.trim());
+      $$('#workspace .orders-table tbody tr').forEach(row=>{const id=row.querySelector('[data-action="view-order"]')?.dataset.id,o=data.orders.find(x=>x.id===id),sub=data.subscriptions.find(x=>x.orderId===id);if(!o)return;const cells=row.children;const brandIndex=heads.indexOf('品牌'),packageIndex=heads.indexOf('套餐 / 状态'),planIndex=heads.indexOf('配送计划');if(brandIndex>=0)cells[brandIndex].innerHTML=`<button class="cell-link" data-action="view-order-brand" data-id="${data.brands.find(b=>b.name===o.brand)?.id||''}">${o.brand}</button>`;if(packageIndex>=0){const p=data.packages.find(x=>x.name===o.package);cells[packageIndex].innerHTML=`<button class="cell-link" data-action="view-order-package" data-id="${p?.id||''}">${o.package}</button><span class="cell-sub">${sub&&['进行中','已完成'].includes(o.status)?status(sub.status):'—'}</span>`;}if(planIndex>=0){const p=data.plans.find(x=>x.name===sub?.plan&&x.user===o.user);cells[planIndex].innerHTML=sub?`<button class="cell-link" data-action="view-order-plan" data-id="${p?.id||''}">${sub.plan}</button>`:'—';}});
+    }
+    if(state.page==='finance')appendBeforeSearch(`${selectFilter('financePayment','全部支付方式',[...new Set(data.finance.map(r=>canonicalPaymentName(r.channel)).filter(Boolean))])}${filterTabs('financeRefund','全部退款状态',['已退款','未退款'])}`);
+    if(state.page==='users')appendBeforeSearch(`${filterTabs('userGender','全部性别',['男','女'])}${filterTabs('userActivity','全部活动水平',[...new Set(data.users.map(u=>u.activity).filter(Boolean))])}${filterTabs('userActive','全部活跃度',['高活跃','中活跃','低活跃','不活跃'])}${rangeFilter('身高','userHeightMin','userHeightMax')}${rangeFilter('体重','userWeightMin','userWeightMax')}${rangeFilter('BMI','userBmiMin','userBmiMax')}${rangeFilter('BMR','userBmrMin','userBmrMax')}${rangeFilter('TDEE','userTdeeMin','userTdeeMax')}`);
+    const splitFilterRows=(primarySelectors)=>{
+      const stack=$('#workspace .toolbar-stack'),source=stack?.querySelector('.toolbar:not(.toolbar-actions) .toolbar-group');if(!stack||!source)return;
+      const primary=document.createElement('div');primary.className='toolbar toolbar-filters filter-primary-row';const group=document.createElement('div');group.className='toolbar-group';primary.appendChild(group);
+      primarySelectors.forEach(selector=>{const el=source.querySelector(selector);if(el)group.appendChild(el);});
+      if(group.children.length){stack.insertBefore(primary,stack.firstChild);source.closest('.toolbar')?.classList.add('filter-secondary-row');}
+    };
+    if(state.page==='brands')splitFilterRows(['.search-control','[data-filter-tabs="brandIntro"]','[data-filter-tabs="brandStatus"]','[data-action="apply-filters"]','[data-action="clear-filters"]']);
+    if(state.page==='phrases')splitFilterRows(['.search-control','.date-range-control','[data-action="apply-filters"]','[data-action="clear-filters"]']);
+    if(state.page==='admins')splitFilterRows(['.search-control','[data-filter-tabs="adminStatus"]','[data-action="apply-filters"]','[data-action="clear-filters"]']);
+    if(state.page==='orders'){
+      const brand=$('#workspace [data-multi-menu="orderBrands"]')?.closest('.multi-filter'),group=brand?.closest('.toolbar-group'),find=group?.querySelector('[data-action="apply-filters"]'),reset=group?.querySelector('[data-action="clear-filters"]');
+      if(brand&&find&&reset){brand.after(find);find.after(reset);}
+    }
+    $$('#workspace select[data-filter]').forEach(el=>{const v=state.filters[el.dataset.filter];if(v!=null&&v!=='')el.value=v;});
+    $$('#workspace .data-table [data-action="edit-user-note"]').forEach(b=>b.textContent='用户备注');
+    if(state.page!=='manual-order'){const stack=$('#workspace .data-panel .toolbar-stack'),pageButtons=$$('#workspace .page-actions .button');if(stack&&pageButtons.length){let actionRow=[...stack.children].find(el=>el.classList.contains('toolbar-actions')&&!el.querySelector('[data-filter]'));if(!actionRow){actionRow=document.createElement('div');actionRow.className='toolbar toolbar-actions';stack.appendChild(actionRow);}pageButtons.forEach(button=>actionRow.appendChild(button));}}
+    if(state.page==='users'){
+      const stack=$('#workspace .data-panel .toolbar-stack'),toggle=stack?.querySelector('.subscribed-only-switch');
+      let actionRow=stack&&[...stack.children].find(el=>el.classList.contains('toolbar-actions')&&!el.querySelector('[data-filter]'));
+      if(stack&&toggle){if(!actionRow){actionRow=document.createElement('div');actionRow.className='toolbar toolbar-actions';stack.appendChild(actionRow);}actionRow.classList.add('users-toolbar-actions');actionRow.appendChild(toggle);}
+    }
+    $$('#workspace .toolbar-stack').forEach(stack=>{const rows=[...stack.children],filters=rows.find(el=>el.classList.contains('toolbar')&&el.querySelector('[data-filter],.filter-tabs,.date-control,.time-control')),actions=rows.find(el=>el.classList.contains('toolbar-actions')&&!el.querySelector('[data-filter]'));if(filters){filters.classList.add('toolbar-filters');filters.classList.remove('toolbar-actions');}if(filters&&actions&&filters.nextElementSibling!==actions)stack.insertBefore(filters,actions);});
+    $$('#workspace .search-control input[placeholder]').forEach(input=>{const length=input.placeholder.length;input.closest('.search-control')?.style.setProperty('--search-width',`${Math.min(420,Math.max(270,length*14+58))}px`);});
+    $$('#workspace .toolbar-group').forEach(group=>{const apply=group.querySelector('[data-action="apply-filters"]');if(!apply)return;const pieces=[...group.querySelectorAll('.search-control,.multi-filter,select.select-control[data-filter]')].sort((a,b)=>(a.classList.contains('search-control')?0:1)-(b.classList.contains('search-control')?0:1));if(!pieces.length)return;const wrap=document.createElement('div');wrap.style.display='contents';pieces.forEach(p=>wrap.appendChild(p));group.insertBefore(wrap,group.firstChild);});
+    styleActionRows();
+  }
+
+  function styleActionRows(){
+    $$('.table-actions').forEach(box=>{
+      const existing=[...box.querySelectorAll(':scope > .action-button-row')];
+      existing.forEach(row=>{while(row.firstChild)box.insertBefore(row.firstChild,row);row.remove();});
+      const buttons=[...box.querySelectorAll(':scope > .row-button,:scope > .button')],n=buttons.length;
+      if(!n)return;
+      const rows=Math.ceil(n/4),base=Math.floor(n/rows),extra=n%rows;
+      let offset=0;
+      for(let i=0;i<rows;i++){
+        const size=base+(i<extra?1:0),row=document.createElement('div');
+        row.className='action-button-row';
+        row.style.setProperty('--action-columns',String(size));
+        buttons.slice(offset,offset+size).forEach(button=>row.appendChild(button));
+        box.appendChild(row);offset+=size;
+      }
+    });
+  }
+  function pageHead(title, desc, actions = '', back = '') { const bp=back||(state.backPage&&state.page!==state.backPage?state.backPage:''); return `<header class="page-head ${bp?'page-head-back':''}">${bp?`<button class="page-back" data-action="navigate" data-page="${bp}" title="返回">${icon('chevronLeft','18')}</button>`:''}<div>${desc?`<p>${desc}</p>`:''}</div><div class="page-actions">${actions}</div></header>`; }
+  function emptyState(title, desc) { return `<div class="empty-state"><span class="empty-icon">${icon('box',22)}</span><h3>${title}</h3><p>${desc}</p></div>`; }
+  function selectedValues(key){const v=state.filters[key];return Array.isArray(v)?v:[];}
+  function filterTabs(key, labelAll, options, cls=''){const cur=state.filters[key]||labelAll;return `<div class="filter-tabs chip-tabs ${cls}" data-filter-tabs="${key}"><button class="${cur===labelAll?'active':''}" data-action="tab-filter" data-filter="${key}" data-value="${labelAll}">${labelAll}</button>${options.map(v=>`<button class="${cur===v?'active':''}" data-action="tab-filter" data-filter="${key}" data-value="${v}">${escapeHTML(v)}</button>`).join('')}</div>`;}
+  function selectFilter(key,labelAll,options){const cur=state.filters[key]||labelAll;return `<select class="select-control" data-filter="${key}"><option value="${labelAll}">${labelAll}</option>${options.filter(v=>v&&v!==labelAll).map(v=>`<option value="${escapeHTML(v)}" ${cur===v?'selected':''}>${escapeHTML(v)}</option>`).join('')}</select>`;}
+  function multiTabs(key, labelAll, options, cls=''){const sel=selectedValues(key);return `<div class="filter-tabs chip-tabs ${cls}" data-filter-tabs="${key}"><button class="${!sel.length?'active':''}" data-action="tab-filter" data-filter="${key}" data-multi="1" data-all="1" data-value="${labelAll}">${labelAll}</button>${options.map(v=>`<button class="${sel.includes(v)?'active':''}" data-action="tab-filter" data-filter="${key}" data-multi="1" data-value="${v}">${escapeHTML(v)}</button>`).join('')}</div>`;}
+  function multiFilter(key,label,options){const selected=selectedValues(key);return `<div class="multi-filter"><button type="button" class="select-control multi-filter-trigger" data-action="toggle-multi-filter" data-value="${key}"><span>${selected.length?`已选 ${selected.length} 项`:label}</span>${icon('chevronDown','12')}</button><div class="multi-filter-menu" data-multi-menu="${key}" hidden><div class="multi-filter-actions"><button type="button" data-action="multi-all" data-value="${key}">全选</button><button type="button" data-action="multi-clear" data-value="${key}">清空</button></div>${options.map(v=>`<label><input type="checkbox" data-multi-filter="${key}" value="${escapeHTML(v)}" ${selected.includes(v)?'checked':''}>${escapeHTML(v)}</label>`).join('')}</div></div>`;}
+  function rangeFilter(label,minKey,maxKey){return `<div class="range-filter"><span>${label}</span><input type="number" step="0.1" data-filter="${minKey}" value="${escapeHTML(state.filters[minKey]||'')}" placeholder="最小"><i>–</i><input type="number" step="0.1" data-filter="${maxKey}" value="${escapeHTML(state.filters[maxKey]||'')}" placeholder="最大"></div>`;}
+  function inRange(value,minKey,maxKey){const min=state.filters[minKey],max=state.filters[maxKey],n=Number(value);return (min===''||min==null||n>=Number(min))&&(max===''||max==null||n<=Number(max));}
+  function paged(list){const s=state.pagination||(state.pagination={page:1,size:10});const total=list.length;const pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);const items=list.slice((s.page-1)*s.size,s.page*s.size);return {items,total,pages,page:s.page,size:s.size};}
+  function tableFooter(pg){const start=pg.total?((pg.page-1)*pg.size+1):0,end=Math.min(pg.page*pg.size,pg.total);const pageBtn=(i)=>`<button class="${i===pg.page?'active':''}" data-action="page-go" data-value="${i}">${i}</button>`;let btns=[];if(pg.pages<=7){for(let i=1;i<=pg.pages;i++)btns.push(pageBtn(i));}else{const set=[1,pg.pages,pg.page-1,pg.page,pg.page+1].filter(x=>x>=1&&x<=pg.pages);[...new Set(set)].sort((a,b)=>a-b).forEach((i,idx,arr)=>{if(idx>0&&i-arr[idx-1]>1)btns.push('<span class="page-ellipsis">…</span>');btns.push(pageBtn(i));});}return `<footer class="table-footer"><span>共 ${pg.total} 条 · 第 ${pg.pages} 页 · 当前 ${start}-${end} 条</span><div class="pagination"><button ${pg.page<=1?'disabled':''} data-action="page-go" data-value="${pg.page-1}">${icon('chevronLeft')}</button>${btns.join('')}<button ${pg.page>=pg.pages?'disabled':''} data-action="page-go" data-value="${pg.page+1}">${icon('chevronRight')}</button><select id="page-size" class="select-control" style="width:auto;min-width:96px;margin-left:8px" aria-label="每页条数"><option value="10" ${pg.size===10?'selected':''}>10 条/页</option><option value="20" ${pg.size===20?'selected':''}>20 条/页</option><option value="50" ${pg.size===50?'selected':''}>50 条/页</option></select></div></footer>`;}
+
+  function dashboardEvents(){const brands=data.brands.filter(b=>b.status==='上架').slice(0,8),users=data.users,types=data.refundTypes||[],events=[];for(let day=0;day<30;day++){const d=new Date('2026-07-08T12:00:00Z');d.setUTCDate(d.getUTCDate()+day);const date=isoDate(d);brands.forEach((brand,i)=>{const count=1+((day+i)%3);for(let n=0;n<count;n++){const u=users[(day+i+n)%users.length],pkg=data.packages.find(p=>p.status==='启用'&&(p.brands||[]).includes(brand.name))||data.packages[(i+n)%data.packages.length],purchasedMeals=pkg?.meals||14,completedMeals=Math.min(purchasedMeals,(day*2+i+n)%Math.max(1,purchasedMeals)),payment=Number(pkg?.price||199),hasRefund=(day+i+n)%13===0||(date==='2026-08-06'&&i===0&&n===0),refund=hasRefund?Math.round(payment*.18):0,type=types[(day+i+n)%Math.max(1,types.length)]||{id:'RT005',name:'其他'};events.push({date,brand:brand.name,userId:u.id,user:u.name,orderId:`DE${date.replaceAll('-','')}${i}${n}`,payment,refund,refundTypeId:type.id,refundTypeName:type.name,purchasedMeals,completedMeals});}});}return events;}
+  function dashboardDimRange(dim){const end='2026-08-06';if(dim==='month')return ['2026-07-08',end];if(dim==='quarter')return ['2026-07-01',end];if(dim==='custom')return [state.dashboardTrendStart,state.dashboardTrendEnd];return ['2026-07-31',end];}
+  function loginBucket(date,dim){if(dim==='month')return {key:date.slice(0,7),label:date.slice(0,7)};if(dim==='quarter'){const q=Math.ceil(Number(date.slice(5,7))/3);return {key:`${date.slice(0,4)}-Q${q}`,label:`${date.slice(0,4)} Q${q}`};}if(dim==='year')return {key:date.slice(0,4),label:date.slice(0,4)};if(dim==='week'){const d=new Date(date+'T00:00:00Z'),dow=d.getUTCDay()||7,ms=d.getTime()-(dow-1)*86400000,s=new Date(ms),e=new Date(ms+6*86400000),fmt=x=>`${String(x.getUTCMonth()+1).padStart(2,'0')}.${String(x.getUTCDate()).padStart(2,'0')}`;return {key:isoDate(s),label:`${fmt(s)}-${fmt(e)}`};}return {key:date,label:date.slice(5).replace('-','.')};}
+  function renderDashboard(){
+    const allEvents=dashboardEvents(),sum=(list,key)=>list.reduce((n,x)=>n+Number(x[key]||0),0);
+    const financeStats=data.finance.map(r=>finRowStats(r)),totalReceived=sum(data.finance,'amount'),totalRefund=financeStats.reduce((n,x)=>n+x.refund,0),netReceived=totalReceived-totalRefund,recognized=financeStats.reduce((n,x)=>n+x.usedAmt,0),unrecognized=financeStats.reduce((n,x)=>n+x.unusedAmt,0);
+    const totalLoginUsers=new Set(data.logins.map(l=>l.userId)).size;const activityCounts={高活跃:0,中活跃:0,低活跃:0,不活跃:0};data.users.forEach(u=>activityCounts[sevenDayActivity(u)]++);const activeSubs=data.subscriptions.filter(s=>['未开始','进行中','已暂停'].includes(s.status)),currentBuyers=new Set(activeSubs.map(s=>s.user)).size,historicalBuyers=new Set(data.subscriptions.map(s=>s.user)).size,profileComplete=data.users.filter(u=>u.name&&/^1\d{10}$/.test(String(u.phone).replace(/\D/g,''))&&['男','女'].includes(u.gender)&&Number(u.age)>0&&Number(u.height)>0&&Number(u.weight)>0&&u.goal&&!['待完善','—'].includes(u.goal)),profileMen=profileComplete.filter(u=>u.gender==='男').length,profileWomen=profileComplete.filter(u=>u.gender==='女').length;
+    const tomorrowTasks=data.tasks.filter(t=>t.date===tomorrowISO&&t.status!=='已失效'),tomorrowLunch=tomorrowTasks.filter(t=>t.meal==='午餐').reduce((n,t)=>n+Number(t.qty||1),0),tomorrowDinner=tomorrowTasks.filter(t=>t.meal==='晚餐').reduce((n,t)=>n+Number(t.qty||1),0);
+    const [uStart,uEnd]=state.dashboardUserDim==='custom'?[state.dashboardUserStart,state.dashboardUserEnd]:state.dashboardUserDim==='day'?['2026-08-06','2026-08-06']:['2026-07-31','2026-08-06'],periodNewUsers=data.users.filter(u=>u.createdAt>=uStart&&u.createdAt<=uEnd).length;
+    const [tStart,tEnd]=dashboardDimRange(state.dashboardTrendDim),trendEvents=allEvents.filter(e=>e.date>=tStart&&e.date<=tEnd),isMeals=state.dashboardTrendMode==='meals';
+    const brandDayOrders=new Map(),brandDayMeals=new Map(),brandOrderTotal=new Map(),brandMealTotal=new Map();trendEvents.forEach(e=>{const o=brandDayOrders.get(e.brand)||new Map();o.set(e.date,(o.get(e.date)||0)+1);brandDayOrders.set(e.brand,o);brandOrderTotal.set(e.brand,(brandOrderTotal.get(e.brand)||0)+1);const m=brandDayMeals.get(e.brand)||new Map();m.set(e.date,(m.get(e.date)||0)+Number(e.purchasedMeals||0));brandDayMeals.set(e.brand,m);brandMealTotal.set(e.brand,(brandMealTotal.get(e.brand)||0)+Number(e.purchasedMeals||0));});const trendDates=[],td0=new Date(tStart+'T00:00:00Z'),td1=new Date(tEnd+'T00:00:00Z');for(let d=new Date(td0);d<=td1;d.setUTCDate(d.getUTCDate()+1))trendDates.push(isoDate(d));const brandDay=isMeals?brandDayMeals:brandDayOrders,totalMap=isMeals?brandMealTotal:brandOrderTotal,lineBrands=[...totalMap.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]),brandStats=[...brandOrderTotal.entries()].map(([brand,orders])=>({brand,orders,meals:brandMealTotal.get(brand)||0})).sort((a,b)=>isMeals?b.meals-a.meals:b.orders-a.orders),trendTotals={orders:trendEvents.length,meals:trendEvents.reduce((s,e)=>s+Number(e.purchasedMeals||0),0)};
+    const ageDefs=[['18岁以下',0,17],['18–24',18,24],['25–29',25,29],['30–34',30,34],['35–39',35,39],['40–44',40,44],['45–49',45,49],['50–54',50,54],['55–59',55,59],['60岁及以上',60,200]],loginUserIds=new Set(data.logins.map(l=>l.userId)),ageValues=ageDefs.map(([label,min,max])=>({label,value:data.users.filter(u=>loginUserIds.has(u.id)&&Number(u.age)>=min&&Number(u.age)<=max).length}));
+    ageValues.push({label:'未录入初级设置',value:data.users.filter(u=>loginUserIds.has(u.id)&&!(Number(u.age)>0&&Number(u.height)>0&&Number(u.weight)>0&&['男','女'].includes(u.gender)&&u.goal&&u.goal!=='—')).length});
+    const maxAge=Math.max(1,...ageValues.map(x=>x.value));
+    const brandMap=new Map();allEvents.forEach(e=>{if(!brandMap.has(e.brand))brandMap.set(e.brand,{brand:e.brand,purchases:0,users:new Map(),recognized:0,unrecognized:0,refund:0,purchasedMeals:0,completedMeals:0});const r=brandMap.get(e.brand),net=e.payment-e.refund,used=e.purchasedMeals?net*e.completedMeals/e.purchasedMeals:0;r.purchases++;r.users.set(e.userId,(r.users.get(e.userId)||0)+1);r.recognized+=used;r.unrecognized+=net-used;r.refund+=e.refund;r.purchasedMeals+=e.purchasedMeals;r.completedMeals+=e.completedMeals;});const subByBrand=new Map();data.subscriptions.forEach(s=>{if(!subByBrand.has(s.brand))subByBrand.set(s.brand,{cur:new Set(),total:new Set()});const x=subByBrand.get(s.brand);x.total.add(s.user);if(['未开始','进行中','已暂停'].includes(s.status))x.cur.add(s.user);});const ranking=[...brandMap.values()].map(r=>{const subs=subByBrand.get(r.brand)||{cur:new Set(),total:new Set()};return {...r,buyers:r.users.size,currentSubs:subs.cur.size,totalSubs:subs.total.size,repeatRate:r.users.size?[...r.users.values()].filter(n=>n>=2).length/r.users.size*100:0};}).sort((a,b)=>(b.recognized+b.unrecognized-b.refund)-(a.recognized+a.unrecognized-a.refund));
+    const calDates=planCalDates(),calTotals=planCalTotals(calDates);if(!planCalState.date||!calTotals.has(planCalState.date)){const inMonth=[...calDates.keys()].filter(d=>d.startsWith(planCalState.month)).sort();planCalState.date=inMonth[0]||'';}
+    const card=(label,value,details,key,tone='',hint='')=>`<article class="metric-card dashboard-business-card ${tone}" data-dashboard-metric="${key}"><label>${label}${hint?`<span class="hint-icon" data-tip="${hint}">?</span>`:''}</label><strong>${value}</strong><div class="metric-breakdown">${details.map(([name,val])=>`<span><small>${name}</small><b>${val}</b></span>`).join('')}</div></article>`;
+    const netRev=recognized+unrecognized-totalRefund;
+    const revenueCard=`<article class="metric-card dashboard-business-card dashboard-revenue-card" data-dashboard-metric="net-revenue"><label>累计实收<span class="hint-icon" data-tip="主数值 = 已核销金额 + 未核销金额 − 退款金额；已核销/未核销按已用/未用餐次折算">?</span></label><strong>${money(netRev)}</strong><div class="metric-breakdown"><span><small>已核销金额</small><b>${money(recognized)}</b></span><span><small>未核销金额</small><b>${money(unrecognized)}</b></span><span><small>退款金额</small><b>${money(totalRefund)}</b></span></div></article>`;
+    const userCard=`<article class="metric-card dashboard-business-card dashboard-user-card" data-dashboard-metric="period-users"><label>周期新增用户<span class="hint-icon" data-tip="所选时间范围内新注册用户数">?</span></label><strong>${periodNewUsers} 人</strong><div class="filter-tabs dashboard-inline-tabs">${[['day','天'],['week','周'],['custom','自定义']].map(([v,label])=>`<button class="${state.dashboardUserDim===v?'active':''}" data-action="dashboard-user-dim" data-value="${v}">${label}</button>`).join('')}</div></article>`;
+    const trendHead=`<div class="trend-head"><div class="trend-head-left"><h3>品牌订购趋势</h3><div class="filter-tabs">${[['orders','按订购次数'],['meals','按餐数']].map(([v,label])=>`<button class="${state.dashboardTrendMode===v?'active':''}" data-action="dashboard-trend-mode" data-value="${v}">${label}</button>`).join('')}</div></div><div class="filter-tabs trend-dim-tabs">${[['week','周'],['month','月'],['quarter','季度'],['custom','自定义']].map(([v,label])=>`<button class="${state.dashboardTrendDim===v?'active':''}" data-action="dashboard-trend-dim" data-value="${v}">${label}</button>`).join('')}</div></div>`;
+    const trendRange=`<div class="dashboard-mini-range trend-custom-range ${state.dashboardTrendDim==='custom'?'show':''}"><span>自定义范围</span><input class="date-control" id="dashboard-trend-start" type="date" value="${state.dashboardTrendStart}"><span>至</span><input class="date-control" id="dashboard-trend-end" type="date" value="${state.dashboardTrendEnd}"><button class="button secondary small" data-action="apply-trend-range">应用</button></div>`;
+    const trendChart=lineBrands.length?(()=>{const bc=['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7'],CW=640,CH=250,CL=44,CR=18,CT=20,CB=42,PW=CW-CL-CR,PH=CH-CT-CB,baseY=CT+PH,maxV=Math.max(1,...lineBrands.flatMap(b=>[...(brandDay.get(b)||new Map()).values()])),ticks=[0,.25,.5,.75,1],step=Math.max(1,Math.ceil(trendDates.length/6)),px=i=>CL+(trendDates.length>1?i*PW/(trendDates.length-1):0),py=v=>CT+PH-v/maxV*PH,smooth=pts=>{if(pts.length<2)return pts.length?`M${pts[0][0]},${pts[0][1]}`:'';let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)],c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6,c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;d+=`C${c1x},${c1y} ${c2x},${c2y} ${p2[0]},${p2[1]}`;}return d;};return `<svg class="age-line-svg brand-line-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="各品牌新增订购趋势折线图"><defs>${lineBrands.map((b,i)=>`<linearGradient id="trendGrad${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${bc[i%bc.length]}" stop-opacity=".22"/><stop offset="100%" stop-color="${bc[i%bc.length]}" stop-opacity=".02"/></linearGradient>`).join('')}</defs>${ticks.map(t=>{const y=py(maxV*t);return `<line x1="${CL}" y1="${y}" x2="${CW-CR}" y2="${y}" class="age-grid-line dash-grid"/><text x="${CL-10}" y="${y+4}" text-anchor="end" class="age-axis-label">${Math.round(maxV*t)}</text>`;}).join('')}${trendDates.map((d,i)=>{const x=px(i);return (i%step===0||i===trendDates.length-1)?`<line x1="${x}" y1="${CT}" x2="${x}" y2="${CT+PH}" class="dash-grid"/><text x="${x}" y="${CH-16}" text-anchor="middle" class="age-axis-label">${d.slice(5).replace('-','.')}</text>`:'';}).join('')}${lineBrands.map((b,i)=>{const pts=trendDates.map((d,j)=>[px(j),py(brandDay.get(b).get(d)||0)]),line=smooth(pts),area=pts.length?`${line}L${pts[pts.length-1][0]},${baseY}L${pts[0][0]},${baseY}Z`:'';return `<path d="${area}" fill="url(#trendGrad${i})" stroke="none"/><path d="${line}" fill="none" stroke="${bc[i%bc.length]}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${px(trendDates.length-1)}" cy="${py(brandDay.get(b).get(trendDates[trendDates.length-1])||0)}" r="3.6" fill="#fff" stroke="${bc[i%bc.length]}" stroke-width="2.4"/>${trendDates.map((d,j)=>`<circle class="chart-hit" data-tip="${b} ${d.slice(5)}：${brandDay.get(b).get(d)||0}" cx="${px(j)}" cy="${py(brandDay.get(b).get(d)||0)}" r="9" fill="transparent"/>`).join('')}`;}).join('')}</svg><div class="chart-legend brand-line-legend">${lineBrands.map((b,i)=>`<span><i style="background:${bc[i%bc.length]}"></i>${b}</span>`).join('')}</div>`;})():'<p class="cell-sub">当前范围暂无新增订购</p>';
+    const trendStats=`<div class="brand-trend-stats"><div class="brand-stats-table"><div class="brand-stats-row head"><span>品牌</span><b class="${!isMeals?'active':''}">订购次数</b><b class="${isMeals?'active':''}">餐数</b></div><div class="brand-stats-row total"><span>合计</span><b>${trendTotals.orders}</b><b>${trendTotals.meals}</b></div>${brandStats.map(s=>`<div class="brand-stats-row"><span title="${s.brand}">${s.brand}</span><b>${s.orders}</b><b>${s.meals}</b></div>`).join('')}</div></div>`;
+    const loginDim=state.dashboardLoginDim,lastLogin=data.logins.reduce((m,l)=>l.time.slice(0,10)>m?l.time.slice(0,10):m,''),loginStart=loginDim==='week'?isoDate(new Date(new Date(lastLogin+'T00:00:00Z').getTime()-6*86400000)):loginDim==='month'?lastLogin.slice(0,8)+'01':loginDim==='quarter'?'2026-07-01':loginDim==='year'?'2025-09-01':loginDim==='custom'?state.dashboardLoginStart:null,loginEnd=loginDim==='quarter'?'2026-09-30':loginDim==='year'?'2026-08-31':loginDim==='custom'?state.dashboardLoginEnd:lastLogin;
+    const inWin=d=>!loginStart||(d>=loginStart&&d<=loginEnd);
+    const loginLogs=data.logins.filter(l=>inWin(l.time.slice(0,10))),loginUsers=new Set(loginLogs.map(l=>l.userId)).size;
+    let loginBuckets=[];
+    if(loginDim==='day'){const hourMap=new Map();data.logins.forEach(l=>{const h=String(l.time.slice(11,13));hourMap.set(h,(hourMap.get(h)||0)+1);});loginBuckets=Array.from({length:24},(_,i)=>{const k=String(i).padStart(2,'0');return {key:k,label:`${i}:00`,count:hourMap.get(k)||0};});}
+    else{const loginMap=new Map();loginLogs.forEach(l=>{const date=l.time.slice(0,10);if(loginDim==='quarter'||loginDim==='year'){const key=date.slice(0,7);loginMap.set(key,{label:`${Number(date.slice(5,7))}月`,count:(loginMap.get(key)?.count||0)+1});}else{loginMap.set(date,{label:date.slice(5).replace('-','.'),count:(loginMap.get(date)?.count||0)+1});}});if(loginDim==='quarter'||loginDim==='year'){const filled=[],d0=new Date(loginStart+'T00:00:00Z'),d1=new Date(loginEnd+'T00:00:00Z');for(let d=new Date(d0);d<=d1;d.setUTCMonth(d.getUTCMonth()+1)){const key=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;filled.push({key,label:`${d.getUTCMonth()+1}月`,count:loginMap.get(key)?.count||0});}loginBuckets=filled;}else{const filled=[];for(let d=new Date(loginStart+'T00:00:00Z');d<=new Date(loginEnd+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1)){const key=isoDate(d);filled.push({key,label:key.slice(5).replace('-','.'),count:loginMap.get(key)?.count||0});}loginBuckets=filled;}}
+    const loginColor='#4c8bd8';
+    const loginHead=`<div class="trend-head"><div class="trend-head-left"><h3>登录趋势</h3></div><div class="filter-tabs trend-dim-tabs">${[['day','天'],['week','周'],['month','月'],['quarter','季'],['year','年'],['custom','自定义']].map(([v,label])=>`<button class="${state.dashboardLoginDim===v?'active':''}" data-action="dashboard-login-dim" data-value="${v}">${label}</button>`).join('')}</div></div>`;
+    const loginRangeHtml=`<div class="dashboard-mini-range trend-custom-range ${loginDim==='custom'?'show':''}"><span>自定义范围</span><input class="date-control" id="dashboard-login-start" type="date" value="${state.dashboardLoginStart}"><span>至</span><input class="date-control" id="dashboard-login-end" type="date" value="${state.dashboardLoginEnd}"><button class="button secondary small" data-action="apply-login-range">应用</button></div>`;
+    const loginChart=loginBuckets.length?(()=>{const CW=520,CH=230,CL=40,CR=14,CT=18,CB=40,PW=CW-CL-CR,PH=CH-CT-CB,baseY=CT+PH,maxV=Math.max(1,...loginBuckets.map(b=>b.count)),ticks=[0,.25,.5,.75,1],step=Math.max(1,Math.ceil(loginBuckets.length/6)),px=i=>CL+(loginBuckets.length>1?i*PW/(loginBuckets.length-1):0),py=v=>CT+PH-v/maxV*PH,pts=loginBuckets.map((b,i)=>[px(i),py(b.count)]),smooth=p=>{if(p.length<2)return p.length?`M${p[0][0]},${p[0][1]}`:'';let d=`M${p[0][0]},${p[0][1]}`;for(let i=0;i<p.length-1;i++){const a=p[Math.max(0,i-1)],b=p[i],c=p[i+1],e=p[Math.min(p.length-1,i+2)];d+=`C${b[0]+(c[0]-a[0])/6},${b[1]+(c[1]-a[1])/6} ${c[0]-(e[0]-b[0])/6},${c[1]-(e[1]-b[1])/6} ${c[0]},${c[1]}`;}return d;},line=smooth(pts),area=`${line}L${pts[pts.length-1][0]},${baseY}L${pts[0][0]},${baseY}Z`;return `<div class="login-total-badge">共 ${loginUsers} 人</div><svg class="age-line-svg login-line-svg" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="用户登录趋势折线图"><defs><linearGradient id="loginGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${loginColor}" stop-opacity=".22"/><stop offset="100%" stop-color="${loginColor}" stop-opacity=".02"/></linearGradient></defs>${ticks.map(t=>{const y=py(maxV*t);return `<line x1="${CL}" y1="${y}" x2="${CW-CR}" y2="${y}" class="age-grid-line dash-grid"/><text x="${CL-8}" y="${y+4}" text-anchor="end" class="age-axis-label">${Math.round(maxV*t)}</text>`;}).join('')}${loginBuckets.map((b,i)=>(i%step===0||i===loginBuckets.length-1)?`<line x1="${px(i)}" y1="${CT}" x2="${px(i)}" y2="${CT+PH}" class="dash-grid"/><text x="${px(i)}" y="${CH-16}" text-anchor="middle" class="age-axis-label">${b.label}</text>`:'').join('')}<path d="${area}" fill="url(#loginGrad)" stroke="none"/><path d="${line}" fill="none" stroke="${loginColor}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3.6" fill="#fff" stroke="${loginColor}" stroke-width="2.4"/>${loginBuckets.map((b,i)=>`<circle class="chart-hit" data-tip="${b.label}：${b.count} 次" cx="${px(i)}" cy="${py(b.count)}" r="9" fill="transparent"/>`).join('')}</svg><div class="chart-legend"><span><i style="background:${loginColor}"></i>登录次数</span></div>`;})():'<p class="cell-sub">暂无登录记录</p>';
+    return `<section class="page dashboard-page">
+      <header class="dashboard-section-title"><div><h2>累计经营概览</h2><p>展示平台当前累计登录用户、收入、退款、订购覆盖、新增用户及明日配送情况。</p></div></header><div class="metric-grid dashboard-global-kpis">${card('登录用户总数',totalLoginUsers,[['高活跃',activityCounts.高活跃],['中活跃',activityCounts.中活跃],['低活跃',activityCounts.低活跃],['不活跃',activityCounts.不活跃]],'total-users','','统计所有有登录记录的去重用户')}${card('资料完整用户',profileComplete.length,[['男性',profileMen],['女性',profileWomen]],'profile-summary','','统计填写完整基本信息（姓名/手机号/性别/年龄/身高/体重/健康目标）的用户')}${revenueCard}${card('订购覆盖',currentBuyers,[['历史订购用户总数',historicalBuyers]],'subscriber-summary','','当前订购用户=当前订阅中（未开始/进行中/已暂停）的用户数；历史订购用户总数=所有订阅中与历史订阅的去重用户数')}${card('明日配送',tomorrowLunch+tomorrowDinner,[['午餐',tomorrowLunch],['晚餐',tomorrowDinner]],'tomorrow-delivery','warn')}${userCard}</div>
+      <section class="panel trend-panel"><header class="panel-head">${trendHead}</header>${trendRange}<div class="panel-body brand-trend-wrap"><div class="brand-trend-chart">${trendChart}</div>${trendStats}</div></section>
+      <div class="grid-2 dashboard-analysis-grid"><section class="panel"><header class="panel-head"><h3>年龄分布</h3></header><div class="panel-body age-login-chart"><div class="age-line">${ageValues.map((x,i)=>`<div class="age-point" style="--point-y:${Math.round(x.value/maxAge*100)}%"><b>${x.value}</b><i></i><span data-age-bucket="${x.label}">${x.label}</span></div>`).join('')}</div><p class="form-hint">按全部历史登录去重用户统计 · 未录入初级设置用户单独统计</p></div></section>
+      <section class="panel"><header class="panel-head">${loginHead}</header>${loginRangeHtml}<div class="panel-body login-trend-chart">${loginChart}</div></section></div>
+      <section class="panel brand-ranking"><header class="panel-head"><h3>品牌经营排名</h3><small>全部历史数据 · 按总收入降序 · 最多展示 6 条</small></header><div class="table-wrap"><table class="data-table"><thead><tr><th>排名</th><th>品牌</th><th>当前订阅用户</th><th>总订阅用户</th><th>总收入</th><th>已核销金额</th><th>未核销金额</th><th>退款金额</th><th>总购买餐数</th><th>已完成餐数</th><th>未完成餐数</th><th>复购率</th></tr></thead><tbody>${ranking.slice(0,6).map((r,i)=>`<tr><td><b>${i+1}</b></td><td>${r.brand}</td><td><b>${r.currentSubs}</b></td><td>${r.totalSubs}</td><td><b>${money(Math.round(r.recognized+r.unrecognized-r.refund))}</b></td><td>${money(Math.round(r.recognized))}</td><td>${money(Math.round(r.unrecognized))}</td><td>${money(r.refund)}</td><td>${r.purchasedMeals}</td><td>${r.completedMeals}</td><td>${r.purchasedMeals-r.completedMeals}</td><td>${r.repeatRate.toFixed(1)}%</td></tr>`).join('')}</tbody></table></div></section>
+      <section class="panel dashboard-calendar-panel"><header class="panel-head"><h3>配送日历</h3><small>配送计划固定数据 · 不随筛选周期变化</small></header><div class="panel-body plan-cal-layout"><div class="plan-cal-calendar">${planCalMonthHTML(calDates,calTotals)}</div><div class="plan-cal-detail">${planCalDetailHTML(calDates,calTotals)}</div></div></section>
+    </section>`;
+  }
+
+  function enhanceDashboardDOM(){
+    const page=document.querySelector('.dashboard-page');if(!page)return;
+    const trend=page.querySelector('.trend-panel'),analysis=page.querySelector('.dashboard-analysis-grid'),ranking=page.querySelector('.brand-ranking'),calendar=page.querySelector('.dashboard-calendar-panel');
+    const sectionHeaders=[...page.querySelectorAll(':scope > .dashboard-section-title')],cumulativeHeader=sectionHeaders[0],cumulativeGrid=page.querySelector('.dashboard-global-kpis');
+    [cumulativeHeader,cumulativeGrid,trend,analysis,ranking,calendar].filter(Boolean).forEach(node=>page.appendChild(node));
+    const chart=page.querySelector('.age-login-chart'),labels=['18岁以下','18–24','25–29','30–34','35–39','40–44','45–49','50–54','55–59','60岁及以上','未录入初级设置'];
+    if(chart){const values=[...chart.querySelectorAll('[data-age-bucket]')].map(el=>Number(el.closest('.age-point')?.querySelector('b')?.textContent||0));const rows=labels.map((label,i)=>({label,value:values[i]||0})).sort((a,b)=>b.value-a.value),max=Math.max(1,...rows.map(r=>r.value));chart.innerHTML=`<div class="age-bar-chart">${rows.map(r=>`<div class="age-bar-row"><span class="age-bar-label">${r.label}</span><div class="age-bar-track"><i style="width:${Math.round(r.value/max*100)}%"></i></div><b class="age-bar-value">${r.value} 人</b></div>`).join('')}</div>${values.every(v=>v===0)?'<p class="age-empty-note">暂无登录用户数据。</p>':''}<p class="form-hint">按全部历史登录去重用户统计 · 按人数降序</p>`;}
+  }
+
+  function activePaymentMethods(){return (data.paymentMethods||[]).filter(x=>x.status==='启用');}
+  function blankManualOrder(){const method=activePaymentMethods()[0]||null;return {userId:'',brandId:'',packageId:'',paymentMethodId:method?.id||'',amount:'',planId:'',startDate:'',note:''};}
+  function manualDraft(){return state.manualOrder||(state.manualOrder=blankManualOrder());}
+  function captureManualDraft(){if(state.page!=='manual-order'||!state.manualOrder)return;const amount=$('#manual-order-amount'),method=$('#manual-order-payment'),note=$('#manual-order-note');if(amount)state.manualOrder.amount=amount.value;if(method)state.manualOrder.paymentMethodId=method.value;if(note)state.manualOrder.note=note.value;}
+  function renderBackendSettings(){
+    const methods=data.paymentMethods||[],refundTypes=data.refundTypes||[],section=(title,desc,action,label,table,cls='')=>`<section class="data-panel settings-data-section ${cls}"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><div><h3>${title}</h3><p class="cell-sub">${desc}</p></div><button class="button primary" data-action="${action}">${icon('plus')}${label}</button></div></div>${table}</section>`;
+    const methodTable=`<div class="table-wrap"><table class="data-table"><thead><tr><th>支付方式名称</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead><tbody>${methods.map(m=>`<tr><td><span class="cell-title">${escapeHTML(m.name)}</span>${m.system?'<span class="cell-sub">系统默认</span>':''}</td><td>${status(m.status)}</td><td>${m.creator}</td><td>${m.createdAt}</td>${m.system?'<td><span class="cell-sub">系统内置</span></td>':`<td><div class="table-actions"><button class="row-button compact" data-action="edit-payment-method" data-id="${m.id}">编辑</button><button class="row-button compact" data-action="toggle-payment-method" data-id="${m.id}">${m.status==='启用'?'停用':'启用'}</button></div></td>`}</tr>`).join('')}</tbody></table></div>`;
+    const refundTable=`<div class="table-wrap"><table class="data-table refund-type-table"><thead><tr><th>退款类型名称</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead><tbody>${refundTypes.map(t=>`<tr><td><span class="cell-title">${escapeHTML(t.name)}</span></td><td>${status(t.status)}</td><td>${t.creator}</td><td>${t.createdAt}</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-refund-type" data-id="${t.id}">编辑</button><button class="row-button compact" data-action="toggle-refund-type" data-id="${t.id}">${t.status==='启用'?'停用':'启用'}</button></div></td></tr>`).join('')}</tbody></table></div>`;
+    const tab=state.backendSettingsTab||'payment';
+    const tabs=`<div class="tabs backend-settings-tabs"><button class="tab-button ${tab==='payment'?'active':''}" data-action="backend-settings-tab" data-value="payment">支付方式（${methods.length}）</button><button class="tab-button ${tab==='refund'?'active':''}" data-action="backend-settings-tab" data-value="refund">退款类型（${refundTypes.length}）</button></div>`;
+    const content=tab==='refund'?section('退款类型','启用的退款类型可用于订单退款及经营分析。','new-refund-type','新增退款类型',refundTable,'refund-types-section'):section('支付方式','启用的支付方式可用于后台补录订单。','new-payment-method','新增支付方式',methodTable);
+    return `<section class="page">${pageHead('后台设置','管理后台业务使用的支付方式与退款分类。')}${tabs}<div class="backend-settings-content">${content}</div></section>`;
+  }
+  function openPaymentMethodForm(id=''){
+    const item=(data.paymentMethods||[]).find(x=>x.id===id);
+    if(item&&item.system)return toast('系统支付方式不可编辑','小程序支付为系统内置，不可修改','error');
+    openModal({title:item?'编辑支付方式':'新增支付方式',body:`<form id="payment-method-form" data-id="${id}"><div class="form-field"><label><em class="req-star">*</em>支付方式名称</label><input name="name" maxlength="20" value="${escapeHTML(item?.name||'')}" placeholder="请输入支付方式名称" required></div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-payment-method">保存</button>`});
+  }
+  function openRefundTypeForm(id=''){const item=(data.refundTypes||[]).find(x=>x.id===id);openModal({title:item?'编辑退款类型':'新增退款类型',body:`<form id="refund-type-form" data-id="${id}"><div class="form-field"><label><em class="req-star">*</em>退款类型名称</label><input name="name" maxlength="20" value="${escapeHTML(item?.name||'')}" placeholder="请输入退款类型名称" required></div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-refund-type">保存</button>`});}
+  function manualSummary(kind,draft){
+    if(kind==='user'){const u=data.users.find(x=>x.id===draft.userId);return u?`<div class="selected-summary"><b>${u.name}</b><span>${u.id} · ${u.phone}</span></div>`:'<p class="manual-empty">尚未选择用户</p>';}
+    if(kind==='brand'){const b=data.brands.find(x=>x.id===draft.brandId);return b?`<div class="selected-summary"><b>${b.name}</b><span>${b.abbr||''} · ${b.status}</span></div>`:'<p class="manual-empty">尚未选择品牌</p>';}
+    if(kind==='package'){const p=data.packages.find(x=>x.id===draft.packageId);return p?`<div class="selected-summary"><b>${p.name}</b><span>${p.meals} 餐 · ${p.days} 天 · ${money(p.price)}</span></div>`:'<p class="manual-empty">请先选择品牌，再选择套餐</p>';}
+    const p=data.plans.find(x=>x.id===draft.planId);return p?`<div class="selected-summary"><b>${p.name}</b><span>${p.cycle} · ${p.meals} · ${p.time}</span></div>`:'<p class="manual-empty">暂未选择，提交后显示“待创建配送计划”</p>';
+  }
+  function renderManualOrder(){
+    const d=manualDraft(),methods=activePaymentMethods();
+    if(!methods.some(x=>x.id===d.paymentMethodId))d.paymentMethodId=methods[0]?.id||'';
+    return `<section class="page manual-order-page">${pageHead('补录订单','为已有用户或新手机号补录已收款订单。')}<div class="manual-order-layout">
+      <section class="panel manual-order-section" data-manual-section="user"><header class="panel-head"><div><span class="section-index">1</span><h3>用户信息</h3></div><button class="button secondary small" data-action="choose-manual-user">选择用户</button></header><div class="panel-body" data-manual-summary="user">${manualSummary('user',d)}</div></section>
+      <section class="panel manual-order-section" data-manual-section="product"><header class="panel-head"><div><span class="section-index">2</span><h3>品牌与套餐</h3></div></header><div class="panel-body manual-choice-grid"><div><label>品牌名</label><div data-manual-summary="brand">${manualSummary('brand',d)}</div><button class="button secondary small" data-action="choose-manual-brand">选择品牌</button></div><div><label>套餐</label><div data-manual-summary="package">${manualSummary('package',d)}</div><button class="button secondary small" data-action="choose-manual-package" ${d.brandId?'':'disabled'}>选择套餐</button></div></div></section>
+      <section class="panel manual-order-section" data-manual-section="payment"><header class="panel-head"><div><span class="section-index">3</span><h3>支付信息</h3></div></header><div class="panel-body form-grid"><div class="form-field"><label><em class="req-star">*</em>实付金额</label><input id="manual-order-amount" type="number" min="0" step="0.01" value="${d.amount}"></div><div class="form-field"><label><em class="req-star">*</em>付款方式</label><select id="manual-order-payment">${methods.map(m=>`<option value="${m.id}" ${d.paymentMethodId===m.id?'selected':''}>${m.name}</option>`).join('')}</select></div><div class="form-field wide"><label>订单备注</label><textarea id="manual-order-note" placeholder="选填订单备注">${escapeHTML(d.note||'')}</textarea></div><div class="form-field"><label>下单渠道</label><input value="后台" disabled></div></div></section>
+      <section class="panel manual-order-section" data-manual-section="plan"><header class="panel-head"><div><span class="section-index">4</span><h3>配送计划</h3></div><button class="button secondary small" data-action="choose-manual-plan">选择配送计划</button></header><div class="panel-body" data-manual-summary="plan">${manualSummary('plan',d)}${d.planId?`<div class="form-field manual-start-field"><label><em class="req-star">*</em>开始配送时间</label><input id="manual-order-start-date" type="date" value="${d.startDate||tomorrowISO}"><p class="form-hint">该订单从所选日期开始按配送计划生成任务，默认明天。</p></div>`:''}</div></section>
+      </div><footer class="manual-order-footer"><button class="button secondary" data-action="cancel-manual-order">取消</button><button class="button primary" data-action="submit-manual-order">确认补录</button></footer></section>`;
+  }
+  function openManualUserPicker(mode='existing'){
+    const rows=data.users.map(u=>`<div class="risk-item manual-user-result" data-search="${escapeHTML(`${u.name}${u.id}${u.phone}`.toLowerCase())}"><div><b>${u.name}</b><small>${u.id} · ${u.phone} · ${data.plans.filter(p=>p.user===u.name).length} 个配送计划</small></div><button class="row-button" data-action="select-manual-user" data-id="${u.id}">选择</button></div>`).join('');
+    openModal({title:'选择用户',wide:true,body:`<div class="filter-tabs manual-user-tabs"><button class="${mode==='existing'?'active':''}" data-action="manual-user-mode" data-value="existing">已登录用户</button><button class="${mode==='new'?'active':''}" data-action="manual-user-mode" data-value="new">新用户</button></div>${mode==='existing'?`<label class="search-control manual-picker-search">${icon('search')}<input id="manual-user-search" placeholder="手机号、用户名、用户ID"></label><div class="risk-list" id="manual-user-results">${rows}</div>`:`<div class="form-section"><div class="form-field"><label><em class="req-star">*</em>新用户手机号</label><input id="manual-new-user-phone" type="tel" maxlength="11" placeholder="请输入11位手机号"></div><button class="button primary" data-action="create-manual-user">创建并选择</button></div>`}`});
+  }
+  function openManualBrandPicker(){const rows=data.brands.filter(b=>b.status==='上架').map(b=>`<div class="risk-item" data-brand-status="${b.status}"><div class="brand-cell">${brandAvatar(b)}<span><b>${b.name}</b><small>${b.abbr||''}</small></span></div><button class="row-button" data-action="select-manual-brand" data-id="${b.id}">选择</button></div>`).join('');openModal({title:'选择品牌',body:`<label class="search-control manual-picker-search">${icon('search')}<input id="manual-brand-search" placeholder="搜索品牌名称"></label><div class="risk-list" id="manual-brand-results">${rows||'<p class="cell-sub">暂无上架品牌</p>'}</div>`});}
+  function openManualPackagePicker(){const d=manualDraft(),brand=data.brands.find(b=>b.id===d.brandId),list=data.packages.filter(p=>p.status==='启用'&&(p.brands||[]).includes(brand?.name));openModal({title:`选择套餐 · ${brand?.name||''}`,body:`<div class="risk-list">${list.map(p=>`<div class="risk-item"><div><b>${p.name}</b><small>${p.meals} 餐 · ${p.days} 天 · ${money(p.price)}</small></div><button class="row-button" data-action="select-manual-package" data-id="${p.id}">选择</button></div>`).join('')||'<p class="cell-sub">该品牌暂无已启用套餐</p>'}</div>`});}
+  function openManualPlanPicker(){const d=manualDraft(),u=data.users.find(x=>x.id===d.userId),plans=data.plans.filter(p=>p.user===u?.name);openModal({title:`选择配送计划 · ${u?.name||''}`,wide:true,body:`<div class="risk-list">${plans.map(p=>`<div class="risk-item"><div><b>${p.name}</b><small>${planUsageStatus(p)} · ${p.cycle} · ${p.meals} · ${p.time}<br>${p.address||'—'}</small></div><button class="row-button" data-action="select-manual-plan" data-id="${p.id}">选择</button></div>`).join('')||'<p class="cell-sub">该用户暂无配送计划</p>'}</div><button class="button secondary" data-action="skip-manual-plan">暂不选择配送计划</button>`,footer:`<button class="button secondary" data-action="close-modal">关闭</button><button class="button primary" data-action="add-manual-plan">${icon('plus')}添加配送计划</button>`});}
+  function openManualPlanEditor(){
+    const d=manualDraft(),u=data.users.find(x=>x.id===d.userId),addresses=data.addresses.filter(a=>a.userId===u?.id),defaultAddress=addresses.find(a=>a.isDefault)||addresses[0];
+    openModal({title:`添加配送计划 · ${u?.name||''}`,wide:true,body:`<form id="manual-plan-form"><div class="manual-plan-editor">
+      <section class="form-section"><h4>基本信息</h4><div class="form-grid"><div class="form-field"><label>计划名称</label><input name="name" value="工作日午晚餐计划" required></div><div class="form-field"><label>联系人</label><input name="contact" value="${escapeHTML(defaultAddress?.contact||u?.name||'')}" required></div><div class="form-field"><label>联系电话</label><input name="phone" value="${escapeHTML((defaultAddress?.phone||u?.phone||'').replace(/\s/g,''))}" maxlength="11"></div></div></section>
+      <section class="form-section"><h4>配送规则</h4><div class="rule-buttons">${['工作日配送','周末＋节假日配送','每日配送','自定义配送'].map((x,i)=>`<button type="button" class="${i===0?'active':''}" data-action="manual-plan-rule" data-value="${x}">${x}</button>`).join('')}</div><div id="manual-plan-weekdays" class="custom-weekdays" hidden>${['一','二','三','四','五','六','日'].map(x=>`<button type="button" data-action="manual-plan-day" data-value="${x}">周${x}</button>`).join('')}</div><div class="setting-mode-tabs"><button type="button" class="active" data-action="manual-plan-setting" data-value="unified"><b>统一设置</b><small>所有配送日使用相同安排</small></button><button type="button" data-action="manual-plan-setting" data-value="daily"><b>分别设置每天</b><small>按星期单独安排</small></button></div><div id="manual-plan-unified"><div class="meal-count-tabs"><button type="button" data-action="manual-plan-meals" data-value="one">一天一餐</button><button type="button" class="active" data-action="manual-plan-meals" data-value="two">一天两餐</button></div><div class="form-grid"><div class="form-field"><label>午餐送达</label><select name="lunchTime">${manualTimeOptions('午餐')}</select></div><div class="form-field" id="manual-plan-dinner-field"><label>晚餐送达</label><select name="dinnerTime">${manualTimeOptions('晚餐')}</select></div></div></div><div id="manual-plan-daily" hidden><p class="cell-sub">按选定星期分别配置，每个配送日至少选择一餐。</p></div></section>
+      <section class="form-section"><h4>配送与饮食信息</h4><div class="form-grid"><div class="form-field wide"><label>配送地址</label><select name="addressId"><option value="">尚未设置地址</option>${addresses.map(a=>`<option value="${a.id}" ${a===defaultAddress?'selected':''}>${addressText(a)}</option>`).join('')}</select><button type="button" class="cell-link" data-action="manual-plan-new-address">＋ 新增地址</button></div><div class="form-field"><label>忌口</label><input name="diet" value="${escapeHTML(u?.diet||'')}"></div><div class="form-field"><label>过敏信息</label><input name="allergy" value="${escapeHTML(u?.allergy||'')}"></div><div class="form-field wide"><label>配送备注</label><textarea name="note" placeholder="给配送员或商家的备注"></textarea></div></div></section>
+      <input type="hidden" name="rule" value="工作日配送"><input type="hidden" name="settingMode" value="unified"><input type="hidden" name="mealCount" value="two"><input type="hidden" name="days" value="一,二,三,四,五">
+      </div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-manual-plan">保存配送计划</button>`});
+  }
+  function updateManualDailyRows(){const form=$('#manual-plan-form'),box=$('#manual-plan-daily');if(!form||!box)return;const days=(form.elements.days.value||'').split(',').filter(Boolean);box.innerHTML=days.length?days.map(day=>`<div class="daily-plan-row" data-daily-day="${day}"><b>周${day}</b><select name="dailyMeal_${day}"><option value="two">一天两餐</option><option value="one">一天一餐</option></select><select name="dailyLunch_${day}">${manualTimeOptions('午餐')}</select><select name="dailyDinner_${day}">${manualTimeOptions('晚餐')}</select></div>`).join(''):'<p class="cell-sub">请先选择配送星期。</p>';}
+
+  function filteredBrands(){const q=(state.filters.brandSearch||'').toLowerCase(),statusFilter=state.filters.brandStatus||'全部',types=selectedValues('brandTypes'),features=selectedValues('brandFeatures'),intro=state.filters.brandIntro||'全部介绍';return data.brands.filter(b=>(statusFilter==='全部'||b.status===statusFilter)&&(!types.length||types.some(v=>(b.types||[]).includes(v)))&&(!features.length||features.some(v=>(b.tags||[]).includes(v)))&&(intro==='全部介绍'||(intro==='已设置'?!!(b.detailBlocks||[]).length:!(b.detailBlocks||[]).length))&&(!q||`${b.name}${b.abbr}${(b.types||[]).join('')}${b.tags.join('')}${b.priceRange||''}`.toLowerCase().includes(q)));}
+  function renderBrands() {
+    const statusFilter=state.filters.brandStatus||'全部',intro=state.filters.brandIntro||'全部介绍',list=filteredBrands();
+    return `<section class="page">${pageHead('品牌管理','维护小程序品牌信息、餐品结构与履约能力。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-brand">${icon('plus')}新建品牌</button><button class="button secondary" data-action="batch-import" data-value="brands">${icon('file')}批量导入</button><button class="button secondary" data-action="brand-tags">${icon('tag')}标签管理</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="brandSearch" placeholder="搜索品牌、描述、类型、特点、价格" value="${escapeHTML(state.filters.brandSearch||'')}"></label>${multiTabs('brandTypes','全部类型',brandTagsBy('type').map(t=>t.name),'full')}${multiTabs('brandFeatures','全部特点',brandTagsBy('feature').map(t=>t.name),'full')}${filterTabs('brandIntro','全部介绍',['已设置','未设置'])}${filterTabs('brandStatus','全部',['上架','下架'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>品牌</th><th>目标群体</th><th>类型 / 特点</th><th>价格区间</th><th>本周菜单</th><th>品牌介绍</th><th>备注</th><th>订购用户</th><th>详情页浏览量</th><th>明日配送</th><th>配送范围</th><th>运营联系人</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(b=>{const wm=menuUploadFor(b.name,'W33');return `<tr><td><div class="brand-cell">${brandAvatar(b)}<span><button class="cell-link" data-action="view-brand" data-id="${b.id}">${b.name}</button><small class="cell-sub">${b.abbr}</small></span></div></td><td>${(b.targetGroups||[]).length?b.targetGroups.map(g=>`<span class="tag tag-blue">${g}</span>`).join(''):'—'}</td><td>${brandTagChips(b)}</td><td><b>¥${b.priceMin}~${b.priceMax}/餐</b></td><td>${wm?`<img class="menu-thumb" src="${wm.image}" alt="本周菜单" data-action="goto-menu" data-value="${b.name}" title="点击进入每周菜单">`:`<button class="cell-link" data-action="goto-menu" data-value="${b.name}">未上传</button>`}</td><td>${(b.detailBlocks||[]).length?`<span class="status success">已设置</span>`:`<span class="status warning">未设置</span>`}</td><td><span class="cell-sub" title="${b.note||''}">${b.note?b.note.length>14?b.note.slice(0,14)+'…':b.note:'—'}</span></td><td><b>${b.subs}</b><small class="cell-sub">历史订购用户 ${b.historicalBuyers} 人</small></td><td><b>${Number(b.pageViews||0).toLocaleString()}</b> 次</td><td><b>${b.tomorrow}</b> 餐<small class="cell-sub">午餐 ${b.tomorrowLunch} · 晚餐 ${b.tomorrowDinner}</small></td><td>${b.area||'—'}</td><td><span class="ellipsis-cell" title="${escapeHTML(b.contact||'')}">${b.contact||'—'}</span></td><td>${status(b.status)}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-brand" data-id="${b.id}">查看</button><button class="row-button compact" data-action="edit-brand" data-id="${b.id}">编辑</button><button class="row-button compact" data-action="brand-detail-editor" data-id="${b.id}">品牌介绍</button><button class="row-button compact" data-action="toggle-brand" data-id="${b.id}">${b.status==='上架'?'下架':'上架'}</button><button class="row-button compact" data-action="confirm-delete-brand" data-id="${b.id}">删除</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有找到品牌','请调整搜索词或筛选条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function renderPhrases() {
+    const q=(state.filters.phraseSearch||'').toLowerCase(), scene=state.filters.phraseScene||'全部',display=state.filters.phraseDisplay||'全部显示状态',start=state.filters.phraseDateStart||'',end=state.filters.phraseDateEnd||'';
+    const list=data.phrases.filter(p=>{const shown=phraseStatus(p)==='待使用'?'待开始':phraseStatus(p),date=(p.uploadedAt||'').slice(0,10);return (scene==='全部'||p.scene===scene)&&(display==='全部显示状态'||shown===display)&&(!start||date>=start)&&(!end||date<=end)&&(!q||p.text.toLowerCase().includes(q));}).sort((a,b)=>b.uploadedAt.localeCompare(a.uploadedAt));
+    return `<section class="page">${pageHead('激励词语库','按小程序模块（首页 / 计划 / 择食 / 订单）维护激励内容，每个模块展示最新上传的一条。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-phrase">${icon('plus')}新建词语</button><button class="button secondary small" data-action="batch-import" data-value="phrases">${icon('file')}批量导入</button><button class="button secondary small" data-action="export-phrases">${icon('download')}导出</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="phraseSearch" placeholder="搜索词语内容" value="${escapeHTML(state.filters.phraseSearch||'')}"></label><div class="filter-tabs">${['全部','首页','计划','择食','订单'].map(v=>`<button class="${scene===v?'active':''}" data-action="filter-phrase-scene" data-value="${v}">${v}</button>`).join('')}</div><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th style="width:40%">激励词语</th><th>模块</th><th>上传时间</th><th>替换时间</th><th>显示状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(p=>{const st=phraseStatus(p),sceneClass={'首页':'tag-scene-home','计划':'tag-scene-plan','择食':'tag-scene-pick','订单':'tag-scene-order'}[p.scene]||'';return `<tr><td><span class="cell-title">“${p.text}”</span></td><td><span class="tag ${sceneClass}">${p.scene}</span></td><td>${p.uploadedAt}</td><td>${phraseDisplayTime(p)||'—'}</td><td>${st==='正在使用'?'<span class="status success">正在使用</span>':st==='待使用'?'<span class="status info">待开始</span>':'<span class="status">已过期</span>'}</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-phrase" data-id="${p.id}">编辑</button><button class="row-button compact" data-action="copy-phrase" data-id="${p.id}">复制</button><button class="row-button compact" data-action="delete-phrase-confirm" data-id="${p.id}">删除</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的激励词语','可以新建词语或切换模块。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function filteredPackages(){const q=(state.filters.packageSearch||'').toLowerCase(),brands=selectedValues('packageBrands'),st=state.filters.packageStatus||'全部状态';return data.packages.filter(p=>(!brands.length||brands.some(v=>(p.brands||[]).includes(v)))&&(st==='全部状态'||p.status===st)&&(!q||`${p.name}${p.desc}${p.tag}${p.intro}`.toLowerCase().includes(q)));}
+  function renderPackages() {
+    const brand='',st=state.filters.packageStatus||'全部状态',list=filteredPackages();
+    return `<section class="page">${pageHead('套餐管理','管理套餐卡片与展开详情内容，支持下发到品牌执行。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-package">${icon('plus')}新建套餐</button><button class="button secondary" data-action="batch-import" data-value="packages">${icon('file')}批量导入</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="packageSearch" placeholder="搜索套餐名称、标签、简介" value="${escapeHTML(state.filters.packageSearch||'')}"></label>${multiFilter('packageBrands','全部品牌',data.brands.map(b=>b.name))}${filterTabs('packageStatus','全部状态',['启用','禁用'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>套餐</th><th>套餐标签</th><th>套餐简介</th><th>优势点</th><th>备注</th><th>套餐次数</th><th>套餐价格</th><th>状态</th><th>小程序显示</th><th>是否仅购买一次</th><th>下发品牌</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(p=>`<tr><td><span class="cell-title">${p.name}</span><small class="cell-sub">${p.desc||'—'}</small></td><td>${p.tag?`<span class="tag tag-purple">${p.tag}</span>`:'—'}</td><td><span class="ellipsis-cell" title="${escapeHTML(p.intro||'')}">${p.intro?p.intro.length>16?p.intro.slice(0,16)+'…':p.intro:'—'}</span></td><td>${(p.advantages||[]).map(a=>`<span class="tag tag-amber">${a}</span>`).join('')||'—'}</td><td><span class="ellipsis-cell" title="${escapeHTML(p.note||'')}">${p.note?p.note.length>16?p.note.slice(0,16)+'…':p.note:'—'}</span></td><td>${p.meals} 餐</td><td><b>${money(p.price)}</b></td><td>${status(p.status)}</td><td>${p.showInApp==='否'?'<span class="tag">否</span>':'<span class="status success">是</span>'}</td><td>${p.onceOnly==='是'?`<b>是</b><span class="cell-sub">${p.onceScope||'多品牌生效'}</span>`:'<span class="tag">否</span>'}</td><td>${(p.brands||[]).length?(p.brands||[]).map(b=>`<span class="tag">${b}</span>`).join(''):'<span class="cell-sub">未下发</span>'}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-package" data-id="${p.id}">查看</button><button class="row-button compact" data-action="edit-package" data-id="${p.id}">编辑</button><button class="row-button compact" data-action="assign-package" data-id="${p.id}">下发</button><button class="row-button compact" data-action="copy-package" data-id="${p.id}">复制</button></div></td></tr>`).join('')}</tbody></table>`:emptyState('没有找到套餐','请调整品牌、状态或关键词。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function orderChannel(o){return String(o.channel||'').includes('后台')?'后台添加':'小程序';}
+  function orderOperator(o){return orderChannel(o)==='后台添加'?(o.operator||'林方'):(o.user||'—');}
+  function canonicalPaymentName(value){return value==='微信支付'?'小程序支付':value;}
+  function orderPaymentMethod(o){return canonicalPaymentName(o.paymentMethodName||data.finance.find(x=>x.orderId===o.id)?.channel||(String(o.channel||'').includes('支付')?o.channel:'小程序支付'));}
+  function orderPlan(o,sub){return data.plans.find(p=>p.user===o.user&&(!sub||p.name===sub.plan))||data.plans.find(p=>p.user===o.user);}
+  function fullBusinessTime(value){if(!value)return '—';return /^\d{2}:\d{2}$/.test(value)?`2026-08-06 ${value}`:value;}
+  function inferRefundType(reason=''){const text=String(reason);const name=/用户|申请|不需要/.test(text)?'用户原因':/配送|延迟|地址/.test(text)?'配送异常':/质量|餐品|口味/.test(text)?'商品质量':/重复/.test(text)?'重复付款':'其他';return (data.refundTypes||[]).find(x=>x.name===name)||(data.refundTypes||[]).find(x=>x.name==='其他')||{id:'',name:'其他'};}
+  function normalizeRefundRecord(record){const type=(data.refundTypes||[]).find(x=>x.id===record.refundTypeId)||inferRefundType(record.reason);return {...record,refundTypeId:record.refundTypeId||type.id,refundTypeName:record.refundTypeName||type.name};}
+  function refundRecordsFor(o){
+    if(Array.isArray(o.refunds)&&o.refunds.length)return o.refunds.map(normalizeRefundRecord);
+    if(o.refund)return [normalizeRefundRecord({amount:Number(o.refund.amount||0),reason:o.refund.reason||'—',refundTime:fullBusinessTime(o.refund.time),operator:o.refund.operator||'林方',operationTime:fullBusinessTime(o.refund.operationTime||o.refund.time)})];
+    const fr=data.finance.find(x=>x.orderId===o.id);
+    if(fr&&(fr.refundAmount||0)>0)return [normalizeRefundRecord({amount:Number(fr.refundAmount),reason:String(fr.refundNote||'—').replace(/^人工退款[：:]\s*/,''),refundTime:fullBusinessTime(fr.refundTime),operator:fr.refundOperator||'林方',operationTime:fullBusinessTime(fr.refundOperationTime||fr.refundTime)})];
+    return [];
+  }
+  function filteredPhrases(){const q=(state.filters.phraseSearch||'').toLowerCase(),scene=state.filters.phraseScene||'全部',display=state.filters.phraseDisplay||'全部显示状态',start=state.filters.phraseDateStart||'',end=state.filters.phraseDateEnd||'';return data.phrases.filter(p=>{const shown=phraseStatus(p)==='待使用'?'待开始':phraseStatus(p),date=(p.uploadedAt||'').slice(0,10);return(scene==='全部'||p.scene===scene)&&(display==='全部显示状态'||shown===display)&&(!start||date>=start)&&(!end||date<=end)&&(!q||p.text.toLowerCase().includes(q));});}
+  function mealAdjustmentTotal(sub){return (sub?.adjustments||[]).reduce((sum,x)=>sum+(x.type==='赠送'?x.count:-x.count),0);}
+
+  function renderOrders() {
+    const q=(state.filters.orderSearch||'').toLowerCase(), st=state.filters.orderStatus||'全部状态', brands=selectedValues('orderBrands'), br='', subSt=state.filters.orderSubStatus||'全部套餐状态',buyer=state.filters.orderBuyer||'',channel=state.filters.orderChannel||'全部渠道',payment=state.filters.orderPayment||'全部支付方式',refund=state.filters.orderRefund||'全部退款状态';
+    const joined=data.orders.map(o=>({order:o,sub:data.subscriptions.find(s=>s.orderId===o.id)}));
+    const list=joined.filter(({order:o,sub})=>{const hasRefund=refundRecordsFor(o).length>0;return (st==='全部状态'||o.status===st)&&(!brands.length||brands.includes(o.brand))&&(subSt==='全部套餐状态'||(['进行中','已完成'].includes(o.status)&&sub?.status===subSt))&&(!buyer||o.user.toLowerCase().includes(String(buyer).toLowerCase()))&&(channel==='全部渠道'||orderChannel(o)===channel)&&(payment==='全部支付方式'||orderPaymentMethod(o)===payment)&&(refund==='全部退款状态'||(refund==='已退款'?hasRefund:!hasRefund))&&(!q||`${o.id}${o.user}${o.package}${o.brand}${sub?`${sub.id}${sub.plan}${sub.status}`:''}`.toLowerCase().includes(q));});
+    const pg=paged(list);
+    return `<section class="page">${pageHead('订单管理','订单与套餐购买记录已合并，可统一查看支付、餐次和配送状态。',`<button class="button secondary" data-action="export-orders">${icon('download')}导出</button>`)}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="manual-order">${icon('plus')}补录订单</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="orderSearch" placeholder="搜索订单、用户、套餐、品牌或配送计划" value="${escapeHTML(state.filters.orderSearch||'')}"></label>${filterTabs('orderStatus','全部订单状态',['待付款','待使用','进行中','已完成','退款','已取消'])}${filterTabs('orderSubStatus','全部套餐状态',['进行中','未开始','已暂停','已完成'])}${multiFilter('orderBrands','全部品牌',data.brands.map(b=>b.name))}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${pg.total?`<table class="data-table orders-table"><thead><tr><th>订单号 / 状态</th><th>用户</th><th>手机号</th><th>品牌</th><th>套餐 / 状态</th><th>实付 / 支付时间</th><th>退款金额</th><th>餐次数量</th><th>配送计划</th><th>开始配送时间</th><th>下单渠道 / 操作人</th><th>订单备注</th><th>操作</th></tr></thead><tbody>${pg.items.map(({order:o,sub})=>{const user=data.users.find(u=>u.name===o.user),refunds=refundRecordsFor(o),refundAmount=refunds.reduce((sum,x)=>sum+x.amount,0),refundTime=refunds.at(-1)?.refundTime||'',adjustTotal=mealAdjustmentTotal(sub),subActions=sub?`<button class="row-button compact" data-action="adjust-meals" data-id="${sub.id}" ${sub.status==='已完成'?'disabled':''}>赠送/扣除</button><button class="row-button compact" data-action="toggle-sub" data-id="${sub.id}" ${sub.status==='已完成'?'disabled':''}>${sub.status==='已暂停'?'恢复':'暂停'}</button>`:'';return `<tr><td><button class="cell-link" data-action="view-order" data-id="${o.id}">${o.id}</button><span class="cell-sub">${status(o.status)}</span></td><td><button class="cell-link" data-action="jump-user" data-name="${o.user}">${o.user}</button><span class="cell-sub">${user?.id||'—'}</span></td><td>${user?.phone||'—'}</td><td>${o.brand}</td><td><span class="cell-title">${o.package}</span><span class="cell-sub">${sub&&['进行中','已完成'].includes(o.status)?status(sub.status):'—'}</span></td><td><b>${money(o.amount)}</b><span class="cell-sub">${o.paid||'—'}</span><span class="cell-sub">${orderPaymentMethod(o)}</span></td><td>${refundAmount?`<button class="cell-link negative" data-action="view-refunds" data-id="${o.id}">-¥${refundAmount.toLocaleString()}</button><span class="cell-sub">${refundTime}</span>`:'—'}</td><td>${sub?`<b>${sub.bought} 餐</b><span class="cell-sub">已使用 ${sub.used} · 剩余 ${sub.remaining}</span>${(sub.adjustments||[]).length?`<button class="cell-link meal-adjust-inline" data-action="view-meal-adjustments" data-id="${sub.id}">调整 ${adjustTotal>0?'+':''}${adjustTotal} 餐</button>`:''}`:'—'}</td><td>${sub?`<button class="cell-link" data-action="jump-plan" data-name="${sub.plan}">${sub.plan}</button>`:'—'}</td><td>${o.deliveryStart||'—'}</td><td><span class="cell-title">${orderChannel(o)}</span><span class="cell-sub">${orderOperator(o)}</span></td><td><span class="cell-sub" style="max-width:170px;white-space:normal">${o.note||'—'}</span></td><td><div class="table-actions order-row-actions"><button class="row-button compact" data-action="view-order" data-id="${o.id}">查看</button><button class="row-button compact" data-action="add-order-note" data-id="${o.id}">备注</button><button class="row-button compact" data-action="request-refund" data-id="${o.id}" ${['待使用','进行中'].includes(o.status)&&orderRefundLimit(o).max>0?'':'disabled'}>退款</button>${subActions}</div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的订单','请调整订单状态、套餐状态或搜索条件。')}</div>${tableFooter(pg)}</section>
+    </section>`;
+  }
+  function filteredOrders(){const q=(state.filters.orderSearch||'').toLowerCase(),st=state.filters.orderStatus||'全部状态',brands=selectedValues('orderBrands'),subSt=state.filters.orderSubStatus||'全部套餐状态',buyer=state.filters.orderBuyer||'',channel=state.filters.orderChannel||'全部渠道',payment=state.filters.orderPayment||'全部支付方式',refund=state.filters.orderRefund||'全部退款状态';return data.orders.filter(o=>{const sub=data.subscriptions.find(s=>s.orderId===o.id),hasRefund=refundRecordsFor(o).length>0;return(st==='全部状态'||o.status===st)&&(!brands.length||brands.includes(o.brand))&&(subSt==='全部套餐状态'||(['进行中','已完成'].includes(o.status)&&sub?.status===subSt))&&(!buyer||o.user.toLowerCase().includes(String(buyer).toLowerCase()))&&(channel==='全部渠道'||orderChannel(o)===channel)&&(payment==='全部支付方式'||orderPaymentMethod(o)===payment)&&(refund==='全部退款状态'||(refund==='已退款'?hasRefund:!hasRefund))&&(!q||`${o.id}${o.user}${o.package}${o.brand}${sub?`${sub.id}${sub.plan}${sub.status}`:''}`.toLowerCase().includes(q));});}
+
+  function renderSubscriptions() {
+    const q=(state.filters.subSearch||'').toLowerCase(), st=state.filters.subStatus||'全部状态', brand=state.filters.subBrand||'全部品牌';
+    const list=data.subscriptions.filter(s=>(st==='全部状态'||s.status===st)&&(brand==='全部品牌'||s.brand===brand)&&(!q||`${s.user}${s.package}${s.id}`.toLowerCase().includes(q)));
+    return `<section class="page">${pageHead('套餐购买','追踪套餐购买记录、餐次消耗与配送计划关联。',`<button class="button secondary" data-action="export-subs">${icon('download')}导出购买</button>`)}
+      <div class="summary-ribbon"><div><span>订购总数</span><strong>742</strong></div><div><span>进行中</span><strong>681</strong></div><div><span>未开始</span><strong>34</strong></div><div><span>已暂停</span><strong>19</strong></div><div><span>7 日内到期</span><strong>26</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="subSearch" placeholder="搜索用户、套餐、编号" value="${escapeHTML(state.filters.subSearch||'')}"></label><select class="select-control" data-filter="subBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${brand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><select class="select-control" data-filter="subStatus"><option>全部状态</option>${['进行中','未开始','已暂停','已完成'].map(v=>`<option ${st===v?'selected':''}>${v}</option>`).join('')}</select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>用户</th><th>手机号</th><th>品牌</th><th>套餐</th><th>购买餐次</th><th>已使用</th><th>剩余</th><th>最近配送</th><th>配送计划</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(s=>{const u=data.users.find(x=>x.name===s.user);return `<tr><td><button class="cell-link" data-action="jump-user" data-name="${s.user}">${s.user}</button><span class="cell-sub">${u?.id||'—'}</span></td><td>${u?.phone||'—'}</td><td>${s.brand}</td><td>${s.package}</td><td>${s.bought} 餐</td><td>${s.used} 餐</td><td>${s.remaining} 餐</td><td>${s.last}</td><td><button class="cell-link" data-action="jump-plan" data-name="${s.plan}">${s.plan}</button></td><td>${status(s.status)}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-sub" data-id="${s.id}">查看</button><button class="row-button compact" data-action="adjust-meals" data-id="${s.id}" ${s.status==='已完成'?'disabled':''}>补充</button><button class="row-button compact" data-action="toggle-sub" data-id="${s.id}" ${s.status==='已完成'?'disabled':''}>${s.status==='已暂停'?'恢复':'暂停'}</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的套餐购买','请调整品牌、状态或关键词。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function filteredRedemptions(){const q=(state.filters.redemptionSearch||'').toLowerCase(),src=state.filters.redemptionSource||'全部来源',meal=state.filters.redemptionMeal||'全部餐别';return (data.redemptions||[]).filter(r=>(src==='全部来源'||r.source===src)&&(meal==='全部餐别'||r.meal===meal)&&(!q||`${r.userName}${r.userId}${r.brand}${r.orderId}${r.plan}${r.address}${r.note}`.toLowerCase().includes(q))).sort((a,b)=>b.time.localeCompare(a.time));}
+  function redemptionRowHtml(r){return `<tr><td>${r.time}</td><td><button class="cell-link" data-action="jump-user" data-name="${r.userName}">${r.userName}</button></td><td>${r.brand}</td><td><button class="cell-link" data-action="view-order" data-id="${r.orderId}">${r.orderId}</button></td><td><span class="cell-title">${escapeHTML(r.plan||'—')}</span><span class="cell-sub">${escapeHTML(r.planCycle||'—')}</span></td><td><span class="wrap-cell">${escapeHTML(r.address||'—')}</span></td><td>${r.receiver||'—'}</td><td>${r.receiverPhone||'—'}</td><td>${r.meal&&r.meal!=='—'?`<span class="tag">${r.meal}</span>`:'—'}</td><td><b>${r.qty} 餐</b></td><td><span class="tag ${r.source==='后台扣除'?'tag-amber':''}">${r.source}</span></td><td>${r.operator||'—'}</td></tr>`;}
+  function renderRedemptions(){
+    const list=filteredRedemptions();
+    return `<section class="page">${pageHead('核销明细','按餐次展示小程序自动扣除与后台扣除的核销记录。',`<button class="button secondary" data-action="export-redemptions">${icon('download')}导出</button>`)}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="redemptionSearch" placeholder="搜索用户、订单号、品牌、计划或地址" value="${escapeHTML(state.filters.redemptionSearch||'')}"></label>${filterTabs('redemptionSource','全部来源',['小程序自动扣除','后台扣除'])}${filterTabs('redemptionMeal','全部餐别',['午餐','晚餐'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>核销时间</th><th>用户</th><th>品牌</th><th>订单号</th><th>配送计划</th><th>送餐地址</th><th>收货人</th><th>收货人电话</th><th>餐别</th><th>核销餐数</th><th>数据来源</th><th>操作人</th></tr></thead><tbody>${paged(list).items.map(redemptionRowHtml).join('')}</tbody></table>`:emptyState('没有匹配的核销记录','请调整搜索或筛选条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function filteredPlans(){const q=(state.filters.planSearch||'').toLowerCase(),st=state.filters.planStatus||'全部状态',cy=state.filters.planCycle||'全部配送类型';return data.plans.filter(p=>(st==='全部状态'||planUsageStatus(p)===st)&&(cy==='全部配送类型'||p.cycle===cy)&&(!q||`${p.user}${p.name}${p.address}`.toLowerCase().includes(q)));}
+  let planFormState={perDay:false,counts:{},types:{},times:{},addresses:{},times0:{lunch:'',dinner:''},rule:'工作日配送',days:'1,2,3,4,5'};
+  function planDefaultStart(){return tomorrowISO;}
+  function planEndFor(start){const d=new Date(start+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+27);return isoDate(d);}
+  function planDayName(n){return ['','周一','周二','周三','周四','周五','周六','周日'][n]||'';}
+  function planRuleDays(rule,days){if(rule==='工作日配送')return [[1,'周一'],[2,'周二'],[3,'周三'],[4,'周四'],[5,'周五']];if(rule==='周末+节假日配送')return [[6,'周六'],[7,'周日']];if(rule==='每日配送')return [[1,'周一'],[2,'周二'],[3,'周三'],[4,'周四'],[5,'周五'],[6,'周六'],[7,'周日']];return (days||'1,2,3,4,5').split(',').map(Number).filter(n=>n>=1&&n<=7).map(n=>[n,planDayName(n)]);}
+  function planRuleSummary(rule,days){if(rule==='工作日配送')return '工作日配送 · 周一至周五';if(rule==='周末+节假日配送')return '周末+节假日配送 · 周六、周日';if(rule==='每日配送')return '每日配送 · 周一至周日';const names=(days||'1,2,3,4,5').split(',').map(Number).filter(n=>n>=1&&n<=7).map(planDayName).join('、');return '自定义配送 · '+(names||'未选星期');}
+  function planTimeOptions(kind){const custom=ruleSlotOptions(kind);return custom.length?custom:(kind==='午餐'?['09:00~10:00','10:00~11:00','11:00~12:00']:['16:00~17:00','17:00~18:00','18:00~19:00']);}
+  function planTimePart(str,kind){const m=String(str||'').match(new RegExp(kind+'\\s*([0-9:~]+)'));return m?m[1]:'';}
+  function planLegacySetting(p){const meals=String(p?.meals||'午餐'),two=meals.includes('午餐')&&meals.includes('晚餐'),dinnerOnly=!two&&meals.includes('晚餐');return {mealCount:two?'two':'one',lunchTime:dinnerOnly?'':planTimePart(p?.time,'午餐'),dinnerTime:two||dinnerOnly?planTimePart(p?.time,'晚餐'):'',lunchAddress:dinnerOnly?'':(p?.address||''),dinnerAddress:two||dinnerOnly?(p?.address||''):''};}
+  function planSettingsFor(p){const days=planRuleDays(p?.cycle||'工作日配送',Array.isArray(p?.days)?p.days.join(','):p?.days),legacy=planLegacySetting(p);return days.map(([number,label])=>{const raw=p?.dailySettings?.[number]||p?.dailySettings?.[String(number)]||{},hasRawMealCount=raw.mealCount!==undefined&&raw.mealCount!==null&&raw.mealCount!=='',mealCount=hasRawMealCount?(raw.mealCount==='two'||raw.mealCount===2?'two':'one'):legacy.mealCount,dinnerOnly=mealCount==='one'&&!raw.lunchTime&&!!raw.dinnerTime;return {number,label,mealCount,lunchTime:raw.lunchTime||(!dinnerOnly?legacy.lunchTime:''),dinnerTime:raw.dinnerTime||(dinnerOnly||mealCount==='two'?legacy.dinnerTime:''),lunchAddress:raw.lunchAddress||(!dinnerOnly?(p?.address||legacy.lunchAddress):''),dinnerAddress:raw.dinnerAddress||(dinnerOnly||mealCount==='two'?(p?.address||legacy.dinnerAddress):'')};});}
+  function planSettingMode(p){if(p?.settingMode==='daily'||p?.settingMode==='unified')return p.settingMode;const rows=planSettingsFor(p);if(rows.length<2)return 'unified';const signature=r=>JSON.stringify([r.mealCount,r.lunchTime||'',r.dinnerTime||'',r.lunchAddress||'',r.dinnerAddress||'']);return rows.some(r=>signature(r)!==signature(rows[0]))?'daily':'unified';}
+  function planFormAddrOptions(selected=''){const vals=[...new Set([selected,...(data.addresses||[]).map(a=>addressText(a)).filter(Boolean)].filter(Boolean))];return vals.map(v=>`<option value="${escapeHTML(v)}" ${v===selected?'selected':''}>${escapeHTML(v)}</option>`).join('')||'<option value="">暂无地址</option>';}
+  function planDeliveryDayHTML(key,label,cfg){
+    const c=cfg.count===1?1:2,t=cfg.type==='晚餐'?'晚餐':'午餐';
+    const lt=cfg.lunch||planTimeOptions('午餐')[0],dt=cfg.dinner||planTimeOptions('晚餐')[0],bt=cfg.lunch||cfg.dinner||ruleSlotOptionsBoth()[0];
+    const firstKind=c===1&&t==='晚餐'?'晚餐':'午餐';
+    const lunchAddr=cfg.lunchAddress||'',dinnerAddr=cfg.dinnerAddress||'',lunchOpts=planFormAddrOptions(lunchAddr),dinnerOpts=planFormAddrOptions(dinnerAddr);
+    return `<div class="plan-delivery-day" data-key="${key}"><div class="plan-delivery-day-head"><b>${label}</b><span class="seg-group plan-meal-count"><button type="button" class="${c===1?'active':''}" data-action="plan-meal-count" data-key="${key}" data-count="1">一天一餐</button><button type="button" class="${c===2?'active':''}" data-action="plan-meal-count" data-key="${key}" data-count="2">一天两餐</button></span></div>${c===1?`<div class="plan-meal-type"><button type="button" class="${t==='午餐'?'active':''}" data-action="plan-meal-type" data-key="${key}" data-type="午餐">午餐</button><button type="button" class="${t==='晚餐'?'active':''}" data-action="plan-meal-type" data-key="${key}" data-type="晚餐">晚餐</button></div>`:''}${c===2?`<div class="plan-delivery-slot"><span>送达时间（午餐、晚餐同一时段）</span><select name="deliveryTime_${key}_both">${ruleSlotOptionsBoth().map(v=>`<option ${bt===v?'selected':''}>${v}</option>`).join('')}</select></div>`:`<div class="plan-delivery-slot"><span>${firstKind}送达</span><select name="deliveryTime_${key}_${firstKind==='晚餐'?'dinner':'lunch'}">${planTimeOptions(firstKind).map(v=>`<option ${(firstKind==='晚餐'?dt:lt)===v?'selected':''}>${v}</option>`).join('')}</select></div>`}<button type="button" class="plan-addr-toggle" data-action="plan-addr-toggle" data-key="${key}">定制每餐配送地址 ▾</button><div class="plan-addr-panel" hidden><div class="plan-addr-item"><small>${c===1&&t==='晚餐'?'晚餐':'午餐'}配送地址</small><select name="deliveryAddr_${key}_${c===1&&t==='晚餐'?'dinner':'lunch'}">${c===1&&t==='晚餐'?dinnerOpts:lunchOpts}</select></div>${c===2?`<div class="plan-addr-item"><small>晚餐配送地址</small><select name="deliveryAddr_${key}_dinner">${dinnerOpts}</select></div>`:''}</div></div>`;
+  }
+  function renderPlanDeliveryConfig(){
+    const box=$('#plan-delivery-config');if(!box)return;
+    const rule=planFormState.rule||'工作日配送',days=planRuleDays(rule,planFormState.days);
+    const base=Number($('#entity-form [name="dailyCount"]')?.value||2);
+    const cfg0={count:planFormState.counts[0]!=null?planFormState.counts[0]:base,type:planFormState.types[0]||'午餐',lunch:planFormState.times0.lunch||'',dinner:planFormState.times0.dinner||'',lunchAddress:planFormState.addresses[0]?.lunch||'',dinnerAddress:planFormState.addresses[0]?.dinner||''};
+    const unified=`<div class="plan-delivery-unified${planFormState.perDay?' is-dimmed':''}"><div class="plan-delivery-mode"><b>统一设置餐次与时间段</b><span class="plan-perday-switch"><small>单独设置每天</small><label class="switch"><input type="checkbox" id="plan-delivery-perday" ${planFormState.perDay?'checked':''} data-action="plan-delivery-toggle"><span class="switch-track"></span></label></span></div>${planDeliveryDayHTML(0,'统一配送设置',cfg0)}</div>`;
+    const perDay=planFormState.perDay?`<div class="plan-delivery-days">${days.map((d,i)=>{const key=i+1,t=planFormState.times[key]||{},a=planFormState.addresses[key]||{};return planDeliveryDayHTML(key,d[1],{count:planFormState.counts[key]!=null?planFormState.counts[key]:cfg0.count,type:planFormState.types[key]||cfg0.type,lunch:t.lunch||cfg0.lunch,dinner:t.dinner||cfg0.dinner,lunchAddress:a.lunch||cfg0.lunchAddress,dinnerAddress:a.dinner||cfg0.dinnerAddress});}).join('')}</div>`:'';
+    box.innerHTML=unified+perDay;const s=$('#plan-rule-summary');if(s)s.textContent='已选：'+planRuleSummary(rule,planFormState.days);
+  }
+  let planCalState={month:'2026-08',date:'',view:'summary'};
+  function planCalNorm(d){return String(d||'').replace(/\./g,'-');}
+  function planCalTime(str,meal){const m=String(str||'').match(new RegExp(meal+'\\s*([0-9:]+前?)'));return m?m[1]:'—';}
+  function planCalDates(){const out=new Map();data.plans.filter(p=>planUsageStatus(p)==='正在使用').forEach(p=>{const s=planCalNorm(p.startDate),e=planCalNorm(p.endDate);if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!/^\d{4}-\d{2}-\d{2}$/.test(e))return;const meals=p.meals||'午餐',lunch=meals.includes('午餐'),dinner=meals.includes('晚餐'),days=(p.days||'6,7').split(',').map(Number).filter(n=>!isNaN(n));for(let d=new Date(s+'T00:00:00Z');d<=new Date(e+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1)){const dow=d.getUTCDay(),iso=isoDate(d),wk=p.cycle==='每日配送'||(p.cycle==='工作日配送'&&dow>=1&&dow<=5)||(p.cycle==='周末+节假日配送'&&(dow===0||dow===6))||(p.cycle==='自定义配送'&&days.includes(dow===0?7:dow));if(!wk)continue;if(!out.has(iso))out.set(iso,[]);const row=out.get(iso);if(lunch)row.push({user:p.user,brand:p.lunchBrand||'—',meal:'午餐',time:planCalTime(p.time,'午餐'),address:p.address||'—'});if(dinner)row.push({user:p.user,brand:p.dinnerBrand||'—',meal:'晚餐',time:planCalTime(p.time,'晚餐'),address:p.address||'—'});}});return out;}
+  function planCalTotals(dates){const m=new Map();dates.forEach((rows,date)=>m.set(date,{lunch:rows.filter(r=>r.meal==='午餐').length,dinner:rows.filter(r=>r.meal==='晚餐').length,total:rows.length}));return m;}
+  function planCalMonthHTML(dates,totals){const [y,m]=planCalState.month.split('-').map(Number),first=new Date(Date.UTC(y,m-1,1)),daysIn=new Date(Date.UTC(y,m,0)).getDate(),lead=first.getUTCDay(),cells=[];let ci=0;for(let i=0;i<lead;i++)cells.push(`<div class="plan-cal-cell empty" style="animation-delay:${ci++*16}ms"></div>`);for(let day=1;day<=daysIn;day++){const d=`${planCalState.month}-${String(day).padStart(2,'0')}`,t=totals.get(d),has=!!t&&t.total>0;cells.push(has?`<button type="button" class="plan-cal-cell${d===planCalState.date?' selected':''}${d===todayISO?' today':''}" style="animation-delay:${ci++*16}ms" data-action="plan-cal-date" data-date="${d}"><b>${day}</b><small class="${d<=todayISO?'past':'future'}">总 ${t.total} 餐</small></button>`:`<button type="button" class="plan-cal-cell disabled" style="animation-delay:${ci++*16}ms" disabled><b>${day}</b></button>`);}return `<div class="plan-cal-head"><button class="button secondary small" data-action="plan-cal-month" data-value="prev">${icon('chevronLeft','13')}</button><b>${y} 年 ${m} 月</b><button class="button secondary small" data-action="plan-cal-month" data-value="next">${icon('chevronRight','13')}</button></div><div class="plan-cal-grid">${['日','一','二','三','四','五','六'].map(w=>`<div class="plan-cal-weekday">${w}</div>`).join('')}${cells.join('')}</div>`;}
+  function planCalDetailHTML(dates,totals){const date=planCalState.date,rows=date?dates.get(date):null,t=date?totals.get(date):null;const head=date?`<div class="plan-cal-detail-head"><div><b>${date}</b><span>共 ${t.total} 餐 · 午餐 ${t.lunch} · 晚餐 ${t.dinner}</span></div><button type="button" class="button secondary small" data-action="plan-cal-export" data-date="${date}">${icon('download','12')}导出</button></div>`:'<div class="plan-cal-detail-head"><b>请选择日期</b></div>';const tabs=`<div class="filter-tabs plan-cal-view-tabs"><button class="${planCalState.view==='summary'?'active':''}" data-action="plan-cal-view" data-value="summary">按汇总</button><button class="${planCalState.view==='detail'?'active':''}" data-action="plan-cal-view" data-value="detail">按明细</button></div>`;if(!rows||!rows.length)return `<div class="plan-cal-detail-inner">${head}${tabs}<p class="cell-sub">该日期暂无配送计划</p></div>`;if(planCalState.view==='summary'){const m=new Map();rows.forEach(r=>{if(!m.has(r.brand))m.set(r.brand,{lunch:0,dinner:0,users:new Set()});const x=m.get(r.brand);x[r.meal==='午餐'?'lunch':'dinner']++;x.users.add(r.user);});return `<div class="plan-cal-detail-inner">${head}${tabs}<table class="data-table plan-cal-table"><thead><tr><th>品牌</th><th>午餐</th><th>晚餐</th><th>合计</th><th>用户数</th></tr></thead><tbody>${[...m.entries()].sort((a,b)=>b[1].lunch+b[1].dinner-(a[1].lunch+a[1].dinner)).map(([brand,x])=>`<tr><td>${brand}</td><td>${x.lunch}</td><td>${x.dinner}</td><td><b>${x.lunch+x.dinner}</b></td><td>${x.users.size}</td></tr>`).join('')}</tbody></table></div>`;}const m=new Map();rows.forEach(r=>{if(!m.has(r.user))m.set(r.user,[]);m.get(r.user).push(r);});return `<div class="plan-cal-detail-inner">${head}${tabs}<table class="data-table plan-cal-table"><thead><tr><th>下单人</th><th>品牌</th><th>餐别</th><th>配送时间</th><th>份数</th><th>配送地址</th></tr></thead><tbody>${[...m.entries()].sort((a,b)=>b[1].length-a[1].length).map(([user,rs])=>`<tr><td>${user}</td><td>${rs.map(r=>r.brand).join('、')}</td><td>${rs.map(r=>r.meal).join('、')}</td><td>${rs.map(r=>r.time).join('、')}</td><td><b>${rs.length}</b></td><td><span class="wrap-cell">${[...new Set(rs.map(r=>r.address))].join('、')}</span></td></tr>`).join('')}</tbody></table></div>`;}
+  function refreshPlanCal(){const dates=planCalDates(),totals=planCalTotals(dates);document.querySelectorAll('.plan-cal-calendar').forEach(el=>el.innerHTML=planCalMonthHTML(dates,totals));document.querySelectorAll('.plan-cal-detail').forEach(el=>el.innerHTML=planCalDetailHTML(dates,totals));}
+  let userPlanCalState={month:'2026-08',date:'',view:'summary'};
+  function userPlanCalDates(userName){
+    const out=new Map();
+    data.plans.filter(p=>p.user===userName).forEach(p=>{
+      const s=planCalNorm(p.startDate),e=planCalNorm(p.endDate);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!/^\d{4}-\d{2}-\d{2}$/.test(e))return;
+      const days=(p.days||'1,2,3,4,5').split(',').map(Number).filter(n=>!isNaN(n));
+      const settings=new Map(planSettingsFor(p).map(x=>[x.number,x]));
+      const fallback=planLegacySetting(p);
+      for(let d=new Date(s+'T00:00:00Z');d<=new Date(e+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1)){
+        const dow=d.getUTCDay(),iso=isoDate(d),wk=p.cycle==='每日配送'||(p.cycle==='工作日配送'&&dow>=1&&dow<=5)||(p.cycle==='周末+节假日配送'&&(dow===0||dow===6))||(p.cycle==='自定义配送'&&days.includes(dow===0?7:dow));
+        if(!wk)continue;
+        const cfg=settings.get(dow===0?7:dow)||fallback;
+        const two=cfg.mealCount==='two',dinnerOnly=!two&&!cfg.lunchTime&&!!cfg.dinnerTime;
+        const rows=out.get(iso)||[];
+        if(two||!dinnerOnly)rows.push({brand:p.lunchBrand||'—',meal:'午餐',plan:p.name,time:cfg.lunchTime||planCalTime(p.time,'午餐')||'—',address:cfg.lunchAddress||p.address||'—'});
+        if(two||dinnerOnly)rows.push({brand:p.dinnerBrand||'—',meal:'晚餐',plan:p.name,time:cfg.dinnerTime||planCalTime(p.time,'晚餐')||'—',address:cfg.dinnerAddress||p.address||'—'});
+        if(rows.length)out.set(iso,rows);
+      }
+    });
+    return out;
+  }
+  function userPlanCalTotals(dates){const m=new Map();dates.forEach((rows,date)=>m.set(date,{lunch:rows.filter(r=>r.meal==='午餐').length,dinner:rows.filter(r=>r.meal==='晚餐').length,total:rows.length}));return m;}
+  function userPlanCalMonthHTML(dates,totals){const [y,m]=userPlanCalState.month.split('-').map(Number),first=new Date(Date.UTC(y,m-1,1)),daysIn=new Date(Date.UTC(y,m,0)).getDate(),lead=first.getUTCDay(),cells=[];let ci=0;for(let i=0;i<lead;i++)cells.push(`<div class="plan-cal-cell empty" style="animation-delay:${ci++*16}ms"></div>`);for(let day=1;day<=daysIn;day++){const d=`${userPlanCalState.month}-${String(day).padStart(2,'0')}`,t=totals.get(d),has=!!t&&t.total>0;cells.push(has?`<button type="button" class="plan-cal-cell${d===userPlanCalState.date?' selected':''}${d===todayISO?' today':''}" style="animation-delay:${ci++*16}ms" data-action="user-plan-cal-date" data-date="${d}"><b>${day}</b><small class="${d<=todayISO?'past':'future'}">总 ${t.total} 餐</small></button>`:`<button type="button" class="plan-cal-cell disabled" style="animation-delay:${ci++*16}ms" disabled><b>${day}</b></button>`);}return `<div class="plan-cal-head"><button class="button secondary small" data-action="user-plan-cal-month" data-value="prev">${icon('chevronLeft','13')}</button><b>${y} 年 ${m} 月</b><button class="button secondary small" data-action="user-plan-cal-month" data-value="next">${icon('chevronRight','13')}</button></div><div class="plan-cal-grid">${['日','一','二','三','四','五','六'].map(w=>`<div class="plan-cal-weekday">${w}</div>`).join('')}${cells.join('')}</div>`;}
+  function userPlanCalDetailHTML(dates,totals){const date=userPlanCalState.date,rows=date?dates.get(date):null,t=date?totals.get(date):null;const head=date?`<div class="plan-cal-detail-head"><div><b>${date}</b><span>共 ${t.total} 餐 · 午餐 ${t.lunch} · 晚餐 ${t.dinner}</span></div></div>`:'<div class="plan-cal-detail-head"><b>请选择日期</b></div>';const tabs=`<div class="filter-tabs plan-cal-view-tabs"><button class="${userPlanCalState.view==='summary'?'active':''}" data-action="user-plan-cal-view" data-value="summary">按汇总</button><button class="${userPlanCalState.view==='detail'?'active':''}" data-action="user-plan-cal-view" data-value="detail">按明细</button></div>`;if(!rows||!rows.length)return `<div class="plan-cal-detail-inner">${head}${tabs}<p class="cell-sub">该日期暂无配送计划</p></div>`;if(userPlanCalState.view==='summary'){const m=new Map();rows.forEach(r=>{if(!m.has(r.brand))m.set(r.brand,{lunch:0,dinner:0});const x=m.get(r.brand);x[r.meal==='午餐'?'lunch':'dinner']++;});return `<div class="plan-cal-detail-inner">${head}${tabs}<table class="data-table plan-cal-table"><thead><tr><th>品牌</th><th>午餐</th><th>晚餐</th><th>合计</th></tr></thead><tbody>${[...m.entries()].sort((a,b)=>b[1].lunch+b[1].dinner-(a[1].lunch+a[1].dinner)).map(([brand,x])=>`<tr><td>${brand}</td><td>${x.lunch}</td><td>${x.dinner}</td><td><b>${x.lunch+x.dinner}</b></td></tr>`).join('')}</tbody></table></div>`;}return `<div class="plan-cal-detail-inner">${head}${tabs}<table class="data-table plan-cal-table"><thead><tr><th>配送计划</th><th>品牌</th><th>餐别</th><th>送达时间</th><th>配送地址</th></tr></thead><tbody>${rows.map(r=>`<tr><td><span class="cell-title">${escapeHTML(r.plan||'—')}</span></td><td>${r.brand}</td><td>${r.meal}</td><td>${r.time}</td><td><span class="wrap-cell">${escapeHTML(r.address||'—')}</span></td></tr>`).join('')}</tbody></table></div>`;}
+  function userPlanCalSectionHTML(u){const dates=userPlanCalDates(u.name),totals=userPlanCalTotals(dates);if(!dates.size)return `<section class="plan-detail-section user-plan-calendar"><h4>配送日历</h4><p class="cell-sub">该用户暂无可用配送日期</p></section>`;const startMonths=[...new Set(data.plans.filter(p=>p.user===u.name).map(p=>(planCalNorm(p.startDate)||'').slice(0,7)).filter(Boolean))];if(![...dates.keys()].some(d=>d.startsWith(userPlanCalState.month)))userPlanCalState.month=startMonths[0]||userPlanCalState.month;const inMonth=[...dates.keys()].filter(d=>d.startsWith(userPlanCalState.month)).sort();if(!inMonth.includes(userPlanCalState.date))userPlanCalState.date=inMonth[0]||'';return `<section class="plan-detail-section user-plan-calendar"><h4>配送日历</h4><div class="plan-cal-layout"><div class="user-plan-cal-calendar plan-cal-calendar">${userPlanCalMonthHTML(dates,totals)}</div><div class="user-plan-cal-detail plan-cal-detail">${userPlanCalDetailHTML(dates,totals)}</div></div></section>`;}
+  function refreshUserPlanCal(){const u=data.users.find(x=>x.id===state.userDetailId);if(!u)return;const dates=userPlanCalDates(u.name),totals=userPlanCalTotals(dates);if(!userPlanCalState.date||!totals.has(userPlanCalState.date)){const inMonth=[...dates.keys()].filter(d=>d.startsWith(userPlanCalState.month)).sort();userPlanCalState.date=inMonth[0]||'';}document.querySelectorAll('.user-plan-cal-calendar').forEach(el=>el.innerHTML=userPlanCalMonthHTML(dates,totals));document.querySelectorAll('.user-plan-cal-detail').forEach(el=>el.innerHTML=userPlanCalDetailHTML(dates,totals));}
+
+  function renderPlans() {
+    const st=state.filters.planStatus||'全部状态',cy=state.filters.planCycle||'全部配送类型',list=filteredPlans();
+    return `<section class="page">${pageHead('配送计划','查看并管理用户在小程序录入的周期配送安排。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-plan">${icon('plus')}新建计划</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="planSearch" placeholder="搜索用户、计划或地址" value="${escapeHTML(state.filters.planSearch||'')}"></label>${filterTabs('planStatus','全部状态',['正在使用','未使用'])}${filterTabs('planCycle','全部配送类型',['工作日配送','周末+节假日配送','每日配送','自定义配送'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>配送计划</th><th>用户</th><th>手机号</th><th>配送周期</th><th>餐别与时间</th><th>联系人</th><th>联系电话</th><th>配送地址</th><th>忌口</th><th>过敏信息</th><th>备注</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(p=>{const usageStatus=planUsageStatus(p),u=data.users.find(x=>x.name===p.user);return `<tr class="${(!p.address||!p.phone)?'error-row':''}"><td><button class="cell-link" data-action="view-plan" data-id="${p.id}">${p.name}</button></td><td><button class="cell-link" data-action="jump-user" data-name="${p.user}">${p.user}</button><span class="cell-sub">${u?.id||'—'}</span></td><td>${u?.phone||'—'}</td><td>${p.cycle}</td><td><span class="cell-title">${p.meals}</span><span class="cell-sub">${p.time}</span></td><td>${p.contact}</td><td>${p.phone||'<b class="negative">缺失</b>'}</td><td><span class="cell-sub" style="max-width:240px;white-space:normal">${p.address||'配送地址缺失'}</span></td><td><span class="ellipsis-cell" title="${escapeHTML(p.diet||'')}">${p.diet||'—'}</span></td><td><span class="ellipsis-cell" title="${escapeHTML(p.allergy||'')}">${p.allergy||'—'}</span></td><td><span class="ellipsis-cell" title="${escapeHTML(p.note||'')}">${p.note||'—'}</span></td><td>${status(usageStatus)}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-plan" data-id="${p.id}">查看</button><button class="row-button compact" data-action="edit-plan" data-id="${p.id}">编辑</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的配送计划','请调整状态或搜索条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function consolidateTasks(tasks) {
+    const map = new Map();
+    tasks.forEach(task => {
+      const key=[task.date,task.brand,task.userId,task.contact,task.phone,normalizeAddress(task.address)].join('|');
+      if(!map.has(key)) map.set(key,{date:task.date,brand:task.brand,package:task.package,userId:task.userId,user:task.user,contact:task.contact,phone:task.phone,address:task.address,area:task.area,lunch:0,dinner:0,times:[],diet:task.diet,allergy:task.allergy,note:task.note,plan:task.plan,status:task.status,sourceIds:[],normalizedAddress:normalizeAddress(task.address)});
+      const row=map.get(key); row[task.meal==='午餐'?'lunch':'dinner']+=task.qty; row.times.push(`${task.meal} ${task.time}`); row.sourceIds.push(task.id);
+      const priority={'已送达':1,'待确认':2,'待配送':2,'配送中':3,'未送达':4,'配送异常':5};if((priority[task.status]||2)>(priority[row.status]||2))row.status=task.status;
+    });
+    let packIndex=1;
+    const rows=[...map.values()].map(row=>{row.pack=row.lunch>0&&row.dinner>0;row.packId=row.pack?`HB-${row.date.replaceAll('-','')}-${String(packIndex++).padStart(3,'0')}`:'';row.invalid=!row.contact||!row.phone||!row.address;return row;});
+    const addrOwners=new Map();
+    rows.forEach(row=>{const k=row.normalizedAddress;if(k){if(!addrOwners.has(k))addrOwners.set(k,new Set());addrOwners.get(k).add(row.userId);}});
+    rows.forEach(row=>{if(row.normalizedAddress){const owners=addrOwners.get(row.normalizedAddress);row.suspect=!!owners&&owners.size>1;}});
+    return rows;
+  }
+
+  function dailyFilteredRows() {
+    const brand=state.filters.dailyBrand||'全部品牌',st=state.filters.dailyStatus||'全部状态',inRange=d=>state.dailyDay==='custom'?(d>=state.dailyStart&&d<=state.dailyEnd):d===state.dailyDate;
+    const raw=data.tasks.filter(t=>t.status!=='已失效'&&inRange(t.date)&&(st==='全部状态'||t.status===st));
+    const rows=consolidateTasks(raw).filter(r=>brand==='全部品牌'||r.brand===brand);
+    const orderOf=(r)=>Math.min(...r.sourceIds.map(id=>Number(id.replace(/\D/g,''))||Number.MAX_SAFE_INTEGER));
+    rows.forEach(r=>r.orderIndex=orderOf(r));
+    rows.sort((a,b)=>a.brand.localeCompare(b.brand,'zh-CN')||a.orderIndex-b.orderIndex);
+    return rows;
+  }
+  function dailyGroupedRows(rows,mode){
+    const map=new Map(),statusRank={'已送达':0,'待配送':1,'未送达':2};
+    rows.forEach(r=>{const key=mode==='person'?r.user:r.brand;if(!map.has(key))map.set(key,{key,user:r.user,phone:r.phone,brand:r.brand,brands:new Set(),packages:new Set(),contacts:new Set(),addresses:new Set(),lunch:0,dinner:0,times:new Set(),sourceIds:[],statuses:[]});const g=map.get(key);g.brands.add(r.brand);g.packages.add(r.package);g.contacts.add(r.contact);g.addresses.add(r.address);g.lunch+=r.lunch;g.dinner+=r.dinner;r.times.forEach(t=>g.times.add(t));g.sourceIds.push(...r.sourceIds);g.statuses.push(r.status);});
+    return [...map.values()].map(g=>({...g,status:g.statuses.sort((a,b)=>(statusRank[b]??1)-(statusRank[a]??1))[0]||'待配送'}));
+  }
+
+  function renderDailyLegacy() {
+    const all=consolidateTasks(data.tasks.filter(t=>t.date===state.dailyDate&&t.status!=='已失效')), rows=dailyFilteredRows();
+    const lunch=all.reduce((s,r)=>s+r.lunch,0),dinner=all.reduce((s,r)=>s+r.dinner,0),packs=all.filter(r=>r.pack).length,errors=all.filter(r=>r.invalid).length;
+    const brands=[...new Set(all.map(r=>r.brand))];
+    const timelineOptions=[['before','17:30 前 · 用户可调整'],['frozen','17:30 已冻结 · 待确认表'],['locked','20:00 已锁定 · 最终任务']].map(([v,label])=>`<option value="${v}" ${state.timeline===v?'selected':''}>${label}</option>`).join('');
+    const timelineNote=state.timeline==='locked'
+      ? `<div class="validation-box" style="margin:0 0 14px;border-color:var(--danger);background:#fdf2f0"><b>任务已锁定（20:00）</b><p class="form-hint">原任务不可编辑、不可替换，只能新增异常/售后记录；导出文件标记为最终版。</p></div>`
+      : state.timeline==='frozen'
+      ? `<div class="validation-box" style="margin:0 0 14px;border-color:#df922d;background:#fff8ec"><b>餐次已冻结（17:30）</b><p class="form-hint">用户自助修改已关闭；管理员可在 20:00 前处理资料异常、退款、停供与品牌替换。</p></div>`
+      : `<div class="validation-box" style="margin:0 0 14px"><b>17:30 前 · 用户可调整次日订单</b><p class="form-hint">到达 17:30 将冻结相应餐次并生成待确认表。</p></div>`;
+    return `<section class="page">${pageHead('每日配送中心','从有效订购、配送计划与临时调整生成最终配送任务。',`<input class="date-control" id="daily-date" type="date" value="${state.dailyDate}"><select class="select-control" id="daily-timeline" style="margin-right:8px" aria-label="时间线阶段">${timelineOptions}</select><button class="button secondary" data-action="recalculate" ${state.timeline==='locked'?'disabled':''}>${icon('refresh')}重新计算</button><button class="button secondary" data-action="snapshot">${icon('file')}${state.snapshot?'已生成快照':'生成快照'}</button><button class="button primary" data-action="prepare-export">${icon('download')}导出</button>`)}
+      ${timelineNote}
+      <div class="summary-ribbon"><div><span>配送品牌</span><strong>${brands.length}</strong></div><div><span>午餐份数</span><strong>${lunch}</strong></div><div><span>晚餐份数</span><strong>${dinner}</strong></div><div><span>同址合包</span><strong>${packs}</strong></div><div><span>资料异常</span><strong class="${errors?'negative':''}">${errors}</strong></div><div><span>任务版本</span><strong>V${state.dailyVersion}</strong></div></div>
+      <div class="brand-summary-grid">${data.brands.filter(b=>all.some(r=>r.brand===b.name)).map(b=>{const rs=all.filter(r=>r.brand===b.name);return `<article class="brand-summary"><header><b>${b.name}</b><span class="brand-avatar ${b.tone==='amber'?'amber':''}" style="width:28px;height:28px;font-size:11px">${b.abbr}</span></header><dl><div><dt>午餐</dt><dd>${rs.reduce((s,r)=>s+r.lunch,0)}</dd></div><div><dt>晚餐</dt><dd>${rs.reduce((s,r)=>s+r.dinner,0)}</dd></div><div><dt>合包</dt><dd>${rs.filter(r=>r.pack).length}</dd></div></dl></article>`}).join('')}</div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><div class="filter-tabs daily-view-tabs">${[['brand','按品牌'],['person','按人员'],['time','按时间']].map(([v,label])=>`<button class="${state.dailyView===v?'active':''}" data-action="daily-view" data-value="${v}">${label}</button>`).join('')}</div><button class="button secondary" data-action="new-after-sale">${icon('alert')}新增异常/售后</button><span class="status ${state.confirmed?'success':'warning'}">${state.confirmed?'数据已确认':'待运营确认'}</span><button class="button ${state.confirmed?'secondary':'mint'} small" data-action="confirm-daily">${state.confirmed?'取消确认':'确认数据'}</button></div><div class="toolbar"><div class="toolbar-group"><select class="select-control" data-filter="dailyBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${state.filters.dailyBrand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><select class="select-control" data-filter="dailyArea"><option>全部区域</option>${[...new Set(all.map(r=>r.area))].map(v=>`<option ${state.filters.dailyArea===v?'selected':''}>${v}</option>`).join('')}</select><select class="select-control" data-filter="dailyPack"><option>全部</option><option ${state.filters.dailyPack==='合包'?'selected':''}>合包</option><option ${state.filters.dailyPack==='单独配送'?'selected':''}>单独配送</option></select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(rows).total?`<table class="data-table"><thead><tr><th>品牌</th><th>套餐</th><th>用户</th><th>联系人</th><th>联系电话</th><th>配送地址</th><th>午餐</th><th>晚餐</th><th>配送时间</th><th>备注</th><th>合包</th><th>操作</th></tr></thead><tbody>${paged(rows).items.map(r=>`<tr data-order="${r.orderIndex}" class="${r.invalid?'error-row':r.pack?'pack-row':''}"><td>${r.brand}</td><td>${r.package}</td><td>${r.user}</td><td>${r.contact||'<b class="negative">缺失</b>'}</td><td>${r.phone||'<b class="negative">缺失</b>'}</td><td><span class="cell-sub" style="max-width:220px;white-space:normal">${r.address||'<b class="negative">地址缺失</b>'}</span>${r.suspect?'<span class="suspect-tag">疑似同址</span>':''}</td><td><b>${r.lunch||'-'}</b></td><td><b>${r.dinner||'-'}</b></td><td>${r.times.join('<br>')}</td><td><span class="cell-sub" style="max-width:170px;white-space:normal">${r.note}</span></td><td>${r.pack?`<span class="pack-badge">${icon('box')} ${r.packId}</span>`:'-'}</td><td><button class="row-button" data-action="view-task" data-ids="${r.sourceIds.join(',')}">详情</button></td></tr>`).join('')}</tbody></table>`:emptyState('当前日期没有配送任务','请选择其他日期或重新计算配送任务。')}</div>${tableFooter(paged(rows))}</section>
+    </section>`;
+  }
+
+  function dailyMealStatusCell(r){const tasks=(r.sourceIds||[]).map(id=>data.tasks.find(t=>t.id===id)).filter(Boolean);const lunch=tasks.find(t=>t.meal==='午餐'),dinner=tasks.find(t=>t.meal==='晚餐');if(lunch&&dinner)return `<span class="meal-status-row"><small>午餐</small>${status(lunch.status)}</span><span class="meal-status-row"><small>晚餐</small>${status(dinner.status)}</span>`;if(lunch)return status(lunch.status);if(dinner)return status(dinner.status);return status(r.status);}
+  function renderDaily() {
+    const all=dailyFilteredRows(),lunch=all.reduce((s,r)=>s+r.lunch,0),dinner=all.reduce((s,r)=>s+r.dinner,0),brands=[...new Set(all.map(r=>r.brand))],brandRows=dailyGroupedRows(all,'brand');
+    const mealAddresses=(row,meal)=>[...new Set((row.sourceIds||[]).map(id=>data.tasks.find(t=>t.id===id)).filter(t=>t&&t.meal===meal).map(t=>t.address).filter(Boolean))].join('、')||'—';
+    const dayTabs=`<div class="filter-tabs daily-date-tabs"><button class="${state.dailyDay==='today'?'active':''}" data-action="daily-day" data-value="today">今日</button><button class="${state.dailyDay==='tomorrow'?'active':''}" data-action="daily-day" data-value="tomorrow">明日</button><button class="${state.dailyDay==='custom'?'active':''}" data-action="daily-day" data-value="custom">自定义</button></div>`;
+    const customRange=`<div class="daily-custom-range ${state.dailyDay==='custom'?'show':''}"><span>自定义日期</span><input class="date-control" id="daily-start" type="date" value="${state.dailyStart}"><span>至</span><input class="date-control" id="daily-end" type="date" value="${state.dailyEnd}"><button class="button secondary small" data-action="apply-daily-range">应用</button></div>`;
+    const detailRows=all.map(r=>`<tr><td><span class="cell-title">${r.user}</span><span class="cell-sub">${r.userId||'—'}</span></td><td>${r.phone||'—'}</td><td>${r.brand}</td><td>${r.contact}</td><td><span class="wrap-cell">${mealAddresses(r,'午餐')}</span></td><td><span class="wrap-cell">${mealAddresses(r,'晚餐')}</span></td><td><b>${r.lunch||'—'}</b></td><td><b>${r.dinner||'—'}</b></td><td>${r.times.join('<br>')}</td><td>${dailyMealStatusCell(r)}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-task" data-ids="${r.sourceIds.join(',')}">详情</button><button class="row-button compact" data-action="change-delivery-status" data-ids="${r.sourceIds.join(',')}">配送状态</button></div></td></tr>`).join('');
+    const brandTable=state.dailyBrandView==='detail'?`<table class="data-table"><thead><tr><th>下单人</th><th>手机号</th><th>品牌</th><th>联系人</th><th>午餐配送地址</th><th>晚餐配送地址</th><th>午餐</th><th>晚餐</th><th>配送时间</th><th>配送状态</th><th>操作</th></tr></thead><tbody>${detailRows}</tbody></table>`:`<table class="data-table daily-summary-table"><thead><tr><th>品牌</th><th>下单人数</th><th>午餐总数</th><th>晚餐总数</th><th>操作</th></tr></thead><tbody>${brandRows.map(r=>`<tr><td><span class="cell-title">${r.brand}</span></td><td>${new Set(all.filter(x=>x.brand===r.brand).map(x=>x.userId)).size} 人</td><td><b>${r.lunch}</b></td><td><b>${r.dinner}</b></td><td><div class="table-actions"><button class="row-button compact" data-action="view-task" data-ids="${r.sourceIds.join(',')}">查看</button></div></td></tr>`).join('')}</tbody></table>`;
+    const subTabs=`<div class="filter-tabs daily-brand-view-tabs"><button class="${state.dailyBrandView==='summary'?'active':''}" data-action="daily-brand-view" data-value="summary">按汇总</button><button class="${state.dailyBrandView==='detail'?'active':''}" data-action="daily-brand-view" data-value="detail">按明细</button></div>`;
+    const statusTabs=`<div class="filter-tabs daily-status-tabs"><button class="${(state.filters.dailyStatus||'全部状态')==='全部状态'?'active':''}" data-action="daily-status-tab" data-value="全部状态">全部状态</button>${['待确认','待配送','配送中','已送达','未送达','配送异常'].map(v=>`<button class="${state.filters.dailyStatus===v?'active':''}" data-action="daily-status-tab" data-value="${v}">${v}</button>`).join('')}</div>`;
+    return `<section class="page">${pageHead('每日配送中心','根据配送计划生成并跟进每日配送任务。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="prepare-export">${icon('download')}导出</button>${dayTabs}${customRange}${subTabs}</div><div class="toolbar"><div class="toolbar-group">${statusTabs}<select class="select-control" data-filter="dailyBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${state.filters.dailyBrand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${all.length?brandTable:emptyState('当前日期范围没有配送任务','请切换日期或调整配送范围。')}</div></section>
+    </section>`;
+  }
+
+  function renderReports() {
+    const brand=state.filters.reportBrand||'全部品牌', st=state.filters.reportStatus||'全部状态';
+    const list=data.reports.filter(r=>(brand==='全部品牌'||r.brand===brand)&&(st==='全部状态'||r.status===st));
+    return `<section class="page">${pageHead('配送情况报表','按实际配送任务追踪履约表现、异常原因与处理记录。',`<button class="button secondary" data-action="export-report">${icon('download')}导出筛选结果</button><button class="button secondary" data-action="batch-fill">${icon('refresh')}批量回录</button>`)}
+      <div class="metric-grid">${[['计划配送','1,284','午餐 642 · 晚餐 642','truck'],['已送达','1,242','完成率 96.7%','check'],['准时送达率','96.8%','高于目标 1.8%','chart'],['改期 / 取消','41','占计划 3.2%','calendar'],['配送异常','27','其中 6 单待复盘','alert'],['平均送达用时','38 min','较上周 -3 min','refresh']].map((m,i)=>`<article class="metric-card ${i===4?'danger':''}"><span class="metric-icon">${icon(m[3])}</span><label>${m[0]}</label><strong>${m[1]}</strong><small class="${i===1||i===2||i===5?'positive':''}">${m[2]}</small></article>`).join('')}</div>
+      <div class="grid-2"><div><section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="create-ticket">${icon('plus')}创建异常工单</button></div><div class="toolbar"><div class="toolbar-group"><input class="date-control" type="date" value="2026-08-05"><span style="color:var(--soft)">至</span><input class="date-control" type="date" value="2026-08-05"><select class="select-control" data-filter="reportBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${brand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><select class="select-control" data-filter="reportStatus"><option>全部状态</option>${['已送达','延迟送达','已改期','配送失败'].map(v=>`<option ${st===v?'selected':''}>${v}</option>`).join('')}</select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>任务编号 / 日期</th><th>品牌</th><th>区域 / 餐别</th><th>用户</th><th>手机号</th><th>送达时间</th><th>状态</th><th>异常原因</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(r=>{const u=data.users.find(x=>x.name===r.user);return `<tr><td><span class="cell-title">${r.id}</span><span class="cell-sub">${r.date}</span></td><td>${r.brand}</td><td>${r.area} · ${r.meal}</td><td>${r.user}<span class="cell-sub">${u?.id||'—'}</span></td><td>${u?.phone||'—'}</td><td>${r.time}</td><td>${status(r.status)}</td><td>${r.issue}</td><td><button class="row-button" data-action="view-report" data-id="${r.id}">跟进</button></td></tr>`;}).join('')}</tbody></table></div>${tableFooter(paged(list))}</section></div>
+      <aside><section class="panel"><header class="panel-head"><h3>品牌配送量排名</h3><small>今日</small></header><div class="panel-body"><div class="progress-list">${data.brands.slice(0,4).map((b,i)=>`<div class="progress-row"><span>${i+1}. ${b.name}</span><div class="progress-track"><i style="width:${[92,78,61,49][i]}%"></i></div><b>${[386,324,251,198][i]}</b></div>`).join('')}</div></div></section><section class="panel"><header class="panel-head"><h3>异常原因分布</h3><button class="text-button" data-action="report-definition">指标口径</button></header><div class="panel-body risk-list">${[['地址无法进入','9 单'],['骑手配送超时','7 单'],['用户临时改期','6 单'],['餐品出餐延迟','5 单']].map(x=>`<div class="risk-item"><i class="risk-dot"></i><div><b>${x[0]}</b><small>${x[1]}</small></div></div>`).join('')}</div></section></aside></div>
+    </section>`;
+  }
+
+  function userPurchaseSummary(u){const records=data.subscriptions.filter(s=>s.user===u.name);return {records,brands:[...new Set(records.map(s=>s.brand))],remaining:records.reduce((n,s)=>n+Number(s.remaining||0),0),subscribed:records.some(s=>['进行中','未开始','已暂停'].includes(s.status))};}
+  function filteredUsers(){const q=(state.filters.userSearch||'').toLowerCase(),st=state.filters.userStatus||'全部状态',g=state.filters.userGoal||'全部健康目标',subscribedOnly=!!state.filters.userSubscribedOnly,gender=state.filters.userGender||'全部性别',activity=state.filters.userActivity||'全部活动水平',active=state.filters.userActive||'全部活跃度';return data.users.filter(u=>{const purchase=userPurchaseSummary(u),bmi=userBMI(u),bmr=userBMR(u),tdee=userTDEE(u);return(!subscribedOnly||purchase.subscribed)&&(st==='全部状态'||userSubStatus(u)===st)&&(g==='全部健康目标'||u.goal===g)&&(gender==='全部性别'||u.gender===gender)&&(activity==='全部活动水平'||u.activity===activity)&&(active==='全部活跃度'||sevenDayActivity(u)===active)&&inRange(u.height,'userHeightMin','userHeightMax')&&inRange(u.weight,'userWeightMin','userWeightMax')&&inRange(bmi==='—'?NaN:bmi,'userBmiMin','userBmiMax')&&inRange(bmr==='—'?NaN:bmr,'userBmrMin','userBmrMax')&&inRange(tdee==='—'?NaN:tdee,'userTdeeMin','userTdeeMax')&&(!q||`${u.id}${u.name}${u.phone}${u.tags.join('')}${purchase.brands.join('')}`.toLowerCase().includes(q));});}
+  function renderUsers() {
+    const q=(state.filters.userSearch||'').toLowerCase(), st=state.filters.userStatus||'全部状态', g=state.filters.userGoal||'全部健康目标',subscribedOnly=!!state.filters.userSubscribedOnly,gender=state.filters.userGender||'全部性别',activity=state.filters.userActivity||'全部活动水平',active=state.filters.userActive||'全部活跃度';
+    const list=filteredUsers();
+    const actCounts={高活跃:0,中活跃:0,低活跃:0,不活跃:0};data.users.forEach(u=>actCounts[sevenDayActivity(u)]++);
+    return `<section class="page">${pageHead('用户数据','连接用户档案、健康目标、订单订购与配送记录。',`<button class="button secondary" data-action="export-users">${icon('download')}导出</button>`)}
+      <div class="summary-ribbon"><div><span>累计用户</span><strong>8,642</strong></div><div><span>订购中</span><strong>742</strong></div><div><span>高活跃</span><strong>${actCounts.高活跃}</strong></div><div><span>中活跃</span><strong>${actCounts.中活跃}</strong></div><div><span>低活跃</span><strong>${actCounts.低活跃}</strong></div><div><span>不活跃</span><strong>${actCounts.不活跃}</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="userSearch" placeholder="搜索姓名、手机号、标签或品牌" value="${escapeHTML(state.filters.userSearch||'')}"></label>${filterTabs('userStatus','全部状态',['订购中','0订购','过往订购'])}${filterTabs('userGoal','全部健康目标',['健康饮食','减重','增肌','减脂'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div><label class="switch subscribed-only-switch"><input type="checkbox" ${subscribedOnly?'checked':''} data-action="toggle-subscribed-users"><span class="switch-track"></span>仅查看订购中用户</label></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table users-table"><thead><tr><th>用户名称</th><th>手机号</th><th>性别</th><th>年龄</th><th>身高</th><th>体重</th><th>活动水平</th><th>BMI</th><th>BMI 分类</th><th>BMR</th><th>TDEE</th><th>总购买次数</th><th>订购品牌</th><th>剩余次数</th><th>最近一次登录时间</th><th>登录次数</th><th>7天内活跃度 <span class="hint-icon" data-tip="7天内登录大于5次为高活跃；大于3次为中活跃；大于1次为低活跃；为0为不活跃">?</span></th><th>订购状态</th><th>后台用户备注</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(u=>{const bmi=userBMI(u),cat=bmiCategory(bmi),bmr=userBMR(u),tdee=userTDEE(u),act=sevenDayActivity(u),last=userLastLogin(u),purchase=userPurchaseSummary(u);const remainMap=new Map();purchase.records.forEach(r=>remainMap.set(r.brand,(remainMap.get(r.brand)||0)+Number(r.remaining||0)));const remainBrands=[...remainMap.keys()].join('<br>'),remainNums=[...remainMap.values()].map(n=>`${n} 次`).join('<br>');return `<tr><td><button class="cell-link" data-action="view-user" data-id="${u.id}">${u.name}</button><span class="cell-sub">${u.id}</span></td><td>${u.phone}</td><td>${u.gender||'—'}</td><td>${u.age||'—'}</td><td>${u.height||'—'} cm</td><td>${u.weight||'—'} kg</td><td>${u.activity||'—'}</td><td>${bmi}</td><td><span class="tag ${cat==='正常'?'tag-type':''}">${cat}</span></td><td>${bmr}</td><td>${tdee}</td><td>${purchase.records.length} 次</td><td>${purchase.records.length?`<span class="line-cell">${remainBrands}</span>`:'—'}</td><td>${purchase.records.length?`<span class="line-cell">${remainNums}</span>`:'—'}</td><td>${last||'—'}</td><td>${userLogins(u).length} 次</td><td>${activityPill7(act)}</td><td>${subStatusPill(userSubStatus(u))}</td><td><span class="note-cell">${escapeHTML(u.note||'—')}</span></td><td><div class="table-actions"><button class="row-button compact" data-action="edit-user-note" data-id="${u.id}">后台用户备注</button><button class="row-button compact" data-action="view-user" data-id="${u.id}">查看</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的用户','请调整用户状态、目标或关键词。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+
+  function rolePermCount(role){if(!role||!role.perms)return 0;if(role.perms.all)return Object.keys(pageMeta).length;return Object.keys(role.perms).filter(k=>role.perms[k]).length;}
+  function renderAdmins() {
+    const q=(state.filters.adminSearch||'').toLowerCase(), role=state.filters.adminRole||'全部角色', st=state.filters.adminStatus||'全部状态';
+    const list=data.admins.filter(a=>(role==='全部角色'||data.roles.find(r=>r.id===a.roleId)?.name===role)&&(st==='全部状态'||a.status===st)&&(!q||`${a.account}${a.name}`.toLowerCase().includes(q)));
+    return `<section class="page">${pageHead('管理员管理','管理后台登录账号与角色分配，角色在「角色管理」中配置模块权限。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-admin">${icon('plus')}新建管理员</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="adminSearch" placeholder="搜索账号或姓名" value="${escapeHTML(state.filters.adminSearch||'')}"></label>${filterTabs('adminRole','全部角色',data.roles.map(r=>r.name))}${filterTabs('adminStatus','全部状态',['启用','停用'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>模块权限</th><th>联系电话</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(a=>{const r=data.roles.find(x=>x.id===a.roleId);return `<tr><td><span class="cell-title">${a.account}</span></td><td><span class="cell-title">${a.name}</span></td><td><span class="tag">${r?r.name:'未分配'}</span></td><td><span class="cell-sub">${r?rolePermCount(r)+' 个模块':'-'}</span></td><td>${a.phone}</td><td>${status(a.status)}</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-admin" data-id="${a.id}">编辑</button><button class="row-button compact" data-action="reset-admin-password" data-id="${a.id}">重置密码</button><button class="row-button compact" data-action="toggle-admin" data-id="${a.id}">${a.status==='启用'?'停用':'启用'}</button><button class="row-button compact" data-action="delete-admin-confirm" data-id="${a.id}">删除</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的管理员','请调整搜索或筛选条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function openAdminForm(id='') {
+    const a=data.admins.find(x=>x.id===id)||{account:'',name:'',roleId:data.roles[0].id,phone:'',status:'启用'};
+    const roles=data.roles.filter(r=>r.status==='启用'||r.id===a.roleId);
+    const passwordField=id?'':`<div class="form-field"><label><em class="req-star">*</em>登录密码</label><input name="password" type="password" required minlength="12" autocomplete="new-password" placeholder="至少12位，含大小写字母、数字和符号"></div>`;
+    openModal({title:id?'编辑管理员':'新建管理员',wide:true,body:`<form id="entity-form" data-kind="admin" data-id="${id}"><div class="form-grid">${formField('登录账号','account',a.account)}${passwordField}${formField('姓名','name',a.name)}<div class="form-field"><label><em class="req-star">*</em>角色</label><select name="roleId" required>${roles.map(r=>`<option value="${r.id}" ${r.id===a.roleId?'selected':''}>${r.name}</option>`).join('')}</select></div>${formField('联系电话','phone',a.phone)}<div class="form-field"><label><em class="req-star">*</em>状态</label><label class="switch"><input type="checkbox" name="statusSwitch" ${a.status==='启用'?'checked':''}><span class="switch-track"></span><span>${a.status==='启用'?'启用':'停用'}</span></label></div></div><p class="form-hint">角色决定管理员访问权限；密码请通过列表中的“重置密码”单独修改。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存管理员</button>`});
+  }
+  function renderRoles() {
+    const q=(state.filters.roleSearch||'').toLowerCase(), st=state.filters.roleStatus||'全部状态';
+    const list=data.roles.filter(r=>(st==='全部状态'||r.status===st)&&(!q||`${r.name}${r.desc}`.toLowerCase().includes(q)));
+    return `<section class="page">${pageHead('角色管理','配置角色在每个后台模块的访问权限，并分配给管理员。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-role">${icon('plus')}新建角色</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="roleSearch" placeholder="搜索角色名称或说明" value="${escapeHTML(state.filters.roleSearch||'')}"></label>${filterTabs('roleStatus','全部状态',['启用','停用'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>角色</th><th>说明</th><th>模块权限</th><th>分配管理员</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(r=>`<tr><td><span class="cell-title">${r.name}</span></td><td><span class="cell-sub">${r.desc}</span></td><td><span class="tag">${rolePermCount(r)} 个模块</span></td><td>${data.admins.filter(a=>a.roleId===r.id).length} 人</td><td>${status(r.status)}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-role" data-id="${r.id}">详情</button><button class="row-button compact" data-action="edit-role" data-id="${r.id}">编辑</button><button class="row-button compact" data-action="toggle-role" data-id="${r.id}">${r.status==='启用'?'停用':'启用'}</button></div></td></tr>`).join('')}</tbody></table>`:emptyState('没有匹配的角色','请调整搜索或筛选条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function rolePermMatrix(role){
+    const perms=role.perms||{};
+    return `<div class="role-perm-grid">${navGroups.map(g=>`<div class="role-perm-group"><b>${g.label}</b><div>${g.items.map(([page,ico,label])=>{const on=perms.all||perms[page];return `<label class="perm-check ${on?'on':''}"><input type="checkbox" name="perm-${page}" ${on?'checked':''}><span>${label}</span></label>`;}).join('')}</div></div>`).join('')}</div>`;
+  }
+  function openRoleForm(id='') {
+    const r=data.roles.find(x=>x.id===id)||{name:'',desc:'',status:'启用',perms:{}};
+    const allChecked=!!(r.perms&&r.perms.all);
+    openModal({title:id?'编辑角色':'新建角色',wide:true,body:`<form id="entity-form" data-kind="role" data-id="${id}"><div class="form-grid">${formField('角色名称','name',r.name)}${formField('状态','status',r.status,'select',false,['启用','停用'])}${formField('说明','desc',r.desc,'textarea',true, [], '', false)}<div class="form-field wide"><label class="switch"><input type="checkbox" id="role-all" ${allChecked?'checked':''}><span class="switch-track"></span>拥有全部模块权限</label></div><div class="form-field wide"><label>模块权限（按分组勾选）</label>${rolePermMatrix(r)}</div></div><p class="form-hint">保存后生效；未授权模块将在导航中隐藏。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存角色</button>`});
+  }
+  function openRoleDetail(id){const r=data.roles.find(x=>x.id===id);openDrawer({title:'角色权限详情',body:`<div class="detail-hero"><span class="detail-avatar">权</span><div><h4>${r.name}</h4><p>${r.desc}</p></div>${status(r.status)}</div><div class="detail-list"><div><span>覆盖模块</span><b>${rolePermCount(r)} / ${Object.keys(pageMeta).length}</b></div><div><span>分配管理员</span><b>${data.admins.filter(a=>a.roleId===r.id).length} 人</b></div></div><h4 style="margin-top:20px">模块权限</h4><div class="role-perm-grid">${navGroups.map(g=>`<div class="role-perm-group"><b>${g.label}</b><div>${g.items.map(([page,,label])=>{const on=r.perms&&(r.perms.all||r.perms[page]);return `<span class="perm-pill ${on?'on':''}">${label}</span>`;}).join('')}</div></div>`).join('')}</div>`,footer:`<button class="button secondary" data-action="close-drawer">关闭</button><button class="button primary" data-action="edit-role" data-id="${r.id}">编辑角色</button>`});}
+  function renderSubUsers() {
+    const q=(state.filters.subUserSearch||'').toLowerCase(), brand=state.filters.subUserBrand||'全部品牌', st=state.filters.subUserStatus||'全部状态';
+    const grouped=new Map();
+    data.subscriptions.forEach(s=>{if(!grouped.has(s.user))grouped.set(s.user,{user:s.user,userId:'',subs:[],brands:new Set(),remaining:0,status:'',last:'',subId:'',valid:''});const g=grouped.get(s.user);g.subs.push(s);g.brands.add(s.brand);g.remaining+=s.remaining;if(!g.status||s.status==='进行中')g.status=s.status;g.last=g.last||s.last;g.subId=s.id;g.valid=s.valid;g.userId=s.userId||'';});
+    const rows=[...grouped.values()].map(g=>({...g,brandNames:[...g.brands].join('、')}));
+    const list=rows.filter(r=>(brand==='全部品牌'||r.brandNames.includes(brand))&&(st==='全部状态'||r.status===st)&&(!q||`${r.user}${r.brandNames}`.toLowerCase().includes(q)));
+    return `<section class="page">${pageHead('订购用户','按用户查看订购中的品牌、套餐与剩余餐次。')}
+      <div class="summary-ribbon"><div><span>订购用户</span><strong>${rows.length}</strong></div><div><span>进行中</span><strong>${rows.filter(r=>r.status==='进行中').length}</strong></div><div><span>未开始</span><strong>${rows.filter(r=>r.status==='未开始').length}</strong></div><div><span>覆盖品牌</span><strong>${new Set(data.subscriptions.map(s=>s.brand)).size}</strong></div><div><span>剩余餐次</span><strong>${data.subscriptions.reduce((s,x)=>s+x.remaining,0)}</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button secondary" data-action="export-sub-users">${icon('download')}导出订购用户</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="subUserSearch" placeholder="搜索用户或品牌" value="${escapeHTML(state.filters.subUserSearch||'')}"></label><select class="select-control" data-filter="subUserBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${brand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><select class="select-control" data-filter="subUserStatus"><option>全部状态</option>${['进行中','未开始','已暂停','已完成'].map(v=>`<option ${st===v?'selected':''}>${v}</option>`).join('')}</select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>用户</th><th>手机号</th><th>品牌</th><th>订购状态</th><th>剩余餐次</th><th>最近配送</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(r=>{const u=data.users.find(x=>x.id===r.userId);return `<tr><td><button class="cell-link" data-action="view-user" data-id="${r.userId}">${r.user}</button><span class="cell-sub">${r.userId}</span></td><td>${u?.phone||'—'}</td><td>${r.brandNames}</td><td>${status(r.status)}</td><td><b>${r.remaining} 餐</b></td><td>${r.last}</td><td><div class="table-actions"><button class="row-button compact" data-action="view-sub" data-id="${r.subId}">查看</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的订购用户','请调整筛选条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function loginActivity(time){const t=new Date(time.replace(' ','T')).getTime();if(isNaN(t))return '中';const h=Date.now()-t;if(h<86400000)return '高';if(h<7*86400000)return '中';if(h<30*86400000)return '低';return '休眠';}
+  function activityPill(a){return a==='高'?'<span class="status success">高活跃</span>':a==='中'?'<span class="status warning">中活跃</span>':a==='低'?'<span class="status warning">低活跃</span>':'<span class="status danger">休眠</span>';}
+  function renderLoginUsers() {
+    const q=(state.filters.loginSearch||'').toLowerCase(), act=state.filters.loginActivity||'全部活跃度';
+    const latest=new Map();data.logins.forEach(l=>{const cur=latest.get(l.userId);if(!cur||l.time>cur.time)latest.set(l.userId,l);});
+    const counts={};data.logins.forEach(l=>{counts[l.userId]=(counts[l.userId]||0)+1;});
+    const rows=[...latest.values()].map(l=>({...l,count:counts[l.userId]||1,activity:loginActivity(l.time)}));
+    const list=rows.filter(r=>(act==='全部活跃度'||r.activity===act)&&(!q||`${r.userName}${r.userId}`.toLowerCase().includes(q)));
+    const actCounts={高活跃:0,中活跃:0,低活跃:0,不活跃:0};rows.forEach(r=>{const u=data.users.find(x=>x.id===r.userId);if(u)actCounts[sevenDayActivity(u)]++;});
+    return `<section class="page">${pageHead('登录用户','按用户去重展示最近一次登录，并统计登录次数与活跃度。',`<button class="button primary" data-action="open-login">${icon('plus')}模拟用户登录</button>`)}
+      <div class="summary-ribbon"><div><span>累计登录用户</span><strong>${rows.length}</strong></div><div><span>订阅中用户</span><strong>${new Set(data.subscriptions.filter(s=>['未开始','进行中','已暂停'].includes(s.status)).map(s=>s.user)).size}</strong></div><div><span>高活跃</span><strong>${actCounts.高活跃}</strong></div><div><span>中活跃</span><strong>${actCounts.中活跃}</strong></div><div><span>低活跃</span><strong>${actCounts.低活跃}</strong></div><div><span>不活跃</span><strong>${actCounts.不活跃}</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button secondary" data-action="export-logins">${icon('download')}导出</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="loginSearch" placeholder="搜索姓名或用户编号" value="${escapeHTML(state.filters.loginSearch||'')}"></label>${filterTabs('loginActivity','全部活跃度',['高','中','低','休眠'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>用户</th><th>手机号</th><th>订购状态</th><th>基础信息</th><th>最近登录时间</th><th>最早登录时间</th><th>累计登录</th><th>活跃度（7天内） <span class="hint-icon" data-tip="7天内登录大于5次为高活跃；大于3次为中活跃；大于1次为低活跃；为0为不活跃">?</span></th><th>后台用户备注</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(r=>{const u=data.users.find(x=>x.id===r.userId)||{},act=sevenDayActivity(u),hasBase=!!(u.height&&u.weight&&u.goal);return `<tr><td><button class="cell-link" data-action="view-user" data-id="${r.userId}">${r.userName}</button><span class="cell-sub">${r.userId}</span></td><td>${u.phone||'—'}</td><td>${subStatusPill(userSubStatus(u))}</td><td>${hasBase?'<span class="status success">有</span>':'<span class="status">无</span>'}</td><td><b>${r.time}</b></td><td>${userFirstLogin(u)||'—'}</td><td><b>${r.count} 次</b></td><td>${activityPill7(act)}</td><td><span class="note-cell">${escapeHTML(u.note||'—')}</span></td><td><div class="table-actions"><button class="row-button compact" data-action="edit-user-note" data-id="${r.userId}">后台用户备注</button><button class="row-button compact" data-action="view-user" data-id="${r.userId}">查看</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的登录用户','请调整搜索或活跃度条件。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function renderCollaborations() {
+    data.collaborations.forEach(item=>{if(!['待跟进','跟进中','已达成','暂不合作'].includes(item.followStatus))item.followStatus='待跟进';});
+    const q=(state.filters.collaborationSearch||'').trim().toLowerCase();
+    const list=(data.collaborations||[]).filter(c=>!q||`${c.userName}${c.userId}${c.userPhone}${c.submittedName}${c.submittedContact}${c.content}`.toLowerCase().includes(q));
+    return `<section class="page">${pageHead('与我合作','查看并跟进从小程序提交的合作申请。')}
+      <div class="summary-ribbon"><div><span>合作申请</span><strong>${data.collaborations.length}</strong></div>${['待跟进','跟进中','已达成','暂不合作'].map(v=>`<div><span>${v}</span><strong>${data.collaborations.filter(c=>c.followStatus===v).length}</strong></div>`).join('')}</div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button secondary" data-action="export-collaborations">${icon('download')}导出</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="collaborationSearch" placeholder="搜索用户、联系方式或合作内容" value="${escapeHTML(state.filters.collaborationSearch||'')}"></label><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table collaboration-table"><thead><tr><th>用户名</th><th>用户手机号</th><th>填写姓名</th><th>填写联系方式</th><th>填写合作内容</th><th>后台备注</th><th>跟进状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(c=>`<tr><td><button class="cell-link" data-action="view-user" data-id="${c.userId}">${escapeHTML(c.userName)}</button><span class="cell-sub">${escapeHTML(c.userId)}</span></td><td>${escapeHTML(c.userPhone)}</td><td>${escapeHTML(c.submittedName)}</td><td><span class="wrap-cell">${escapeHTML(c.submittedContact)}</span></td><td><span class="wrap-cell cooperation-content">${escapeHTML(c.content)}</span></td><td><span class="wrap-cell note-cell">${escapeHTML(c.backendNote||'—')}</span></td><td>${status(c.followStatus)}</td><td><div class="table-actions collaboration-actions"><button class="row-button compact" data-action="edit-collaboration-status" data-id="${c.id}">跟进状态</button><button class="row-button compact" data-action="edit-collaboration-note" data-id="${c.id}">备注</button></div></td></tr>`).join('')}</tbody></table>`:emptyState('没有匹配的合作申请','请调整搜索关键词。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function openLoginModal(){return openModal({title:'模拟用户登录',body:`<div class="form-grid">${formField('用户','loginUser',data.users[0].name,'select',false,data.users.map(u=>u.name))}${formField('登录设备','loginDevice','iPhone 小程序','select',false,['iPhone 小程序','Android 小程序','微信 PC 小程序'])}</div><p class="form-hint">提交后为该用户记录一次实时登录，列表按用户去重展示最新一次。</p>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-login">记录登录</button>`});}
+  function renderFinance() {
+    const q=(state.filters.financeSearch||'').toLowerCase(),payment=state.filters.financePayment||'全部支付方式',refundFilter=state.filters.financeRefund||'全部退款状态',dStart=state.filters.financeDateStart||'',dEnd=state.filters.financeDateEnd||'';
+    const rows=data.finance.slice().sort((a,b)=>b.time.localeCompare(a.time)).filter(r=>{const d=(r.time||'').slice(0,10);return (payment==='全部支付方式'||canonicalPaymentName(r.channel)===payment)&&(refundFilter==='全部退款状态'||(refundFilter==='已退款'?(r.refundAmount||0)>0:(r.refundAmount||0)<=0))&&(!dStart||d>=dStart)&&(!dEnd||d<=dEnd)&&(!q||`${r.orderId}${r.user}`.toLowerCase().includes(q));});
+    const fIncome=rows.reduce((s,r)=>s+r.amount,0),fRefund=rows.reduce((s,r)=>s+(r.refundAmount||0),0);
+    const fSub=rows.reduce((acc,r)=>{const st=finRowStats(r);acc.used+=st.used;acc.unused+=st.unused;acc.usedAmt+=st.usedAmt;acc.unusedAmt+=st.unusedAmt;return acc;},{used:0,unused:0,usedAmt:0,unusedAmt:0});
+    return `<section class="page">${pageHead('财务报表','按每笔收入查看应收、退款、实收与核销情况；退款在订单管理发起，此处同步展示并复核。')}
+      <div class="summary-ribbon finance-filter-strip"><div><span>筛选流水笔数</span><strong>${rows.length}</strong></div><div><span>应收金额</span><strong>¥${Number(fIncome).toLocaleString()}</strong></div><div><span>退款金额</span><strong>¥${Number(fRefund).toLocaleString()}</strong></div><div><span>实收金额</span><strong>¥${Number(fIncome-fRefund).toLocaleString()}</strong></div><div><span>已核销金额</span><strong>¥${Math.round(fSub.usedAmt).toLocaleString()}</strong></div><div><span>未核销金额</span><strong>¥${Math.round(fSub.unusedAmt).toLocaleString()}</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button secondary" data-action="export-finance">${icon('download')}导出</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="financeSearch" placeholder="搜索订单号或用户" value="${escapeHTML(state.filters.financeSearch||'')}"></label><label class="date-range-control">收款时间 <input type="date" data-filter="financeDateStart" value="${state.filters.financeDateStart||''}"><span>至</span><input type="date" data-filter="financeDateEnd" value="${state.filters.financeDateEnd||''}"></label><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(rows).total?`<table class="data-table"><thead><tr><th>收款时间</th><th>订单号</th><th>用户</th><th>手机号</th><th>品牌</th><th>套餐信息</th><th>总餐数</th><th>应收金额</th><th>退款金额</th><th>实收金额</th><th>已核销金额</th><th>未核销金额</th><th>退款时间</th><th>支付方式</th><th>退款备注</th></tr></thead><tbody>${paged(rows).items.map(r=>{const st=finRowStats(r),u=data.users.find(x=>x.name===r.user);return `<tr><td>${r.time}</td><td><button class="cell-link" data-action="view-order" data-id="${r.orderId}">${r.orderId}</button></td><td><button class="cell-link" data-action="jump-user" data-name="${r.user}">${r.user}</button><span class="cell-sub">${u?.id||'—'}</span></td><td>${u?.phone||'—'}</td><td>${st.brand}</td><td><span class="cell-title">${st.package}</span></td><td><b>${st.total} 餐</b></td><td><b>¥${Number(r.amount).toLocaleString()}</b></td><td>${st.refund?`<b class="negative">-¥${Number(st.refund).toLocaleString()}</b>${r.reviewed?'<span class="status success" style="margin-left:5px">已复核</span>':''}`:'—'}</td><td><b>¥${Number(st.net).toLocaleString()}</b></td><td><b>¥${st.usedAmt.toLocaleString()}</b><span class="cell-sub">${st.used} 餐</span></td><td><b>¥${st.unusedAmt.toLocaleString()}</b><span class="cell-sub">${st.unused} 餐</span></td><td>${r.refundTime||'—'}</td><td>${canonicalPaymentName(r.channel)}</td><td><span class="cell-sub" style="max-width:150px;white-space:normal">${r.refundNote||'—'}</span></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的财务流水','请调整搜索条件。')}</div>${tableFooter(paged(rows))}</section>
+    </section>`;
+  }
+  function filteredFinance(){const q=(state.filters.financeSearch||'').toLowerCase(),payment=state.filters.financePayment||'全部支付方式',refund=state.filters.financeRefund||'全部退款状态',dStart=state.filters.financeDateStart||'',dEnd=state.filters.financeDateEnd||'';return data.finance.filter(r=>{const d=(r.time||'').slice(0,10);return(payment==='全部支付方式'||canonicalPaymentName(r.channel)===payment)&&(refund==='全部退款状态'||(refund==='已退款'?(r.refundAmount||0)>0:(r.refundAmount||0)<=0))&&(!dStart||d>=dStart)&&(!dEnd||d<=dEnd)&&(!q||`${r.orderId}${r.user}`.toLowerCase().includes(q));});}
+  function finRowStats(r){
+    const o=data.orders.find(x=>x.id===r.orderId);
+    const sub=data.subscriptions.find(s=>s.user===(o?o.user:r.user)&&s.package===(o?o.package:''));
+    const pkg=sub?data.packages.find(p=>p.name===sub.package):null;
+    const unit=pkg&&pkg.meals?pkg.price/pkg.meals:0;
+    const used=sub?(sub.used||0):0,unused=sub?((sub.remaining||0)+(sub.frozen||0)):0;
+    const refund=r.refundAmount||0;
+    return {sub,unit,used,unused,refund,usedAmt:Math.round(used*unit),unusedAmt:Math.max(0,Math.round(unused*unit)-refund),net:r.amount-refund,brand:o?o.brand:'—',package:o?o.package:(sub?sub.package:'—'),total:sub?sub.bought:0};
+  }
+  function orderRefundLimit(o){
+    const sub=data.subscriptions.find(s=>s.user===o.user&&s.package===o.package);
+    const pkg=sub?data.packages.find(p=>p.name===sub.package):null;
+    const unit=pkg&&pkg.meals?pkg.price/pkg.meals:0;
+    const unused=sub?((sub.remaining||0)+(sub.frozen||0)):0;
+    const fr=data.finance.find(x=>x.orderId===o.id);
+    const already=fr?(fr.refundAmount||0):0;
+    return {max:Math.max(0,Math.round(unused*unit)-already),unused,already};
+  }
+  function addressText(a){return `${a.region||''}${a.street||''}${a.building?' '+a.building:''}`.trim();}
+  function renderAddresses() {
+    const q=(state.filters.addressSearch||'').toLowerCase(), def=state.filters.addressDefault||'全部';
+    const list=data.addresses.filter(a=>(def==='全部'||(def==='默认'?a.isDefault:!a.isDefault))&&(!q||`${a.userName}${a.tag}${addressText(a)}${a.phone}${a.contact}`.toLowerCase().includes(q)));
+    const groups=[...new Set(list.map(a=>a.userId))].map(userId=>({user:data.users.find(u=>u.id===userId)||{},addresses:list.filter(a=>a.userId===userId)}));
+    return `<section class="page">${pageHead('用户地址管理','查看并维护用户在小程序录入的收货地址，支持设默认与删除。')}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-address">${icon('plus')}新建地址</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="addressSearch" placeholder="搜索用户或地址" value="${escapeHTML(state.filters.addressSearch||'')}"></label>${filterTabs('addressDefault','全部',['默认','非默认'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${groups.length?`<table class="data-table address-users-table"><thead><tr><th>用户</th><th>手机号</th><th>地址数量</th><th>默认地址</th><th>操作</th></tr></thead><tbody>${groups.map(({user:u,addresses})=>{const defAddr=addresses.find(a=>a.isDefault);return `<tr><td><span class="cell-title">${u.name||addresses[0]?.userName}</span><span class="cell-sub">${u.id||addresses[0]?.userId||'—'}</span></td><td>${u.phone||addresses[0]?.phone||'—'}</td><td><b>${addresses.length} 个</b></td><td><span class="wrap-cell">${defAddr?addressText(defAddr):'—'}</span></td><td><div class="table-actions"><button class="row-button compact" data-action="view-user-addresses" data-id="${u.id||addresses[0]?.userId}">查看地址</button><button class="row-button compact" data-action="new-address" data-user="${u.name||''}">新增地址</button></div></td></tr>`;}).join('')}</tbody></table>`:emptyState('没有匹配的地址','请调整搜索或筛选条件。')}</div></section>
+    </section>`;
+  }
+  function openAddressForm(id='') {
+    const a=data.addresses.find(x=>x.id===id)||{userName:'',tag:'家',contact:'',phone:'',region:'',street:'',building:'',isDefault:false};
+    const tagVal=['家','公司','学校','其他'].includes(a.tag)?a.tag:'其他';
+    const tagOther=['家','公司','学校','其他'].includes(a.tag)?'':a.tag;
+    openModal({title:id?'编辑地址':'新建地址',wide:true,body:`<form id="entity-form" data-kind="address" data-id="${id}"><div class="form-grid">${formField('所属用户','userName',a.userName,'text',false,[],'请输入所属用户')}${formField('手机号','userPhone',id?a.phone:'','tel',false,[],'请输入手机号')}${formField('收货人','contact',a.contact)}${formField('所在地区','region',a.region,'text',false,[],'如 上海市浦东新区')}${formField('街道 / 小区','street',a.street,'text',false,[],'如 世纪大道100号')}${formField('楼栋 / 门牌号','building',a.building,'text',false,[],'如 3栋502室')}${formField('地址标签','tag',tagVal,'select',false,['家','公司','学校','其他'])}<div class="form-field" id="tag-other-field" style="${tagVal==='其他'?'':'display:none'}"><label>其他标签名称</label><input name="tagOther" value="${escapeHTML(tagOther)}" placeholder="请输入具体标签值"></div>${formField('是否默认','isDefault',a.isDefault?'是':'否','select',false,['是','否'])}</div><p class="form-hint">所属用户与手机号可直接填写；设为默认后，同一用户的其它地址自动取消默认。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存地址</button>`});
+  }
+  function openUserAddresses(userId){const rows=data.addresses.filter(a=>a.userId===userId),u=data.users.find(x=>x.id===userId)||{name:rows[0]?.userName||'用户'};if(!rows.length)return toast('暂无地址数据','','error');openModal({title:`地址详情 · ${u.name}`,wide:true,body:`<div class="table-wrap"><table class="data-table"><thead><tr><th>完整地址</th><th>收货人 / 电话</th><th>标签</th><th>默认状态</th><th>操作</th></tr></thead><tbody>${rows.map(a=>`<tr><td><span class="wrap-cell">${addressText(a)}</span></td><td>${a.contact}<span class="cell-sub">${a.phone}</span></td><td><span class="tag">${a.tag}</span></td><td>${a.isDefault?status('默认'):'—'}</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-address" data-id="${a.id}" data-user-id="${userId}">编辑</button><button class="row-button compact" data-action="set-default-address" data-id="${a.id}" data-user-id="${userId}" ${a.isDefault?'disabled':''}>设默认</button><button class="row-button compact" data-action="delete-address-confirm" data-id="${a.id}" data-user-id="${userId}">删除</button></div></td></tr>`).join('')}</tbody></table></div>`,footer:`<button class="button secondary" data-action="close-modal">关闭</button><button class="button primary" data-action="new-address">${icon('plus')}新增地址</button>`});}
+  function menuUploadFor(brand,weekId){return data.menuUploads.find(u=>u.brand===brand&&u.weekId===weekId);}
+  function menuMissingBrands(weekId){return data.brands.filter(b=>b.status==='上架'&&!data.menuUploads.some(u=>u.brand===b.name&&u.weekId===weekId));}
+  function menuSwitchLabel(){const s=state.menuSwitch||{day:'本周末',time:'20:00'};return `${s.day} ${s.time}`;}
+  function renderMenuWeek() {
+    const week=data.menuWeeks.find(w=>w.id===state.menuWeek)||data.menuWeeks.find(w=>w.id==='W34')||data.menuWeeks[8],missing=menuMissingBrands(week.id),sw=menuSwitchLabel(),alerting=week.id==='W34'&&missing.length?missing:[],activeBrands=data.brands.filter(b=>b.status==='上架'),thisWeek=data.menuWeeks.find(w=>w.label==='本周'),nextWeek=data.menuWeeks.find(w=>w.label==='下周'),weekStats=weekId=>{const uploaded=activeBrands.filter(b=>menuUploadFor(b.name,weekId)).length;return {uploaded,missing:activeBrands.length-uploaded};},thisStats=weekStats(thisWeek.id),nextStats=weekStats(nextWeek.id);
+    const s=state.menuSwitch||{day:'本周末',time:'20:00'},min=s.day==='本周末'?'12:00':'00:00',max=s.day==='本周末'?'23:59':'10:00';
+    const weeksView=`${alerting.length?`<div class="validation-box" style="margin:0 0 14px;border-color:var(--danger);background:#fdf2f0"><b>${alerting.length} 个品牌下周菜单未上传</b><p class="form-hint">小程序将于「${sw}」自动切换为下周菜单，请尽快上传。</p></div>`:''}
+      <div class="summary-ribbon menu-upload-summary"><div><span>品牌</span><strong>${activeBrands.length}</strong><small class="cell-sub">已上架 ${activeBrands.length} · 未上架 ${data.brands.length-activeBrands.length}</small></div><div><span>本周</span><strong>${thisStats.uploaded}</strong><small class="cell-sub">已上传 ${thisStats.uploaded}</small><small class="cell-sub negative">未上传 ${thisStats.missing}</small></div><div><span>下周</span><strong>${nextStats.uploaded}</strong><small class="cell-sub">已上传 ${nextStats.uploaded}</small><small class="cell-sub negative">未上传 ${nextStats.missing}</small></div><div><span>切换时间</span><strong>${sw}</strong></div></div>
+      <section class="panel"><div class="tabs-scroll-wrap"><button class="tab-arrow" data-action="menu-week-prev" title="上一个周次">${icon('chevronLeft','14')}</button><div class="tabs">${[...data.menuWeeks.filter(w=>w.id>='W31'&&w.id<='W37')].sort((a,b)=>{const k=w=>w.label==='本周'?0:w.label==='下周'?1:/^未来第/.test(w.label)?2+Number((w.label.match(/\d+/)||[])[0]||0):/^2 周前/.test(w.label)?9:8;return k(a)-k(b);}).map(w=>`<button class="tab-button ${w.id===week.id?'active':''}" data-action="menu-week-tab" data-value="${w.id}">${w.label} · ${w.range}${w.label==='本周'?'<em class="tab-badge current">当前</em>':w.label==='下周'?'<em class="tab-badge next">下一期</em>':''}</button>`).join('')}</div><button class="tab-arrow" data-action="menu-week-next" title="下一个周次">${icon('chevronRight','14')}</button></div><div class="panel-body"><div class="menu-week-head"><div><b>${week.label}（${week.range}）</b><span class="cell-sub">品牌方制定餐品，仅需上传菜单图片</span></div></div><div class="menu-card-grid">${[...data.brands].sort((a,b)=>(a.status==='下架'?1:0)-(b.status==='下架'?1:0)).map(b=>{const up=menuUploadFor(b.name,week.id),isAlert=alerting.includes(b);return `<article class="menu-card ${up?'has-image':''} ${isAlert?'alert':''} ${b.status==='下架'?'paused':''} ${state.menuFocusBrand===b.name?'focused':''}"><header>${brandAvatar(b)}<div><b>${b.name}</b><small>${up?'已上传 '+up.uploadedAt:'未上传'}</small></div>${isAlert?'<span class="menu-flag">逾期预警</span>':b.status==='下架'?'<span class="menu-flag paused">已下架</span>':''}</header>${up?`<img class="menu-card-img" src="${up.image}" alt="${b.name} 菜单" data-action="menu-preview" data-id="${up.id}"><footer><button class="row-button compact" data-action="menu-upload" data-brand="${b.name}" data-week="${week.id}">替换图片</button><button class="row-button compact" data-action="menu-grid-delete-confirm" data-id="${up.id}">删除图片</button></footer>`:`<div class="menu-empty"><span>${icon('plus',22)}</span><small>上传 ${week.label} 菜单图片</small></div><footer><button class="button primary small" data-action="menu-upload" data-brand="${b.name}" data-week="${week.id}">${icon('plus')}上传图片</button></footer>`}</article>`;}).join('')}</div></div></section>`;
+    setTimeout(()=>{const fc=document.querySelector('.menu-card.focused');if(fc){fc.scrollIntoView({block:'center'});}else{const tb=document.querySelector('.tab-button.active'),tabs=document.querySelector('.tabs');if(tb&&tabs){const left=tb.getBoundingClientRect().left-tabs.getBoundingClientRect().left+tabs.scrollLeft;tabs.scrollLeft=Math.max(0,left);}}},100);
+    return `<section class="page">${pageHead('每周菜单',`品牌方制定餐品，后台每周上传菜单图片；小程序于「${sw}」自动切换为下一周菜单。`)}
+      <div class="menu-actions-bar"><div class="seg-group"><button class="${state.menuView==='weeks'?'active':''}" data-action="menu-view-tab" data-value="weeks">周次视图</button><button class="${state.menuView==='grid'?'active':''}" data-action="menu-view-tab" data-value="grid">平铺视图</button></div><div class="menu-switch-settings"><span class="bar-divider"></span><b class="bar-label">菜单切换设置</b><select id="menu-switch-day" class="select-control">${['本周末','下周一'].map(v=>`<option ${s.day===v?'selected':''}>${v}</option>`).join('')}</select><input type="time" id="menu-switch-time" class="time-control" value="${s.time}" min="${min}" max="${max}"><button class="button primary small" data-action="save-menu-switch">保存设置</button></div></div>
+      ${state.menuView==='grid'?renderMenuGrid():weeksView}
+    </section>`;
+  }
+  function renderMenuGrid() {
+    const brand=state.filters.menuGridBrand||'全部品牌',weekStart=state.filters.menuGridWeekStart||'',weekEnd=state.filters.menuGridWeekEnd||'',uploadStart=state.filters.menuGridUploadStart||'',uploadEnd=state.filters.menuGridUploadEnd||'';
+    const list=data.menuUploads.filter(u=>{const w=data.menuWeeks.find(x=>x.id===u.weekId),uploaded=u.uploadedAt.slice(0,10),weekMatch=!weekStart||!weekEnd||(w&&w.startDate<=weekEnd&&w.endDate>=weekStart),uploadMatch=!uploadStart||!uploadEnd||(uploaded>=uploadStart&&uploaded<=uploadEnd);return (brand==='全部品牌'||u.brand===brand)&&weekMatch&&uploadMatch;}).sort((a,b)=>b.weekId.localeCompare(a.weekId)||b.uploadedAt.localeCompare(a.uploadedAt));
+    const dateRange=(label,startKey,endKey,start,end)=>`<div class="menu-date-range"><span>${label}</span><input class="date-control" type="date" data-filter="${startKey}" value="${start}"><i>至</i><input class="date-control" type="date" data-filter="${endKey}" value="${end}"></div>`;
+    return `<section class="data-panel menu-grid-panel"><div class="toolbar-stack"><div class="toolbar"><div class="toolbar-group"><select class="select-control" data-filter="menuGridBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${brand===b.name?'selected':''}>${b.name}</option>`).join('')}</select>${dateRange('菜单所属日期范围','menuGridWeekStart','menuGridWeekEnd',weekStart,weekEnd)}${dateRange('上传日期范围','menuGridUploadStart','menuGridUploadEnd',uploadStart,uploadEnd)}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div><div class="toolbar toolbar-actions"><button class="button primary" data-action="menu-upload-all">${icon('plus')}上传菜单</button></div>
+      <div class="menu-grid-cards">${paged(list).total?paged(list).items.map(u=>{const w=data.menuWeeks.find(x=>x.id===u.weekId);return `<article class="menu-grid-card"><img class="menu-grid-img" src="${u.image}" alt="${u.brand} ${w?w.label:''}菜单" data-action="menu-preview" data-id="${u.id}"><div class="menu-grid-meta"><b>${u.brand}</b><span class="tag ${w&&w.label==='本周'?'tag-type':''}">${w?w.label+' · '+w.range:u.weekId}</span><small>上传时间：${u.uploadedAt}</small></div><div class="menu-grid-ops"><button class="row-button compact" data-action="menu-upload" data-brand="${u.brand}" data-week="${u.weekId}">修改</button><button class="row-button compact" data-action="menu-grid-delete-confirm" data-id="${u.id}">删除</button></div></article>`;}).join(''):emptyState('没有匹配的菜单图片','请调整品牌、周次或上传时间筛选。')}</div>${tableFooter(paged(list))}</section>`;
+  }
+  function openMenuUpload(brand,weekId){const up=menuUploadFor(brand,weekId),week=data.menuWeeks.find(w=>w.id===weekId);openModal({title:`上传菜单图片 · ${brand}${state.menuBatchQueue.length>1?`（待上传 ${state.menuBatchQueue.length} 个品牌）`:''}`,body:`<form id="menu-upload-form"><div class="form-grid"><div class="form-field wide"><label>品牌</label><input value="${escapeHTML(brand)}" readonly class="readonly-field"></div><div class="form-field wide"><label>所属周</label><input value="${escapeHTML(week?week.label+'（'+week.range+'）':weekId)}" readonly class="readonly-field"></div>${uploadField('菜单图片','menuImage',up?up.image:'','image/*','选择菜单图片')}</div><p class="form-hint">建议向品牌方获取原图后上传；小程序将于「${menuSwitchLabel()}」自动切换为下周菜单。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-menu-upload" data-brand="${brand}" data-week="${weekId}">保存菜单图片</button>`});}
+  function renderContentList(type) {
+    const meta={'营养咨询':['营养咨询','维护小程序营养咨询内容，支持标签管理与首页展示控制。','营养咨询'],'首页公告':['公告管理','维护小程序公告内容。','公告']}[type]||[type,'运营内容','维护小程序运营内容。',type];
+    const q=(state.filters.contentSearch||'').toLowerCase(), st=state.filters.contentStatus||'全部状态',home=state.filters.contentHome||'全部首页状态',tag=state.filters.contentTag||'全部标签';
+    const list=data.content.filter(c=>c.type===type&&(st==='全部状态'||c.status===st)&&(type!=='营养咨询'||home==='全部首页状态'||c.showHome===home)&&(type!=='首页公告'||tag==='全部标签'||c.tag===tag)&&(!q||`${c.title}${c.tag}${c.author}`.toLowerCase().includes(q))).sort((a,b)=>b.publishDate.localeCompare(a.publishDate));
+    return `<section class="page">${pageHead(meta[0],meta[1])}
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="contentSearch" placeholder="搜索标题、标签、发布人" value="${escapeHTML(state.filters.contentSearch||'')}"></label>${filterTabs('contentStatus','全部状态',['已上架','已下架'])}<button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-content" data-kind="${type}">${icon('plus')}新建${meta[2]||meta[0]}</button>${type==='营养咨询'?`<button class="button secondary small" data-action="batch-import" data-value="nutrition">${icon('file')}批量导入</button><button class="button secondary small" data-action="manage-content-home">${icon('home','12')}首页显示</button>`:''}<button class="button secondary small" data-action="content-tags">${icon('tag')}标签管理</button></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>标题</th><th>标签</th>${type==='营养咨询'?'<th>发布人</th>':''}<th>发布时间</th>${type==='营养咨询'?'<th>正文内容</th><th>图片</th>':''}${type==='营养咨询'?'<th>显示在首页</th>':''}<th>上下架状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(c=>`<tr><td><span class="cell-title">${c.title}</span></td><td>${c.tag?`<span class="tag tag-teal">${c.tag}</span>`:'—'}</td>${type==='营养咨询'?`<td>${c.author||'—'}</td>`:''}<td>${c.publishDate||'—'}</td>${type==='营养咨询'?`<td><span class="ellipsis-cell" title="${escapeHTML(c.body||'')}">${c.body?c.body.length>24?c.body.slice(0,24)+'…':c.body:'—'}</span></td><td>${c.image?`<img class="menu-thumb" src="${c.image}" alt="">`:'<span class="tag warning">待上传</span>'}</td>`:''}${type==='营养咨询'?`<td><label class="switch" data-action="toggle-content-home" data-id="${c.id}"><input type="checkbox" ${c.showHome==='是'?'checked':''}><span class="switch-track"></span></label></td>`:''}<td><label class="switch" data-action="confirm-toggle-content" data-id="${c.id}"><input type="checkbox" ${c.status==='已上架'?'checked':''}><span class="switch-track"></span></label></td><td><div class="table-actions"><button class="row-button compact" data-action="content-detail" data-id="${c.id}">查看</button><button class="row-button compact" data-action="edit-content" data-id="${c.id}">编辑</button><button class="row-button compact" data-action="copy-content" data-id="${c.id}">复制</button><button class="row-button compact" data-action="delete-content-confirm" data-id="${c.id}">删除</button></div></td></tr>`).join('')}</tbody></table>`:emptyState('暂无内容','点击“新建”添加第一篇内容。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function filteredContent(type){const q=(state.filters.contentSearch||'').toLowerCase(),st=state.filters.contentStatus||'全部状态',home=state.filters.contentHome||'全部首页状态',tag=state.filters.contentTag||'全部标签';return data.content.filter(c=>c.type===type&&(st==='全部状态'||c.status===st)&&(type!=='营养咨询'||home==='全部首页状态'||c.showHome===home)&&(type!=='首页公告'||tag==='全部标签'||c.tag===tag)&&(!q||`${c.title}${c.tag}${c.author}`.toLowerCase().includes(q)));}
+
+  function settingsPanels() {
+    return {
+      delivery:`<div class="form-section"><h3>每日配送时间线（基线 V1.1 锁定）</h3><p>17:30 关闭用户自助修改并冻结餐次生成待确认表；17:30–20:00 管理员处理资料异常、退款、停供与品牌替换；20:00 锁定最终配送任务，之后只能新增异常/售后记录。</p><form id="settings-form"><div class="form-grid"><div class="form-field"><label>用户次日订单调整截止</label><input type="time" value="17:30"></div><div class="form-field"><label>餐次冻结 / 待确认表生成</label><input type="time" value="17:30"></div><div class="form-field"><label>最终任务锁定时间</label><input type="time" value="20:00"></div><div class="form-field"><label>默认午餐送达时间</label><select><option>11:30前到达</option><option>12:00前到达</option></select></div><div class="form-field"><label>默认晚餐送达时间</label><select><option>17:30前到达</option><option>18:00前到达</option></select></div><div class="form-field wide"><label>异常配送提醒</label><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>地址、电话或联系人缺失时阻止正式导出</label></div></div><div class="form-actions"><button type="button" class="button secondary" data-action="reset-settings">恢复默认</button><button class="button primary" type="submit">保存设置</button></div></form></div>`,
+      export:`<div class="form-section"><h3>Excel 导出设置</h3><p>设置配送表命名方式和默认包含的业务字段。</p><form id="settings-form"><div class="form-grid"><div class="form-field wide"><label>文件名格式</label><input value="渡鸦管家_次日配送表_{日期}.xlsx"></div><div class="form-field"><label>汇总工作表</label><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>品牌汇总</label></div><div class="form-field"><label>异常工作表</label><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>数据异常</label></div><div class="form-field wide"><label>品牌独立工作表</label><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>为每个有配送任务的品牌创建工作表</label></div><div class="form-field wide"><label>合包高亮颜色</label><input type="color" value="#fff1d9" style="width:80px"></div></div><div class="form-actions"><button class="button primary" type="submit">保存设置</button></div></form></div>`,
+      validation:`<div class="form-section"><h3>资料校验规则</h3><p>定义哪些问题会阻止正式配送表导出。</p><div class="form-grid"><div class="form-field wide"><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>联系人不能为空</label></div><div class="form-field wide"><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>联系电话必须为有效手机或座机格式</label></div><div class="form-field wide"><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>配送地址必须包含城市、区县和详细门牌信息</label></div><div class="form-field wide"><label class="switch"><input type="checkbox" checked><span class="switch-track"></span>同品牌、同用户、同地址的午晚餐自动识别为合包</label></div></div><div class="form-actions"><button class="button primary" data-action="save-settings">保存规则</button></div></div>`,
+      profile:`<div class="form-section"><h3>管理员资料</h3><p>当前原型使用单一全权限管理员账号。</p><form id="settings-form"><div class="form-grid"><div class="form-field"><label>姓名</label><input value="林方"></div><div class="form-field"><label>角色</label><input value="超级管理员" disabled></div><div class="form-field"><label>联系电话</label><input value="138 0000 2026"></div><div class="form-field"><label>邮箱</label><input value="linfang@raven-life.cn"></div></div><div class="form-actions"><button class="button secondary" type="button" data-action="change-password">修改密码</button><button class="button primary" type="submit">保存资料</button></div></form></div>`,
+      logs:`<div class="form-section"><h3>操作日志</h3><p>记录后台关键操作与系统自动任务。</p><div class="timeline">${data.logs.map(l=>`<div class="timeline-item"><b>${l.action}</b><small>${l.time} · ${l.user} · ${l.detail}</small></div>`).join('')}</div><div class="form-actions"><button class="button secondary" data-action="export-logs">${icon('download')}导出日志</button></div></div>`,
+      demo:`<div class="form-section"><h3>演示数据</h3><p>当前数据仅用于展示业务流程，刷新页面会自动恢复到初始状态。</p><div class="validation-box" style="border-color:var(--line);background:var(--wash)"><b style="color:var(--ink)">恢复内容</b><ul><li>品牌、餐品和套餐配置</li><li>订单、订购与配送计划状态</li><li>次日配送任务与异常资料</li><li>资讯内容与系统设置</li></ul></div><div class="form-actions"><button class="button danger" data-action="reset-demo">恢复初始演示数据</button></div></div>`
+    };
+  }
+  function withoutPackSettings(html){return String(html).replace(/<div class="form-field wide"><label>合包高亮颜色<\/label>[\s\S]*?<\/div>/,'').replace(/<div class="form-field wide"><label class="switch"><input type="checkbox" checked><span class="switch-track"><\/span>同品牌、同用户、同地址的午晚餐自动识别为合包<\/label><\/div>/,'');}
+  function settingsPage(key,title,desc){return `<section class="page">${pageHead(title,desc)}<div>${withoutPackSettings(settingsPanels()[key])}</div></section>`;}
+  function renderDeliverySettings(){const tab=state.settingsTab||'delivery',tabs=[['delivery','配送设置'],['export','导出设置'],['validation','校验规则'],['demo','演示数据']];return `<section class="page">${pageHead('配送设置','管理每日配送时间线、导出模板、校验规则与演示数据。')}<div class="tabs">${tabs.map(([id,label])=>`<button class="tab-button ${tab===id?'active':''}" data-action="settings-tab" data-value="${id}">${label}</button>`).join('')}</div><div style="margin-top:16px">${withoutPackSettings(settingsPanels()[tab])}</div></section>`;}
+  function normalizeRuleSlots(list){const src=(Array.isArray(list)&&list.length)?list:[{time:'11:30',meals:['午餐','晚餐']},{time:'17:30',meals:['午餐','晚餐']}];return src.map(x=>typeof x==='string'?{time:x,meals:['午餐','晚餐']}:{time:x.time||'11:30',meals:(Array.isArray(x.meals)&&x.meals.length)?x.meals:['午餐','晚餐']});}
+  function ruleSlotOptions(meal){const list=normalizeRuleSlots(data.appRules&&data.appRules.deliverySlots).filter(x=>!meal||x.meals.includes(meal));return list.map(x=>`${x.time} 之前`);}
+  function ruleSlotOptionsBoth(){return [...new Set([...ruleSlotOptions('午餐'),...ruleSlotOptions('晚餐')])];}
+  function manualTimeOptions(meal){const list=ruleSlotOptions(meal);const fb=meal==='午餐'?['11:30 之前','12:00 之前','12:30 之前']:['17:30 之前','18:00 之前','18:30 之前'];return (list.length?list:fb).map(v=>`<option>${v}</option>`).join('');}
+  function deliverySlotRow(slot){const s=typeof slot==='string'?{time:slot,meals:['午餐','晚餐']}:(slot||{time:'11:30',meals:['午餐','晚餐']});const meals=(Array.isArray(s.meals)&&s.meals.length)?s.meals:['午餐','晚餐'];return `<div class="delivery-slot-row"><span class="slot-meals">${['午餐','晚餐'].map(m=>`<label class="slot-meal-option ${meals.includes(m)?'active':''}"><input type="checkbox" name="slotMeal" value="${m}" ${meals.includes(m)?'checked':''}><span>${m}</span></label>`).join('')}</span><input type="time" class="time-control" name="deliverySlot" value="${s.time}"><span class="slot-suffix">之前</span><button type="button" class="mini-btn" data-action="remove-delivery-slot" title="删除">${icon('close','11')}</button></div>`;}
+  function renderAppRules() {
+    const tab=state.appRulesTab||'rules',r=data.appRules||{};
+    const limits=r.pauseLimits||{week:1,month:3,quarter:6,year:12};
+    const period=state.pausePeriod||'week',periodLabels={week:'每周',month:'每月',quarter:'每季度',year:'每年'};
+    const rulesPanel=`<div class="form-section"><h3>小程序规则</h3><p>配置小程序端下单、配送时间与专属客服展示信息。</p><form id="app-rules-form"><div class="form-grid"><div class="form-group-head"><b>一、小程序规则</b></div><div class="form-field"><label>用户次日订单调整截止</label><input type="time" id="rule-cutoff" value="${r.cutoff||'17:30'}" min="00:00" max="23:59"><p class="form-hint">可选 00:00–23:59 任意时间，到达后小程序关闭次日订单调整入口。</p></div><div class="form-field wide"><label>配送时间选项设置</label><div id="delivery-slot-rows">${normalizeRuleSlots(r.deliverySlots).map(s=>deliverySlotRow(s)).join('')}</div><button type="button" class="button secondary small" data-action="add-delivery-slot">${icon('plus')}添加配送时间选项</button><p class="form-hint">每个选项后自动带「之前」，如「11:30 之前」；勾选适用餐别（午餐/晚餐，可多选，至少一项）。小程序选择一天两餐时的配送时间选项为「午餐配送时间」；一天一餐时按所选餐别展示，保存后配送计划送达时间与小程序下单页同步。</p></div><div class="form-field wide"><label>单品牌暂停次数限制</label><div class="pause-limit-editor"><select id="pause-period" data-action="pause-period">${Object.entries(periodLabels).map(([v,label])=>`<option value="${v}" ${period===v?'selected':''}>${label}</option>`).join('')}</select><div class="input-with-suffix"><input type="number" min="0" step="1" id="pause-limit-value" value="${limits[period]}"><span>次</span></div></div><p class="form-hint">先选择统计周期，再填写同一用户对同一品牌的暂停上限；0 表示该周期不允许暂停。</p></div><div class="form-group-head"><b>二、专属客服（个人页面-专属客服部分）</b></div>${formField('客服电话','servicePhone',r.servicePhone||'')}${formField('微信号','serviceWechat',r.serviceWechat||'')}${formField('工作时间描述','serviceHours',r.serviceHours||'','text',true)}<div class="form-group-head"><b>三、退款客服（退款相关展示信息）</b></div>${formField('客服微信号','refundWechatId',r.refundWechatId||'')}${formField('客服电话','refundPhone',r.refundPhone||'')}<div class="form-field wide refund-qr-field">${uploadField('客服二维码（选填）','refundQr',r.refundQr||'','image/*','上传客服二维码')}</div></div><div class="form-actions"><button type="button" class="button secondary" data-action="reset-app-rules">恢复默认</button><button class="button primary" type="button" data-action="save-app-rules">保存设置</button></div></form></div>`;
+    const loginBgPanel=`<div class="form-section"><h3>小程序登录页背景设置</h3><p>上传背景图（支持图片或 GIF 动图），保存后小程序登录页同步展示。</p><form id="app-rules-form"><div class="form-grid"><div class="form-field wide">${uploadField('请选择背景图（图片或 GIF 动图）','loginBg',r.loginBg||'','image/*','选择图片 / GIF')}</div><p class="form-hint">小程序登录页背景为竖版长图，建议使用 750 × 1334 或同比例图片。</p></div><div class="form-actions"><button type="button" class="button secondary" data-action="reset-app-rules">恢复默认</button><button class="button primary" type="button" data-action="save-app-rules">保存设置</button></div></form></div>`;
+    return `<section class="page">${pageHead('小程序规则','配置小程序端下单规则、配送时间选项、专属客服与登录页背景。')}<div class="tabs">${[['rules','小程序规则设置'],['loginbg','小程序登录页背景设置']].map(([id,label])=>`<button class="tab-button ${tab===id?'active':''}" data-action="app-rules-tab" data-value="${id}">${label}</button>`).join('')}</div><div style="margin-top:16px">${tab==='rules'?rulesPanel:loginBgPanel}</div></section>`;
+  }
+  function renderExportSettings(){return settingsPage('export','导出设置','设置配送表命名方式与默认包含的业务字段。');}
+  function renderValidationSettings(){return settingsPage('validation','校验规则','定义哪些问题会阻止正式配送表导出。');}
+  function renderAdminProfile(){return `<section class="page">${pageHead('管理员资料','当前原型使用单一全权限管理员账号。',`<button class="button secondary" data-action="navigate" data-page="admins">${icon('users')}管理员管理</button>`)}<div>${settingsPanels().profile}</div></section>`;}
+  function renderLogs(){return `<section class="page">${pageHead('操作日志','记录后台关键操作与系统自动任务。',`<button class="button secondary" data-action="export-logs">${icon('download')}导出日志</button>`)}<section class="data-panel"><div class="table-wrap" style="padding:18px"><div class="timeline">${data.logs.map(l=>`<div class="timeline-item"><b>${l.action}</b><small>${l.time} · ${l.user} · ${l.detail}</small></div>`).join('')}</div></div></section></section>`;}
+  function renderDemo(){return `<section class="page">${pageHead('演示数据','当前数据仅用于展示业务流程，刷新页面会自动恢复到初始状态。')}<section class="data-panel"><div style="padding:21px"><div class="validation-box" style="border-color:var(--line);background:var(--wash)"><b style="color:var(--ink)">恢复内容</b><ul><li>品牌、餐品和套餐配置</li><li>订单、订购与配送计划状态</li><li>次日配送任务与异常资料</li><li>资讯内容与系统设置</li></ul></div><div class="form-actions" style="border:0;padding:0;margin-top:18px"><button class="button danger" data-action="reset-demo">恢复初始演示数据</button></div></div></section></section>`;}
+  function renderMeals() {
+    const q=(state.filters.mealSearch||'').toLowerCase(),brand=state.filters.mealBrand||'全部品牌';
+    const list=data.meals.filter(m=>(brand==='全部品牌'||m.brand===brand)&&(!q||`${m.name}${m.brand}`.toLowerCase().includes(q)));
+    return `<section class="page">${pageHead('餐品管理','维护各品牌餐品、热量与上下架状态，同步小程序择食页。')}
+      <div class="summary-ribbon"><div><span>餐品总数</span><strong>${data.meals.length}</strong></div><div><span>已上架</span><strong>${data.meals.filter(m=>m.status==='已上架').length}</strong></div><div><span>午餐餐品</span><strong>${data.meals.filter(m=>m.type==='午餐').length}</strong></div><div><span>晚餐餐品</span><strong>${data.meals.filter(m=>m.type==='晚餐').length}</strong></div><div><span>覆盖品牌</span><strong>${new Set(data.meals.map(m=>m.brand)).size}</strong></div></div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions"><button class="button primary" data-action="new-meal">${icon('plus')}新建餐品</button></div><div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="mealSearch" placeholder="搜索餐品或品牌" value="${escapeHTML(state.filters.mealSearch||'')}"></label><select class="select-control" data-filter="mealBrand"><option>全部品牌</option>${data.brands.map(b=>`<option ${brand===b.name?'selected':''}>${b.name}</option>`).join('')}</select><button class="button secondary small" data-action="apply-filters">${icon('search')}查找</button><button class="button secondary small" data-action="clear-filters">${icon('refresh')}重置</button></div></div></div>
+      <div class="table-wrap">${paged(list).total?`<table class="data-table"><thead><tr><th>餐品</th><th>品牌</th><th>餐别</th><th>热量</th><th>营养结构</th><th>状态</th><th>操作</th></tr></thead><tbody>${paged(list).items.map(m=>`<tr><td><div class="brand-cell"><img class="package-thumb" src="${m.image}" alt=""><span><span class="cell-title">${m.name}</span><small class="cell-sub">${m.id}</small></span></div></td><td>${m.brand}</td><td><span class="tag">${m.type}</span></td><td><b>${m.kcal} kcal</b></td><td><span class="cell-sub" style="max-width:200px;white-space:normal">${m.nutrition}</span></td><td>${status(m.status)}</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-meal" data-id="${m.id}">编辑</button><button class="row-button compact" data-action="toggle-meal" data-id="${m.id}">${m.status==='已上架'?'下架':'上架'}</button><button class="row-button compact" data-action="delete-meal-confirm" data-id="${m.id}">删除</button></div></td></tr>`).join('')}</tbody></table>`:emptyState('没有匹配的餐品','请调整筛选条件或新建餐品。')}</div>${tableFooter(paged(list))}</section>
+    </section>`;
+  }
+  function openMealForm(id='') {
+    const m=data.meals.find(x=>x.id===id)||{brand:data.brands[0].name,name:'',type:'午餐',kcal:400,nutrition:'',image:'',status:'已上架'};
+    openModal({title:id?'编辑餐品':'新建餐品',wide:true,body:`<form id="entity-form" data-kind="meal" data-id="${id}"><div class="form-grid">${formField('所属品牌','brand',m.brand,'select',false,data.brands.map(b=>b.name))}${formField('餐品名称','name',m.name)}${formField('餐别','type',m.type,'select',false,['午餐','晚餐'])}${formField('热量 kcal','kcal',m.kcal,'number')}${formField('营养结构','nutrition',m.nutrition,'text',true)}${uploadField('餐品图片','image',m.image)}${formField('状态','status',m.status,'select',false,['已上架','已下架'])}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存餐品</button>`});
+  }
+
+  function formField(label, name, value='', type='text', wide=false, options=[], placeholder='', required=true) {
+    const ph=placeholder||(type==='select'?`请选择${label}`:`请输入${label}`);
+    const star=required?'<em class="req-star">*</em>':'';
+    if(type==='select') return `<div class="form-field ${wide?'wide':''}"><label>${star}${label}</label><select name="${name}" ${required?'required':''}>${value===''?'<option value="" disabled selected>'+ph+'</option>':''}${options.map(v=>`<option ${v===value?'selected':''}>${v}</option>`).join('')}</select></div>`;
+    if(type==='textarea') return `<div class="form-field ${wide?'wide':''}"><label>${star}${label}</label><textarea name="${name}" placeholder="${ph}" ${required?'required':''}>${escapeHTML(value)}</textarea></div>`;
+    return `<div class="form-field ${wide?'wide':''}"><label>${star}${label}</label><input name="${name}" type="${type}" value="${escapeHTML(value)}" placeholder="${ph}" ${required?'required':''}></div>`;
+  }
+  function uploadField(label, name, value='', accept='image/*', hint='选择图片', required=false, allowClear=true) {
+    const star=required?'<em class="req-star">*</em>':'';
+    return `<div class="form-field"><label>${star}${label}</label><div class="upload-box ${value?'has-image':''}" data-action="pick-upload" data-upload-box="${name}"><input type="file" accept="${accept}" class="upload-input" data-image-field="${name}" data-image-preview="${name}-preview" hidden><span class="upload-placeholder">${icon('plus',26)}<small>${hint}</small></span><img id="${name}-preview" class="upload-preview" ${value?`src="${value}"`:''} alt=""><span class="upload-repick">重新选择</span></div><input type="hidden" name="${name}" value="${escapeHTML(value)}">${value&&allowClear?`<button type="button" class="text-button upload-clear" data-action="clear-upload" data-value="${name}">移除图片</button>`:''}</div>`;
+  }
+
+  function openBrandForm(id='') {
+    const item=data.brands.find(x=>x.id===id)||{name:'',abbr:'',types:[],tags:[],priceMin:'',priceMax:'',note:'',status:'上架',area:'',contact:'',logo:''};
+    const typeChips=brandTagsBy('type').map(t=>tagChip('types',t,(item.types||[]).includes(t.name))).join('');
+    const featureChips=brandTagsBy('feature').map(t=>tagChip('tags',t,(item.tags||[]).includes(t.name))).join('');
+    const targetSel=(item.targetGroups&&item.targetGroups.length)?item.targetGroups:['健康饮食'];
+    const targetChips=['健康饮食','减重','增肌','减脂'].map(g=>`<label class="tag-chip"><input type="checkbox" name="targetGroup" value="${g}" ${targetSel.includes(g)?'checked':''}><span>${g}</span></label>`).join('');
+    const price=`<div class="form-field"><label><em class="req-star">*</em>价格区间</label><div class="brand-price-range"><span>￥</span><input name="priceMin" type="number" min="0" step="0.01" value="${item.priceMin}" required><b>~</b><input name="priceMax" type="number" min="0" step="0.01" value="${item.priceMax}" required><span>/餐</span></div></div>`;
+    const logo=`<div class="form-field brand-logo-field"><label><em class="req-star">*</em>Logo 图片 <small>参考比例 1:1</small></label><div class="upload-box ${item.logo?'has-image':''}" data-action="pick-upload" data-upload-box="logo"><input type="file" accept="image/*" class="upload-input" data-image-field="logo" data-image-preview="logo-preview" hidden><span class="upload-placeholder">${icon('plus',26)}<small>选择图片</small></span><img id="logo-preview" class="upload-preview" ${item.logo?`src="${item.logo}"`:''} alt=""><span class="upload-repick">重新选择</span></div><input type="hidden" name="logo" value="${escapeHTML(item.logo)}"></div>`;
+    openModal({title:id?'编辑品牌':'新建品牌',wide:true,body:`<form id="entity-form" data-kind="brand" data-id="${id}"><div class="form-grid brand-form-grid"><div class="form-group-head"><b>品牌信息</b><small>对外展示于小程序</small></div><div class="brand-identity-layout wide">${logo}<div class="brand-primary-fields"><div class="form-field"><label><em class="req-star">*</em>品牌名称</label><input name="name" maxlength="30" value="${escapeHTML(item.name)}" placeholder="请输入品牌名称" required></div>${price}<div class="form-field brand-description-field"><label><em class="req-star">*</em>品牌描述</label><textarea name="abbr" maxlength="100" placeholder="请输入品牌描述" required>${escapeHTML(item.abbr)}</textarea></div></div></div><div class="form-field wide"><label><em class="req-star">*</em>目标群体</label><div class="tag-chip-group">${targetChips}</div></div><div class="form-field wide"><label><em class="req-star">*</em>类型（可多选，至少选一个）</label><div class="tag-chip-group">${typeChips}</div></div><div class="form-field wide"><label><em class="req-star">*</em>特点（可多选，至少选一个）</label><div class="tag-chip-group">${featureChips}</div></div><div class="form-field"><label><em class="req-star">*</em>上架状态</label><label class="switch"><input type="checkbox" name="statusSwitch" ${item.status==='上架'?'checked':''}><span class="switch-track"></span><span>${item.status==='上架'?'上架':'下架'}</span></label></div><div class="form-group-head"><b>运营信息</b><small>仅后台可见</small></div>${formField('配送范围','area',item.area,'text',true,[], '请输入配送范围',false)}${formField('运营联系人','contact',item.contact,'text',true, [], '', false)}<div class="form-field wide"><label>备注</label><textarea name="note" placeholder="请输入">${escapeHTML(item.note||'')}</textarea></div></div><p class="form-hint">品牌信息对外展示于小程序；配送范围、运营联系人和备注为选填。停用标签不可选择，已绑定的停用标签保存后自动移除。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存品牌</button>`});
+  }
+  function openBrandTagManager() {
+    const render=(category,label)=>{const noun=category==='type'?'类型':'特点';return `<div class="tag-manager-section"><div class="tag-manager-head"><div><b>${label}</b><span class="cell-sub">${brandTagsBy(category).length} 个标签</span></div><button class="button primary small" data-action="new-brand-tag" data-value="${category}">${icon('plus')}新增${noun}</button></div><div class="table-wrap tag-manager-table-scroll"><table class="data-table"><thead><tr><th style="width:76px"></th><th>${noun}名称</th><th>状态</th><th>绑定品牌</th><th>操作</th></tr></thead><tbody>${brandTagsBy(category).map(t=>{const used=tagUsedByBrands(t);return `<tr><td class="drag-cell"><span class="grip" title="调整顺序">${icon('grip','14')}</span><span class="move-stack"><button class="mini-btn" data-action="move-tag-up" data-id="${t.id}" title="上移">${icon('chevronUp','10')}</button><button class="mini-btn" data-action="move-tag-down" data-id="${t.id}" title="下移">${icon('chevronDown','10')}</button></span></td><td><b>${t.name}</b></td><td>${status(t.status)}</td><td>${used} 个品牌</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-brand-tag" data-id="${t.id}">编辑</button><button class="row-button compact" data-action="toggle-brand-tag" data-id="${t.id}">${t.status==='启用'?'停用':'启用'}</button><button class="row-button compact" data-action="delete-brand-tag-confirm" data-id="${t.id}">删除</button></div></td></tr>`;}).join('')}</tbody></table></div></div>`;};
+    openModal({title:'品牌标签管理',wide:true,body:`<div class="tag-manager">${render('type','类型标签')}${render('feature','特点标签')}</div><p class="form-hint">类型与特点标签均可多选；停用后小程序不再展示该标签（含已绑定品牌），后台品牌表单不可选择停用标签，已绑定的停用标签保存后自动移除；被品牌引用的标签不可删除。点击表格前方手柄可上移 / 下移调整展示顺序。</p>`,footer:`<button class="button primary" data-action="close-modal">完成</button>`});
+  }
+  function openBrandTagForm(category, id='') {
+    const t=id?data.brandTags.find(x=>x.id===id):null, c=category||t?.category||'feature';
+    const item=t||{category:c,name:'',status:'启用',sort:10};
+    const noun=item.category==='type'?'类型':'特点';
+    const fields=id?`<input type="hidden" name="category" value="${item.category}">${formField(`${noun}名称`,'name',item.name)}${formField('状态','status',item.status,'select',false,['启用','停用'])}`:`<input type="hidden" name="category" value="${item.category}"><input type="hidden" name="status" value="启用"><div class="form-field"><label><em class="req-star">*</em>${noun}名称（限10字）</label><input name="name" maxlength="10" value="" placeholder="请输入${noun}名称" required></div>`;
+    openModal({title:id?`编辑${noun}`:`新增${noun}`,body:`<form id="entity-form" data-kind="brandtag" data-id="${id}"><div class="form-grid">${fields}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存${noun}</button>`});
+  }
+  function brandAssociatedPackages(b){if(!b)return[];const all=data.packages.filter(p=>(p.brands||[]).includes(b.name));const order=b.packageOrder||[];if(!order.length)return all;const map=new Map(all.map(p=>[p.id,p])),sorted=order.map(id=>map.get(id)).filter(Boolean),rest=all.filter(p=>!order.includes(p.id));return [...sorted,...rest];}
+  function openBrandPackages(id){
+    const b=data.brands.find(x=>x.id===id);if(!b)return;
+    const packs=brandAssociatedPackages(b);
+    if(!packageOrderDraft||packageOrderDraft.brandId!==id)packageOrderDraft={brandId:id,ids:packs.map(p=>p.id)};
+    const map=new Map(packs.map(p=>[p.id,p])),ordered=packageOrderDraft.ids.map(pid=>map.get(pid)).filter(Boolean),rest=packs.filter(p=>!packageOrderDraft.ids.includes(p.id)),list=[...ordered,...rest];
+    openDrawer({title:`关联套餐 · ${b.name}`,body:`<div class="detail-hero">${brandAvatar(b)}<div><h4>${b.name}</h4><p>${b.abbr||''} · 共 ${list.length} 个套餐</p></div></div>${list.length?`<div class="package-order-list" data-brand-packages>${list.map(p=>`<div class="package-order-row" draggable="true" data-brand="${b.id}" data-id="${p.id}"><span class="package-order-grip" title="拖动排序">${icon('grip','14')}</span><div class="package-order-main"><b>${p.name}</b><small>${p.meals} 餐 / ${p.days} 天 · ${money(p.price)} · ${p.subs} 人订购</small></div>${status(p.status)}</div>`).join('')}</div><p class="form-hint">按住左侧手柄拖动调整顺序，保存后品牌详情与小程序展示同步。</p>`:'<p class="cell-sub">该品牌暂无关联套餐，可通过套餐管理的「下发」功能关联。</p>'}`,footer:`<button class="button secondary" data-action="close-drawer">取消</button><button class="button primary" data-action="save-brand-packages" data-id="${b.id}">保存排序</button>`});
+    bindPackageDrag();
+    return;
+  }
+  function bindPackageDrag(){const root=document.querySelector('[data-brand-packages]');if(!root)return;let dragId='';root.querySelectorAll('.package-order-row').forEach(row=>{row.addEventListener('dragstart',e=>{dragId=row.dataset.id||'';row.classList.add('dragging');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId);}catch(_){}}});row.addEventListener('dragend',()=>{dragId='';row.classList.remove('dragging');root.querySelectorAll('.package-order-row').forEach(r=>r.classList.remove('drag-over'));});row.addEventListener('dragover',e=>{e.preventDefault();if(row.dataset.id===dragId)return;row.classList.add('drag-over');});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',e=>{e.preventDefault();const d=packageOrderDraft;if(!d||d.brandId!==row.dataset.brand||!dragId||dragId===row.dataset.id)return;const from=d.ids.indexOf(dragId),to=d.ids.indexOf(row.dataset.id);if(from<0||to<0)return;const [moved]=d.ids.splice(from,1);d.ids.splice(to,0,moved);openBrandPackages(d.brandId);});});}
+  function openContentHomeModal(){const pool=data.content.filter(c=>c.type==='营养咨询'&&c.showHome==='是').sort((a,b)=>(Number(a.homeOrder)||999)-(Number(b.homeOrder)||999)||b.publishDate.localeCompare(a.publishDate));if(!contentHomeDraft||contentHomeDraft.ids.length!==pool.length||contentHomeDraft.ids.some(id=>!pool.some(c=>c.id===id)))contentHomeDraft={ids:pool.map(c=>c.id)};const map=new Map(pool.map(c=>[c.id,c])),list=contentHomeDraft.ids.map(id=>map.get(id)).filter(Boolean);openModal({title:`首页显示内容 · ${list.length} 条`,wide:true,body:`${list.length?`<div class="package-order-list" data-content-home>${list.map(c=>`<div class="package-order-row" draggable="true" data-id="${c.id}"><span class="package-order-grip" title="拖动排序">${icon('grip','14')}</span><div class="package-order-main"><b>${escapeHTML(c.title)}</b><small>${c.tag?escapeHTML(c.tag)+' · ':''}${c.publishDate||'—'} · ${c.status}</small></div>${c.image?`<img class="menu-thumb" src="${c.image}" alt="">`:''}</div>`).join('')}</div><p class="form-hint">按住左侧手柄拖动调整顺序，保存后按此顺序展示在小程序首页。</p>`:'<p class="cell-sub">暂无显示在首页的内容，可在表格中开启「显示在首页」。</p>'}`,footer:`<button class="button secondary" data-action="close-modal">取消</button>${list.length?`<button class="button primary" data-action="save-content-home-order">保存排序</button>`:''}`});bindContentHomeDrag();}
+  function bindContentHomeDrag(){const root=document.querySelector('[data-content-home]');if(!root)return;let dragId='';root.querySelectorAll('.package-order-row').forEach(row=>{row.addEventListener('dragstart',e=>{dragId=row.dataset.id||'';row.classList.add('dragging');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId);}catch(_){}}});row.addEventListener('dragend',()=>{dragId='';row.classList.remove('dragging');root.querySelectorAll('.package-order-row').forEach(r=>r.classList.remove('drag-over'));});row.addEventListener('dragover',e=>{e.preventDefault();if(row.dataset.id===dragId)return;row.classList.add('drag-over');});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',e=>{e.preventDefault();const d=contentHomeDraft;if(!d||!dragId||dragId===row.dataset.id)return;const from=d.ids.indexOf(dragId),to=d.ids.indexOf(row.dataset.id);if(from<0||to<0)return;const [moved]=d.ids.splice(from,1);d.ids.splice(to,0,moved);openContentHomeModal();});});}
+  function openBrandDetail(id) { state.backPage=state.page!=='brand-detail'?state.page:state.backPage; state.brandDetailId=id; state.page='brand-detail'; renderApp(); }
+  function renderBrandDetailPage(){
+    const b=data.brands.find(x=>x.id===state.brandDetailId); if(!b)return renderBrands();
+    const packs=brandAssociatedPackages(b);
+    const body=`<div class="detail-hero brand-detail-hero">${brandAvatar(b)}<div><h4>${b.name}</h4><p>${b.id}</p></div>${status(b.status)}</div><div class="detail-list"><div class="detail-section-title">品牌信息 · 对外展示</div><div style="grid-column:1/-1"><span>品牌描述</span><b>${b.abbr||'—'}</b></div><div style="grid-column:1/-1"><span>类型</span><b><span class="brand-detail-tags">${brandTypeChips(b)||'未设置'}</span></b></div><div style="grid-column:1/-1"><span>特点</span><b><span class="brand-detail-tags">${brandFeatureChips(b)||'未设置'}</span></b></div><div><span>目标群体</span><b>${(b.targetGroups||[]).length?b.targetGroups.join('、'):'未设置'}</b></div><div><span>价格区间</span><b>${b.priceRange||'未设置'}</b></div><div class="detail-section-title">运营信息 · 仅后台</div><div><span>配送范围</span><b>${b.area||'—'}</b></div><div><span>运营联系人</span><b>${b.contact||'未填写'}</b></div><div style="grid-column:1/-1"><span>备注</span><b>${b.note||'无'}</b></div><div class="detail-section-title">经营数据</div><div><span>订购用户</span><b>${b.subs} 人</b></div><div><span>明日配送</span><b>${b.tomorrow} 餐 · 午餐 ${b.tomorrowLunch} · 晚餐 ${b.tomorrowDinner}</b></div><div><span>详情页浏览量</span><b>${Number(b.pageViews||0).toLocaleString()} 次</b></div></div><div class="brand-detail-preview-card"><div><b>品牌介绍</b><span class="cell-sub">${(b.detailBlocks||[]).length?`已设置 ${b.detailBlocks.length} 个内容块`:'暂未设置，点击下方「品牌介绍」开始排版'}</span></div><button class="button secondary small" data-action="brand-detail-preview" data-id="${b.id}">${icon('eye','12')}预览品牌介绍</button></div><h4 style="margin-top:22px">本周菜单（小程序展示）</h4>${menuUploadFor(b.name,'W33')?`<img class="menu-detail-img" src="${menuUploadFor(b.name,'W33').image}" alt="本周菜单" data-action="goto-menu" data-value="${b.name}" title="点击进入每周菜单管理"><p class="form-hint">点击图片进入每周菜单管理页面。</p>`:'<div class="brand-detail-empty"><span class="cell-sub">本周菜单未上传，点击下方「前往每周菜单」处理。</span></div>'}<h4 style="margin-top:22px">已下发套餐</h4>${packs.length?packs.map(p=>`<div class="risk-item"><div><b>${p.name}</b><small>${p.meals} 餐 / ${p.days} 天 · ${money(p.price)} · ${p.subs} 人订购</small></div>${status(p.status)}<button class="row-button" data-action="brand-unbind-package" data-id="${p.id}" data-brand="${b.id}">撤回下发</button></div>`).join(''):'<div class="brand-detail-empty"><span class="cell-sub">暂无已下发套餐，可通过套餐管理的「下发」功能关联。</span></div>'}`;
+    return `<section class="page">${pageHead(`品牌详情 · ${b.name}`,'品牌对外展示、运营信息与小程序展示内容。',`<button class="button secondary" data-action="goto-menu" data-value="${b.name}">前往每周菜单</button><button class="button secondary" data-action="brand-detail-editor" data-id="${b.id}">${icon('edit')}品牌介绍</button><button class="button primary" data-action="edit-brand" data-id="${b.id}">${icon('edit')}编辑品牌</button>`,state.backPage||'brands')}<div class="brand-detail-page">${body}</div></section>`;
+  }
+  function openBrandDetailEditor(id) {
+    state.backPage=state.page!=='brand-editor'?state.page:state.backPage;state.brandEditorId=id;state.page='brand-editor';renderApp();return;
+  }
+  function renderBrandEditorPage(){
+    const id=state.brandEditorId,b=data.brands.find(x=>x.id===id);if(!b)return renderBrands();
+    const blocks=b.detailBlocks||[];
+    return `<section class="page">${pageHead(`品牌介绍编辑 · ${b.name}`,'调整品牌介绍内容与样式，保存后小程序品牌介绍页同步展示。')}<div class="brand-editor brand-editor-page" data-brand-id="${id}"><div class="brand-editor-layout"><div class="brand-editor-live"><span class="live-label">实时预览 · 小程序效果</span><div class="mobile-preview"><div class="mobile-preview-head">${b.name} · 品牌介绍</div><div class="brand-intro-preview">${(b.detailBlocks||[]).length?renderBrandDetailBlocks(b):'<p class="cell-sub">暂未设置品牌介绍内容。</p>'}</div></div></div><div class="brand-editor-main"><div class="editor-toolbar"><button class="button secondary small" data-action="editor-add-text" data-id="${id}">${icon('edit','12')}添加文字</button><button class="button secondary small" data-action="editor-add-image" data-id="${id}">${icon('plus','12')}添加图片</button><span class="cell-sub">拖动内容块或点击上移 / 下移调整顺序，保存后小程序品牌介绍页同步展示</span></div><div class="editor-blocks">${blocks.map(x=>`<div class="editor-block ${x.type}" draggable="true" data-block-id="${x.id}"><span class="editor-grip" title="拖动排序">${icon('grip','14')}</span><div class="editor-block-body">${x.type==='image'?`<img class="editor-block-img" src="${x.content||''}" alt=""><span class="cell-sub">图片</span>`:`<p style="${detailTextStyle(x)}">${escapeHTML(x.content)}</p>`}</div><div class="editor-block-ops"><button class="mini-btn" data-action="editor-move-up" data-id="${id}" data-block="${x.id}" title="上移">${icon('chevronUp','11')}</button><button class="mini-btn" data-action="editor-move-down" data-id="${id}" data-block="${x.id}" title="下移">${icon('chevronDown','11')}</button><button class="row-button compact" data-action="editor-edit-block" data-id="${id}" data-block="${x.id}">编辑</button><button class="row-button compact" data-action="editor-delete-block-confirm" data-id="${id}" data-block="${x.id}">删除</button></div></div>`).join('')||'<p class="cell-sub" style="text-align:center;padding:26px">暂无内容，点击上方「添加文字 / 添加图片」开始排版。</p>'}</div><input type="file" id="editor-image-input" accept="image/*" hidden></div></div></div><div class="page-sticky-actions"><button class="button secondary" data-action="navigate" data-page="brands">${icon('chevronLeft')}返回品牌列表</button><button class="button primary" data-action="save-brand-detail" data-id="${id}">保存品牌介绍</button></div></section>`;
+  }
+  function bindEditorImageInput(){
+    const input=document.getElementById('editor-image-input');if(!input)return;
+    input.onchange=()=>{const f=input.files[0];if(!f)return;if(!f.type.startsWith('image/'))return toast('格式不支持','请选择图片文件','error');const reader=new FileReader();reader.onload=()=>{const b2=data.brands.find(x=>x.id===state.brandEditorId);(b2.detailBlocks=b2.detailBlocks||[]).push({id:'DB'+Date.now().toString().slice(-6),type:'image',content:reader.result});renderApp();};reader.readAsDataURL(f);};
+  }
+  function bindRichLivePreview(){const form=document.querySelector('#entity-form[data-kind="detail-text"]'),live=form?.querySelector('[data-rich-live]');if(!form||!live)return;const upd=()=>{const st=collectDetailStyle(form),txt=form.querySelector('[name="text"]')?.value||'';live.innerHTML=`<p style="${detailTextStyle({style:st})}">${escapeHTML(txt)}</p>`;};form.addEventListener('input',upd);form.addEventListener('change',upd);upd();}
+  function openRichTextModal(id,blk){openModal({title:'编辑文字内容',wide:true,body:`<form id="entity-form" data-kind="detail-text"><div class="form-grid"><div class="form-field wide"><label>文字样式</label><div class="rich-toolbar">${detailStyleInputs(blk)}</div></div><div class="form-field wide"><label><em class="req-star">*</em>文字内容</label><textarea name="text" class="rich-textarea" placeholder="请输入品牌介绍文字">${escapeHTML(blk.content)}</textarea></div><div class="form-field wide"><label>实时预览</label><div class="rich-live-preview" data-rich-live><p style="${detailTextStyle(blk)}">${escapeHTML(blk.content)}</p></div></div></div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-editor-text" data-id="${id}" data-block="${blk.id}">保存文字</button>`});bindRichLivePreview();}
+  function openPhraseForm(id='', prefill=null) {
+    const p=prefill||(data.phrases.find(x=>x.id===id)||{text:'',scene:'首页',uploadedAt:'',scheduled:false,replaceAt:''});
+    openModal({title:id?'编辑激励词语':'新建激励词语',body:`<form id="entity-form" data-kind="phrase" data-id="${id}"><div class="form-grid">${formField('激励词','text',p.text,'textarea',true)}${formField('选择模块','scene',p.scene,'select',false,['首页','计划','择食','订单'])}<div class="form-field wide"><label>定时替换</label><label class="switch"><input type="checkbox" name="scheduledReplace" ${p.scheduled?'checked':''}><span class="switch-track"></span>开启后需设置替换时间，到点自动替换该模块当前激励词</label></div><div class="form-field wide" id="replace-at-field" style="${p.scheduled?'':'display:none'}"><label>替换时间（需为未来时间）</label><input type="datetime-local" name="replaceAt" value="${p.replaceAt||''}"></div></div><p class="form-hint">未开启定时替换：保存时会询问是否立即替换该模块当前激励词；开启后保存为「即将使用」，到替换时间自动生效。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存词语</button>`});
+  }
+  function commitPhrase(item,id,draft,scheduled){
+    const next={...item,...draft,id:id||`PH${String(data.phrases.length+1).padStart(3,'0')}`,uploadedAt:nowStamp()};
+    if(item)Object.assign(item,next);else data.phrases.push(next);
+    addLog(scheduled?'新增定时替换激励词':'替换模块激励词',`模块 ${next.scene}：${(next.text||'').slice(0,20)}${scheduled?' · 替换时间 '+next.replaceAt.replace('T',' '):''}`);
+    closeModal();renderApp();
+    return toast('保存成功',scheduled?'已设为「即将使用」，到替换时间将自动替换':'已立即替换该模块当前激励词');
+  }
+  function advantageRow(a=''){return `<div class="advantage-row"><input name="advantage" maxlength="10" value="${escapeHTML(a)}" placeholder="请输入优势点（限 10 字）"><button type="button" class="mini-btn" data-action="remove-advantage" title="删除">${icon('close','11')}</button></div>`;}
+  function bindPackageOnceSwitch(){const sw=document.querySelector('#entity-form [name="onceOnlySwitch"]');if(!sw)return;const scope=document.querySelector('.once-scope'),label=sw.closest('.switch')?.querySelector('.once-label');const sync=()=>{if(scope)scope.hidden=!sw.checked;if(label)label.textContent=sw.checked?'是':'否';};sw.addEventListener('change',sync);sync();}
+  function openPackageForm(id='', prefill=null) {
+    const p=prefill||data.packages.find(x=>x.id===id)||{name:'',price:299,meals:28,desc:'',tag:'',intro:'',advantages:[''],status:'启用',note:''};
+    openModal({title:id?'编辑套餐':'新建套餐',wide:true,body:`<form id="entity-form" data-kind="package" data-id="${id}"><div class="form-grid"><div class="form-group-head"><b>卡片详情</b><small>小程序套餐卡片展示</small></div>${formField('套餐名称','name',p.name)}${formField('套餐价格','price',p.price,'number')}${formField('套餐次数','meals',p.meals,'number')}<div class="form-field wide"><label><em class="req-star">*</em>套餐描述（限 30 字）</label><input name="desc" maxlength="30" value="${escapeHTML(p.desc||'')}" placeholder="请输入套餐描述" required></div><div class="form-field wide"><label><em class="req-star">*</em>套餐标签（限 15 字）</label><input name="tag" maxlength="15" value="${escapeHTML(p.tag||'')}" placeholder="请输入套餐标签" required></div><div class="form-group-head"><b>展开详情</b><small>小程序点击套餐卡片后展开展示</small></div><div class="form-field wide"><label><em class="req-star">*</em>套餐简介（限 300 字）</label><textarea name="intro" maxlength="300" placeholder="请输入套餐简介" required>${escapeHTML(p.intro||'')}</textarea></div><div class="form-field wide"><label><em class="req-star">*</em>优势点（可添加多个，每个限 10 字）</label><div id="advantage-rows">${(p.advantages&&p.advantages.length?p.advantages:['']).map(a=>advantageRow(a)).join('')}</div><button type="button" class="button secondary small" data-action="add-advantage">${icon('plus')}添加优势点</button></div><div class="form-group-head"><b>运营管理</b><small>仅后台可见</small></div><div class="form-field wide"><div class="package-switch-row"><div class="package-switch-item"><label>启用 / 禁用</label><label class="switch"><input type="checkbox" name="statusSwitch" ${p.status!=='禁用'?'checked':''}><span class="switch-track"></span><span>${p.status==='禁用'?'禁用':'启用'}</span></label></div><div class="package-switch-item"><label>是否显示在小程序</label><label class="switch"><input type="checkbox" name="showInAppSwitch" ${p.showInApp!=='否'?'checked':''}><span class="switch-track"></span><span>${p.showInApp==='否'?'否':'是'}</span></label></div><div class="package-switch-item"><label>是否仅购买一次</label><div class="package-once-line"><label class="switch"><input type="checkbox" name="onceOnlySwitch" ${p.onceOnly==='是'?'checked':''}><span class="switch-track"></span><span class="once-label">${p.onceOnly==='是'?'是':'否'}</span></label><span class="once-scope" ${p.onceOnly==='是'?'':'hidden'}><label class="once-scope-option"><input type="radio" name="onceScope" value="多品牌生效" ${p.onceScope!=='单品牌生效'?'checked':''}><span>多品牌生效</span></label><span class="hint-icon" data-tip="下发的所有品牌都会显示该套餐，下单品牌不会影响下发的其他品牌的该套餐显示">?</span><label class="once-scope-option"><input type="radio" name="onceScope" value="单品牌生效" ${p.onceScope==='单品牌生效'?'checked':''}><span>单品牌生效</span></label><span class="hint-icon" data-tip="下发的所有品牌都会显示该套餐，下发品牌会影响下发其他品牌的该套餐显示">?</span></span></div></div></div></div><div class="form-field wide"><label>备注</label><textarea name="note" placeholder="请输入">${escapeHTML(p.note||'')}</textarea></div></div><p class="form-hint">启用后套餐可被选择购买；「是否显示在小程序」控制小程序端是否展示该套餐；「是否仅购买一次」开启后，用户购买过该套餐将无法再次购买。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存套餐</button>`});bindPackageOnceSwitch();
+  }
+  function openAssignPackage(p) {
+    const assigned=p.brands||[],unassigned=data.brands.filter(b=>!assigned.includes(b.name));
+    openModal({title:`下发套餐到品牌 · ${p.name}`,wide:true,body:`<div class="assign-panel"><div class="assign-col"><h4>未下发品牌</h4><div class="assign-list">${unassigned.map(b=>`<div class="assign-row"><span>${b.name}</span><button class="button primary small" data-action="assign-brand" data-id="${p.id}" data-brand="${b.name}">下发 →</button></div>`).join('')||'<p class="cell-sub">全部品牌已下发</p>'}</div></div><div class="assign-col"><h4>已下发品牌</h4><div class="assign-list">${assigned.map(b=>`<div class="assign-row"><span>${b}</span><button class="button secondary small" data-action="unassign-brand" data-id="${p.id}" data-brand="${b}">← 撤回</button></div>`).join('')||'<p class="cell-sub">尚未下发任何品牌</p>'}</div></div></div><p class="form-hint">下发后该品牌可在小程序承接该套餐；撤回后品牌名回到左侧。</p>`,footer:`<button class="button primary" data-action="close-modal">完成</button>`});
+  }
+  function openPlanForm(id='', prefill=null) {
+    const p=prefill||data.plans.find(x=>x.id===id)||{user:'',name:'',cycle:'工作日配送',meals:'午餐 + 晚餐',time:'午餐 11:30前 · 晚餐 17:30前',contact:'',phone:'',address:'',diet:'无',allergy:'无',note:'',status:'正在使用',startDate:'',endDate:'',lunchBrand:'',dinnerBrand:'',daysPerWeek:'每周5天',days:'1,2,3,4,5'};
+    const settings=planSettingsFor(p),first=settings[0]||planLegacySetting(p),counts={0:first.mealCount==='one'?1:2},types={0:first.mealCount==='one'&&first.dinnerTime?'晚餐':'午餐'},times={},addresses={0:{lunch:first.lunchAddress||p.address||'',dinner:first.dinnerAddress||p.address||''}};
+    settings.forEach((cfg,index)=>{const key=index+1;counts[key]=cfg.mealCount==='one'?1:2;types[key]=cfg.mealCount==='one'&&cfg.dinnerTime?'晚餐':'午餐';times[key]={lunch:cfg.lunchTime||'',dinner:cfg.dinnerTime||''};addresses[key]={lunch:cfg.lunchAddress||p.address||'',dinner:cfg.dinnerAddress||p.address||''};});
+    planFormState={perDay:planSettingMode(p)==='daily',counts,types,times,addresses,times0:{lunch:first.lunchTime||planTimePart(p.time,'午餐'),dinner:first.dinnerTime||planTimePart(p.time,'晚餐')},rule:p.cycle||'工作日配送',days:Array.isArray(p.days)?p.days.join(','):(p.days||'1,2,3,4,5'),pickedUser:p.user||'',prefill:prefill?{...prefill}:null};
+    state.backPage=state.page!=='plan-form'?state.page:state.backPage;state.planFormId=id||'';state.page='plan-form';renderApp();return;
+  }
+  function renderPlanFormPage(){
+    const id=state.planFormId,p=(id?data.plans.find(x=>x.id===id):planFormState.prefill)||{user:'',name:'',cycle:'工作日配送',meals:'午餐 + 晚餐',time:'午餐 11:30前 · 晚餐 17:30前',contact:'',phone:'',address:'',diet:'无',allergy:'无',note:'',status:'正在使用',startDate:'',endDate:'',lunchBrand:'',dinnerBrand:'',daysPerWeek:'每周5天',days:'1,2,3,4,5'};
+    const picked=planFormState.pickedUser||p.user||'',user=data.users.find(u=>u.name===picked),contact=p.contact||user?.name||'',phone=p.phone||user?.phone||'';
+    const addrOptions=[...new Set([...(data.addresses||[]).map(a=>addressText(a)).filter(Boolean),p.address].filter(Boolean))];
+    return `<section class="page">${pageHead(id?'编辑配送计划':'新建配送计划','配置用户、配送规则与送达时间，保存后用于生成配送任务。')}
+      <section class="data-panel"><div style="padding:22px"><form id="entity-form" data-kind="plan" data-id="${id}"><div class="form-grid plan-form-grid">
+      <div class="form-group-head"><b>周期与配送</b><small>基础信息与默认配送地址</small></div>
+      <div class="form-field wide"><label><em class="req-star">*</em>用户</label><div class="plan-user-pick ${picked?'has-user':'no-user'}">${picked?`<input type="hidden" name="user" value="${escapeHTML(picked)}"><div class="plan-user-display"><b>${escapeHTML(user?.name||picked)}</b><span>${escapeHTML(user?.id||'')} · ${escapeHTML(user?.phone||'')}</span></div>`:`<div class="plan-user-empty">请先选择用户，将自动带出联系人、联系电话与配送地址</div><input type="hidden" name="user" value="">`}<button type="button" class="button secondary small" data-action="plan-pick-user">${picked?'更换用户':'选择用户'}</button></div></div>
+      ${formField('配送计划名称','name',p.name,'text',false, [], '例如：工作日午晚餐计划', true)}
+      <div class="form-field wide"><label>配送地址</label><select name="address">${addrOptions.map(a=>`<option ${p.address===a?'selected':''}>${escapeHTML(a)}</option>`).join('')||'<option value="">暂无地址，请先添加</option>'}</select></div>
+      <div class="form-field"><label>联系人</label><input name="contact" value="${escapeHTML(contact)}" readonly class="readonly-field"></div>
+      <div class="form-field"><label>联系电话</label><input name="phone" value="${escapeHTML(phone)}" readonly class="readonly-field"></div>
+      <div class="form-group-head"><b>配送日期规则</b><small>选择哪些天配送、每天送几餐、什么时间送达</small></div>
+      <div class="form-field wide"><label>① 选择配送规则（点击切换）</label><div class="filter-tabs plan-rule-radios">${[['工作日配送','周一至周五'],['周末+节假日配送','周六、周日'],['每日配送','每天'],['自定义配送','勾选星期']].map(([r,h])=>`<button type="button" class="${planFormState.rule===r?'active':''}" data-action="plan-rule" data-value="${r}"><b>${r}</b><small>${h}</small></button>`).join('')}</div><p class="plan-rule-summary" id="plan-rule-summary"></p></div>
+      <div class="form-field wide plan-weekday-wrap ${planFormState.rule==='自定义配送'?'show':''}" id="plan-weekday-wrap"><label>② 选择配送星期（仅自定义配送时使用）</label><div class="plan-weekday-picker">${[['1','一'],['2','二'],['3','三'],['4','四'],['5','五'],['6','六'],['7','日']].map(([v,l])=>`<label><input type="checkbox" value="${v}" data-action="plan-days-change" ${planFormState.days.split(',').includes(v)?'checked':''}><span>${l}</span></label>`).join('')}</div><p class="form-hint">不勾选时默认周一至周五。</p></div>
+      <div class="form-field wide"><label>③ 设置每餐送达时间</label><div id="plan-delivery-config"></div></div>
+      <div class="form-group-head"><b>饮食偏好</b></div>
+      ${formField('忌口','diet',p.diet)}
+      ${formField('过敏信息','allergy',p.allergy)}
+      <div class="form-group-head"><b>配送备注</b></div>
+      <div class="form-field wide"><label>备注</label><textarea name="note" placeholder="如：不打电话，联系不上放家门口">${escapeHTML(p.note||'')}</textarea></div>
+    </div></form></div></section><div class="page-sticky-actions"><button class="button secondary" data-action="navigate" data-page="plans">${icon('chevronLeft')}返回配送计划</button><button class="button primary" data-action="save-entity">保存配送计划</button></div></section>`;
+  }
+  function openPlanUserPicker(){
+    const renderList=q=>{const kw=(q||'').toLowerCase(),list=data.users.filter(u=>!kw||`${u.id}${u.phone}${u.name}`.toLowerCase().includes(kw));return list.length?list.map(u=>`<div class="plan-user-option"><div><b>${escapeHTML(u.name)}</b><span>${escapeHTML(u.id)} · ${escapeHTML(u.phone)}</span></div><button type="button" class="button secondary small" data-action="plan-user-select" data-id="${u.id}">选择</button></div>`).join(''):'<p class="cell-sub">未找到匹配用户</p>';};
+    openModal({title:'选择用户',body:`<div class="plan-user-picker"><label class="search-control">${icon('search')}<input id="plan-user-search" placeholder="按用户ID、手机号或名称搜索"></label><div class="plan-user-list" id="plan-user-list">${renderList('')}</div></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button>`});
+    const input=document.getElementById('plan-user-search');if(input)input.addEventListener('input',()=>{const list=document.getElementById('plan-user-list');if(list)list.innerHTML=renderList(input.value);});
+  }
+  function contentDetail(item){ if(!item)return toast('内容不存在','请刷新后重试','error'); state.backPage=state.page!=='content-detail'?state.page:state.backPage; state.contentDetailId=item.id; state.page='content-detail'; renderApp(); }
+  function renderContentDetailPage(){
+    const item=data.content.find(x=>x.id===state.contentDetailId); if(!item)return renderContentList('营养咨询');
+    const isAnn=item.type==='首页公告';
+    const body=`<div class="detail-hero"><span class="detail-avatar">${isAnn?'告':'文'}</span><div><h4>${escapeHTML(item.title)}</h4><p>${isAnn?'公告管理':'营养咨询'} · ${escapeHTML(item.publishDate||'—')}</p></div>${status(item.status)}</div><div class="detail-list">${item.tag?`<div><span>标签</span><b>${escapeHTML(item.tag)}</b></div>`:''}${isAnn?'':`<div><span>发布人</span><b>${escapeHTML(item.author||'—')}</b></div><div><span>显示在首页</span><b>${item.showHome==='是'?'是':'否'}</b></div>`}<div><span>发布时间</span><b>${escapeHTML(item.publishDate||'—')}</b></div><div><span>上下架状态</span><b>${escapeHTML(item.status||'—')}</b></div></div><h4 style="margin-top:20px">内容</h4><p class="cell-sub" style="white-space:pre-wrap;line-height:1.8">${escapeHTML(item.body||'—')}</p>`;
+    return `<section class="page">${pageHead(isAnn?'公告详情':'内容详情','查看内容详情。',`<button class="button primary" data-action="edit-content" data-id="${item.id}">${icon('edit')}编辑内容</button>`)}${body}</section>`;
+  }
+  function openContentForm(id='', prefill=null) {
+    const existing=data.content.find(x=>x.id===id);
+    const c=prefill||existing||{type:['营养咨询','首页公告'].includes(id)?id:'营养咨询',title:'',tag:'',author:'',publishDate:todayDate(),image:'',body:'',showHome:'否',status:'已上架'};
+    const homeCount=data.content.filter(x=>x.showHome==='是').length,homeDisabled=homeCount>=5&&c.showHome!=='是';
+    const tagOptions=`<div class="form-field wide"><label><em class="req-star">*</em>选择标签</label><div class="tag-chip-group">${data.contentTags.map(t=>`<label class="tag-chip"><input type="radio" name="tag" value="${escapeHTML(t.name)}" ${c.tag===t.name?'checked':''} required><span>${escapeHTML(t.name)}</span></label>`).join('')}</div></div>`;
+    if(c.type==='首页公告')return openModal({title:id?'编辑公告':'新建公告',wide:true,body:`<form id="entity-form" data-kind="content" data-id="${id}"><input type="hidden" name="type" value="首页公告"><div class="form-grid"><div class="form-field"><label>上下架状态</label><label class="switch"><input type="checkbox" name="statusOn" ${c.status==='已上架'?'checked':''}><span class="switch-track"></span>上架</label></div>${tagOptions}<div class="form-field wide"><label><em class="req-star">*</em>公告标题（限 30 字）</label><input name="title" maxlength="30" value="${escapeHTML(c.title||'')}" placeholder="请输入公告标题" required></div>${formField('公告时间','publishDate',c.publishDate||todayDate(),'date')}<div class="form-field wide"><label><em class="req-star">*</em>内容（限 2000 字）</label><textarea name="body" maxlength="2000" placeholder="请输入公告内容" required>${escapeHTML(c.body||'')}</textarea></div></div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存公告</button>`});
+    openModal({title:id?'编辑内容':'新建内容',wide:true,body:`<form id="entity-form" data-kind="content" data-id="${id}"><input type="hidden" name="type" value="营养咨询"><div class="form-grid"><div class="form-field"><label>上下架状态</label><label class="switch"><input type="checkbox" name="statusOn" ${c.status==='已上架'?'checked':''}><span class="switch-track"></span>上架</label></div><div class="form-field"><label>是否显示在首页</label><label class="switch"><input type="checkbox" name="showHome" ${c.showHome==='是'?'checked':''} ${homeDisabled?'disabled':''}><span class="switch-track"></span>${homeDisabled?'<small class="cell-sub" style="margin-left:6px">首页已满 5 条，暂不可开启</small>':''}</label></div><div class="form-group-head"><b>基本信息</b></div>${tagOptions}<div class="form-field wide"><label><em class="req-star">*</em>标题（限 30 字）</label><input name="title" maxlength="30" value="${escapeHTML(c.title||'')}" placeholder="请输入标题" required></div><div class="form-field"><label><em class="req-star">*</em>发布人（限 30 字）</label><input name="author" maxlength="30" value="${escapeHTML(c.author||'')}" placeholder="请输入发布人" required></div>${formField('发布时间','publishDate',c.publishDate||todayDate(),'date')}<div class="form-field wide"><label><em class="req-star">*</em>内容（限 2000 字）</label><textarea name="body" maxlength="2000" placeholder="请输入内容" required>${escapeHTML(c.body||'')}</textarea></div>${uploadField('图片','image',c.image||'')}</div><p class="form-hint">首页最多同时展示 5 条内容，超出时「是否显示在首页」开关将置灰为否。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存内容</button>`});
+  }
+  function openContentTagManager() {
+    openModal({title:'内容标签管理',body:`<div class="tag-manager"><div class="tag-manager-section"><div class="tag-manager-head"><div><b>内容标签</b><span class="cell-sub">${data.contentTags.length} 个标签</span></div><button class="button primary small" data-action="new-content-tag">${icon('plus')}新增标签</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>标签名称</th><th>使用内容</th><th>操作</th></tr></thead><tbody>${data.contentTags.map(t=>{const used=data.content.filter(c=>c.tag===t.name).length;return `<tr><td><b>${t.name}</b></td><td>${used} 篇</td><td><div class="table-actions"><button class="row-button compact" data-action="edit-content-tag" data-id="${t.id}">编辑</button><button class="row-button compact" data-action="delete-content-tag-confirm" data-id="${t.id}">删除</button></div></td></tr>`;}).join('')}</tbody></table></div></div></div>`,footer:`<button class="button primary" data-action="close-modal">完成</button>`});
+  }
+  function openContentTagForm(id='') {const t=id?data.contentTags.find(x=>x.id===id):null,item=t||{name:''};openModal({title:id?'编辑标签':'新增标签',body:`<form id="entity-form" data-kind="contenttag" data-id="${id}"><div class="form-grid">${formField('标签名称','name',item.name)}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">保存标签</button>`});}
+
+  function openOrderDetail(id) { state.backPage=state.page!=='order-detail'?state.page:state.backPage; state.orderDetailId=id; state.page='order-detail'; renderApp(); }
+  function renderOrderDetailPage(){
+    const o=data.orders.find(x=>x.id===state.orderDetailId); if(!o)return renderOrders();
+    const sub=data.subscriptions.find(s=>s.orderId===o.id)||data.subscriptions.find(s=>s.user===o.user&&s.package===o.package), user=data.users.find(u=>u.name===o.user),plan=orderPlan(o,sub);
+    const section=(title,items)=>`<h4 class="detail-group-title">${title}</h4><div class="detail-list">${items}</div>`;
+    const orderInfo=`<div><span>订单号</span><b>${o.id}</b></div><div><span>订单状态</span><b>${o.status}</b></div><div><span>实付金额</span><b>${money(o.amount)}</b></div><div><span>支付时间</span><b>${o.paid}</b></div><div><span>付款方式</span><b>${orderPaymentMethod(o)}</b></div><div><span>下单渠道</span><b>${orderChannel(o)}</b></div><div style="grid-column:1/-1"><span>操作人</span><b>${orderOperator(o)}</b></div><div style="grid-column:1/-1"><span>备注</span><b>${o.note||'—'}</b></div>${o.refund?`<div><span>退款金额</span><b>¥${o.refund.amount}</b></div><div><span>退款类型</span><b>${o.refund.refundTypeName||inferRefundType(o.refund.reason).name}</b></div><div><span>退款时间</span><b>${o.refund.time}</b></div><div style="grid-column:1/-1"><span>退款原因</span><b>${o.refund.reason}</b></div>`:''}`;
+    const subInfo=sub?`<div><span>品牌</span><b>${sub.brand}</b></div><div><span>套餐</span><b>${sub.package}</b></div><div><span>套餐状态</span><b>${sub.status}</b></div><div><span>购买餐次</span><b>${sub.bought} 餐</b></div><div><span>已使用</span><b>${sub.used} 餐</b></div><div><span>剩余</span><b>${sub.remaining} 餐</b></div>${sub.pauseStart&&sub.pauseEnd?`<div style="grid-column:1/-1"><span>暂停时间</span><b>${sub.pauseStart} 至 ${sub.pauseEnd}</b></div>`:''}`:'<div style="grid-column:1/-1"><span>套餐信息</span><b>尚未生成套餐购买记录</b></div>';
+    const userInfo=user?`<div><span>姓名</span><b>${user.name}</b></div><div><span>手机号</span><b>${user.phone}</b></div><div><span>性别 / 年龄</span><b>${user.gender||'—'} / ${user.age||'—'} 岁</b></div><div><span>健康目标</span><b>${user.goal||'—'}</b></div><div><span>忌口</span><b>${user.diet||'—'}</b></div><div><span>过敏信息</span><b>${user.allergy||'—'}</b></div><div style="grid-column:1/-1"><span>地址</span><b>${user.address||'—'}</b></div>`:'<div><span>用户</span><b>${o.user}</b></div>';
+    const planInfo=plan?`<div><span>计划名称</span><b>${plan.name}</b></div><div><span>状态</span><b>${planUsageStatus(plan)}</b></div><div><span>配送周期</span><b>${plan.cycle}</b></div><div><span>餐别与时间</span><b>${plan.meals||'—'} · ${plan.time||'—'}</b></div><div style="grid-column:1/-1"><span>配送地址</span><b>${plan.address||'—'}</b></div>`:'<div style="grid-column:1/-1"><span>配送计划</span><b>尚未创建配送计划</b></div>';
+    const body=`<div class="detail-hero"><span class="detail-avatar">订</span><div><h4>${o.id}</h4><p>${o.user} · ${o.package}</p></div>${status(o.status)}</div>${section('订单信息',orderInfo)}${section('套餐信息',subInfo)}${section('用户信息',userInfo)}${section('配送计划',planInfo)}`;
+    return `<section class="page order-detail-page">${pageHead('订单详情',`${o.id} · ${o.user}`)}${body}</section>`;
+  }
+  function openSubDetail(id) { state.backPage=state.page!=='sub-detail'?state.page:state.backPage; state.subDetailId=id; state.page='sub-detail'; renderApp(); }
+  function renderSubDetailPage(){
+    const s=data.subscriptions.find(x=>x.id===state.subDetailId); if(!s)return renderOrders();
+    const body=`<div class="detail-hero"><span class="detail-avatar">餐</span><div><h4>${s.package}</h4><p>${s.user} · ${s.orderId||s.id}</p></div>${status(s.status)}</div><div class="detail-list"><div><span>订单号</span><b>${s.orderId||'—'}</b></div><div><span>所属品牌</span><b>${s.brand}</b></div><div><span>套餐餐次</span><b>${s.bought} 餐</b></div><div><span>已使用</span><b>${s.used} 餐</b></div><div><span>冻结中</span><b>${s.frozen||0} 餐</b></div><div><span>可用剩余</span><b>${s.remaining} 餐</b></div>${s.pauseStart&&s.pauseEnd?`<div><span>暂停时间</span><b>${s.pauseStart} 至 ${s.pauseEnd}</b></div>`:''}<div><span>配送计划</span><b>${s.plan}</b></div></div><h4 style="margin-top:22px">餐次账本（购买 = 已用 + 冻结 + 剩余）</h4><div class="summary-ribbon" style="margin:14px 0"><div><span>购买</span><strong>${s.bought}</strong></div><div><span>已使用</span><strong>${s.used}</strong></div><div><span>冻结</span><strong>${s.frozen||0}</strong></div><div><span>可用</span><strong>${s.remaining}</strong></div></div><h4 style="margin-top:22px">餐次消耗记录</h4><div class="timeline"><div class="timeline-item"><b>${s.last}</b><small>配送完成后自动扣减</small></div><div class="timeline-item"><b>购买建立</b><small>由已支付订单自动生成</small></div></div>`;
+    return `<section class="page">${pageHead('购买详情',`${s.package} · ${s.user}`, `<button class="button secondary" data-action="adjust-meals" data-id="${s.id}">赠送/扣除</button><button class="button primary" data-action="toggle-sub" data-id="${s.id}">${s.status==='已暂停'?'恢复订购':'暂停订购'}</button>`)}${body}</section>`;
+  }
+  function openPlanDetail(id) { state.backPage=state.page!=='plan-detail'?state.page:state.backPage; state.planDetailId=id; state.page='plan-detail'; renderApp(); }
+  function planSettingCardHTML(cfg,title){const two=cfg.mealCount==='two',dinnerOnly=!two&&!cfg.lunchTime&&!!cfg.dinnerTime,meal=two?'一天两餐':`一天一餐（${dinnerOnly?'晚餐':'午餐'}）`;return `<article class="plan-setting-card"><header><b>${title}</b><span class="tag">${meal}</span></header><div class="plan-setting-fields">${!dinnerOnly?`<div><span>午餐送达时间</span><b>${cfg.lunchTime||'—'}</b></div><div><span>午餐配送地址</span><b>${escapeHTML(cfg.lunchAddress||'—')}</b></div>`:''}${two||dinnerOnly?`<div><span>晚餐送达时间</span><b>${cfg.dinnerTime||'—'}</b></div><div><span>晚餐配送地址</span><b>${escapeHTML(cfg.dinnerAddress||'—')}</b></div>`:''}</div></article>`;}
+  function renderPlanDetailPage(){
+    const p=data.plans.find(x=>x.id===state.planDetailId); if(!p)return renderPlans();
+    const usageStatus=planUsageStatus(p),settings=planSettingsFor(p),detailSettings=settings.map(x=>({...x,label:x.label.replace(/^周/,'星期')})),mode=planSettingMode(p),ruleLabel=p.cycle==='自定义配送'?`自定义配送（${planRuleDays(p.cycle,p.days).map(x=>x[1]).join('、')}）`:escapeHTML(p.cycle||'—'),cards=mode==='daily'?detailSettings.map(x=>planSettingCardHTML(x,x.label)).join(''):planSettingCardHTML(detailSettings[0]||planLegacySetting(p),'统一配送设置');
+    const body=`<div class="detail-hero"><span class="detail-avatar">配</span><div><h4>${escapeHTML(p.name)}</h4><p>${escapeHTML(p.user)} · ${escapeHTML(p.id)}</p></div>${status(usageStatus)}</div>
+      <section class="plan-detail-section"><h4>基础信息</h4><div class="detail-list"><div><span>联系人</span><b>${escapeHTML(p.contact||'—')}</b></div><div><span>联系电话</span><b>${escapeHTML(p.phone||'—')}</b></div><div style="grid-column:1/-1"><span>默认配送地址</span><b>${escapeHTML(p.address||'—')}</b></div></div></section>
+      <section class="plan-detail-section"><h4>配送规则</h4><div class="detail-list"><div><span>配送规则</span><b>${ruleLabel}</b></div><div><span>配置方式</span><b><span class="tag ${mode==='daily'?'tag-teal':''}">${mode==='daily'?'分别设置每天':'统一设置'}</span></b></div></div></section>
+      <section class="plan-detail-section"><h4>${mode==='daily'?'每日配送配置':'配送配置'}</h4><div class="plan-setting-grid ${mode==='daily'?'is-daily':'is-unified'}">${cards}</div></section>
+      <section class="plan-detail-section"><h4>饮食偏好</h4><div class="detail-list"><div><span>忌口</span><b>${escapeHTML(p.diet||'—')}</b></div><div><span>过敏信息</span><b>${escapeHTML(p.allergy||'—')}</b></div><div style="grid-column:1/-1"><span>配送备注</span><b>${escapeHTML(p.note||'—')}</b></div></div></section>`;
+    return `<section class="page">${pageHead('配送计划详情',`${p.name} · ${p.user}`, `<button class="button primary" data-action="edit-plan" data-id="${p.id}">${icon('edit')}编辑计划</button>`)}${body}</section>`;
+  }
+
+  function openUserDetail(id) { state.backPage=state.page!=='user-detail'?state.page:state.backPage; state.userDetailId=id; state.userTab='profile'; state.page='user-detail'; renderApp(); }
+  function renderUserDetailPage(){
+    const u=data.users.find(x=>x.id===state.userDetailId), subscriptions=data.subscriptions.filter(s=>s.user===u.name), plans=data.plans.filter(p=>p.user===u.name), orders=data.orders.filter(o=>o.user===u.name);
+    const bmi=userBMI(u),cat=bmiCategory(bmi),bmr=userBMR(u),tdee=userTDEE(u),suggest=tdee==='—'?'—':Math.max(tdee-300,1200),addrList=userAddresses(u),wEntries=userWeightEntries(u),wInit=wEntries[0]?.value||0;
+    const subscribedBrands=[...new Set(subscriptions.map(s=>s.brand).filter(Boolean))],verifiedMeals=subscriptions.reduce((sum,s)=>sum+Number(s.used||0),0),totalMeals=subscriptions.reduce((sum,s)=>sum+Number(s.bought||0),0),unverifiedMeals=Math.max(0,totalMeals-verifiedMeals),loginCount=userLogins(u).length,lastLogin=userLastLogin(u);
+    const subscriptionStatus=s=>s.status==='进行中'?'正在使用':'未使用';
+    const subscriptionsPanel=subscriptions.length?subscriptions.map(s=>`<button class="user-related-card" data-action="view-sub" data-id="${s.id}"><span class="detail-avatar">餐</span><span class="user-related-main"><b>${s.package}</b><small>剩余 ${s.remaining} / ${s.bought} 餐</small></span>${status(subscriptionStatus(s))}</button>`).join(''):'<p class="cell-sub">暂无套餐订购</p>';
+    const plansPanel=`${plans.length?plans.map(p=>`<button class="user-related-card" data-action="view-plan" data-id="${p.id}"><span class="detail-avatar">配</span><span class="user-related-main"><b>${p.name}</b><small>${p.startDate||'—'} 至 ${p.endDate||'—'} · ${p.cycle} · ${p.meals}</small></span>${status(planUsageStatus(p))}</button>`).join(''):'<p class="cell-sub">暂无配送计划</p>'}${userPlanCalSectionHTML(u)}`;
+    const ordersPanel=orders.length?orders.map(o=>`<button class="user-related-card" data-action="view-order" data-id="${o.id}"><span class="detail-avatar">订</span><span class="user-related-main"><b>${o.id}</b><small>${o.package} · ${money(o.amount)}</small></span>${status(o.status)}</button>`).join(''):'<p class="cell-sub">暂无订单</p>';
+  const profilePanel=`<div class="detail-list"><div class="detail-section-title">基础资料</div><div><span>联系电话</span><b>${u.phone}</b></div><div><span>后台用户备注</span><b>${escapeHTML(u.note||'—')}</b></div><div class="detail-section-title">用户目标</div><div><span>健康目标</span><b>${u.goal||'—'}</b></div><div><span>目标体重</span><b>${u.target||'—'} kg</b></div><div class="detail-section-title">订购与登录概览</div><div style="grid-column:1/-1"><span>订阅过的品牌</span><b>${subscribedBrands.length?subscribedBrands.join('、'):'—'}</b></div><div><span>总餐数</span><b>${totalMeals} 餐</b></div><div><span>核销餐数</span><b>${verifiedMeals} 餐</b></div><div><span>未核销餐数</span><b>${unverifiedMeals} 餐</b></div><div><span>用户登录总次数</span><b>${loginCount} 次</b></div><div style="grid-column:1/-1"><span>最近一次登录时间</span><b>${lastLogin||'—'}</b></div><div class="detail-section-title">收货地址（${addrList.length} 个）</div><div style="grid-column:1/-1"><div class="address-card-list">${addrList.length?addrList.map(a=>`<div class="address-card ${a.isDefault?'default':''}">${a.isDefault?'<span class="address-default-badge">默认地址</span>':''}<b>【${a.tag}】${a.contact} ${a.phone}</b><span>${addressText(a)}</span></div>`).join(''):'<span class="cell-sub">未添加地址</span>'}</div></div></div>`;
+  const healthPanel=`<div class="detail-list"><div><span>性别</span><b>${u.gender||'—'}</b></div><div><span>活动水平</span><b>${u.activity||'—'}</b></div><div><span>生日</span><b>${u.birthday||'—'} · ${u.age||'—'} 岁</b></div><div><span>身高 / 当前体重</span><b>${u.height||'—'} cm / ${u.weight||'—'} kg</b></div><div><span>BMI</span><b>${bmi} · ${cat}</b></div><div><span>基础代谢 BMR</span><b>${bmr} kcal/天</b></div><div><span>每日消耗 TDEE</span><b>${tdee} kcal/天</b></div><div><span>建议摄入</span><b>${suggest} kcal/天</b></div></div>${wEntries.length?`<h4 style="margin-top:18px">体重录入记录</h4><div class="weight-table-wrap"><table class="data-table"><thead><tr><th>录入时间</th><th>体重（kg）</th><th>较初始体重增减</th></tr></thead><tbody>${[...wEntries].reverse().map(e=>{const d=Math.round((e.value-wInit)*10)/10;return `<tr><td>${e.date}</td><td><b>${e.value.toFixed(1)}</b></td><td>${d>0?`<span class="positive">+${d.toFixed(1)}</span>`:d<0?`<span class="negative">${d.toFixed(1)}</span>`:'0.0'}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="cell-sub">暂无体重录入记录</p>'}`;
+  const redemptionsPanel=`<div class="redemption-table-wrap">${(()=>{const rows=(data.redemptions||[]).filter(r=>r.userId===u.id||r.userName===u.name).sort((a,b)=>b.time.localeCompare(a.time));return rows.length?`<table class="data-table"><thead><tr><th>核销时间</th><th>品牌</th><th>订单号</th><th>配送计划</th><th>送餐地址</th><th>收货人</th><th>收货人电话</th><th>餐别</th><th>核销餐数</th><th>数据来源</th><th>操作人</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.time}</td><td>${r.brand}</td><td><button class="cell-link" data-action="view-order" data-id="${r.orderId}">${r.orderId}</button></td><td><span class="cell-title">${escapeHTML(r.plan||'—')}</span><span class="cell-sub">${escapeHTML(r.planCycle||'—')}</span></td><td><span class="wrap-cell">${escapeHTML(r.address||'—')}</span></td><td>${r.receiver||'—'}</td><td>${r.receiverPhone||'—'}</td><td>${r.meal&&r.meal!=='—'?`<span class="tag">${r.meal}</span>`:'—'}</td><td><b>${r.qty} 餐</b></td><td><span class="tag ${r.source==='后台扣除'?'tag-amber':''}">${r.source}</span></td><td>${r.operator||'—'}</td></tr>`).join('')}</tbody></table>`:'<p class="cell-sub">暂无核销记录</p>';})()}</div>`;
+  const panels={profile:profilePanel,subscription:subscriptionsPanel,plan:plansPanel,orders:ordersPanel,health:healthPanel,redemptions:redemptionsPanel};
+    const body=`<div class="detail-hero user-detail-hero"><div><h4>${u.name}</h4><p>${u.id} · ${u.phone.replace(/(\d{3})\s?\d{4}\s?(\d{4})/,'$1 **** $2')}</p></div>${subStatusPill(userSubStatus(u))}</div><div class="tabs">${[['profile','基础资料'],['subscription','套餐订购'],['plan','配送计划'],['orders','订单记录'],['health','健康数据'],['redemptions','核销明细']].map(([id,label])=>`<button class="tab-button ${state.userTab===id?'active':''}" data-action="user-tab" data-value="${id}" data-id="${u.id}">${label}</button>`).join('')}</div><div class="user-detail-panel" style="margin-top:20px">${panels[state.userTab]}</div>`;
+    return `<section class="page user-detail-page">${pageHead('用户档案','', `<button class="button primary" data-action="edit-user-note" data-id="${u.id}">后台用户备注</button>`)}${body}</section>`;
+  }
+
+  function getFormValues() {
+    const form=$('#entity-form');
+    return form ? Object.fromEntries(new FormData(form).entries()) : {};
+  }
+  function saveEntity() {
+    const form=$('#entity-form'); if(!form) return;
+    if(!form.reportValidity()) return;
+    const values=getFormValues(), id=form.dataset.id, kind=form.dataset.kind;
+    if(kind==='brand') {
+      const item=data.brands.find(x=>x.id===id);
+      const typeInputs=[...form.querySelectorAll('input[name="types"]:checked')].map(i=>i.value).filter(n=>{const t=tagByName(n);return !t||t.status==='启用';});
+      const tagInputs=[...form.querySelectorAll('input[name="tags"]:checked')].map(i=>i.value).filter(n=>{const t=tagByName(n);return !t||t.status==='启用';});
+      const targetGroups=[...form.querySelectorAll('input[name="targetGroup"]:checked')].map(i=>i.value);
+      if(!typeInputs.length)return toast('保存失败','请至少选择一个类型标签','error');
+      if(!tagInputs.length)return toast('保存失败','请至少选择一个特点标签','error');
+      if(!targetGroups.length)return toast('保存失败','请至少选择一个目标群体','error');
+      const priceMin=Number(values.priceMin),priceMax=Number(values.priceMax);
+      if(priceMin<0||priceMax<0)return toast('保存失败','价格不能小于 0','error');
+      if(priceMin>priceMax)return toast('保存失败','最低价不能高于最高价','error');
+      if(!values.logo)return toast('保存失败','请上传品牌 Logo 图片','error');
+      const next={...item,...values,priceMin,priceMax,priceRange:`¥${priceMin}-${priceMax}`,status:form.elements.statusSwitch.checked?'上架':'下架',types:typeInputs,tags:tagInputs,targetGroups,id:id||`B${String(data.brands.length+1).padStart(3,'0')}`,tone:'mint',meals:item?.meals||0,packages:item?.packages||0,subs:item?.subs||0,historicalBuyers:item?.historicalBuyers||0,tomorrow:item?.tomorrow||0,tomorrowLunch:item?.tomorrowLunch||0,tomorrowDinner:item?.tomorrowDinner||0,pageViews:item?.pageViews||0};
+      if(item){const old=item.name;Object.assign(item,next);data.meals.filter(x=>x.brand===old).forEach(x=>x.brand=next.name);data.packages.filter(x=>x.brand===old).forEach(x=>x.brand=next.name);data.subscriptions.filter(x=>x.brand===old).forEach(x=>x.brand=next.name);data.tasks.filter(x=>x.brand===old).forEach(x=>x.brand=next.name);}else data.brands.push(next);
+    }
+    if(kind==='brandtag') {
+      const item=data.brandTags.find(x=>x.id===id),cat=values.category==='类型标签'?'type':values.category;
+      const name=(values.name||'').trim();
+      if(!name)return toast('保存失败',`请输入${cat==='type'?'类型':'特点'}名称`,'error');
+      if(name.length>10)return toast('保存失败',`${cat==='type'?'类型':'特点'}名称不能超过10字`,'error');
+      const next={...item,...values,name,category:cat,status:values.status||item?.status||'启用',sort:Number(values.sort||item?.sort||brandTagsBy(cat).length+1),id:id||`${cat==='type'?'T':'F'}${String(data.brandTags.length+1).padStart(3,'0')}`};
+      item?Object.assign(item,next):data.brandTags.push(next);
+    }
+    if(kind==='phrase') {
+      const item=data.phrases.find(x=>x.id===id);
+      const scheduled=!!(form.querySelector('[name="scheduledReplace"]')&&form.querySelector('[name="scheduledReplace"]').checked);
+      const replaceAt=(values.replaceAt||'').trim();
+      if(scheduled){
+        if(!replaceAt)return toast('请选择替换时间','开启定时替换后需设置未来的替换时间','error');
+        if(new Date(replaceAt)<=new Date())return toast('替换时间需为未来时间','请选择晚于当前时间的替换时间','error');
+      }
+      const draft={text:values.text,scene:values.scene,scheduled,replaceAt:scheduled?replaceAt:''};
+      if(!scheduled){
+        phraseDraft={id,item,draft};
+        return confirmAction('确认立即替换？','保存后将立即替换该模块当前正在使用的激励词，是否马上替换？','马上替换','confirm-phrase-save');
+      }
+      commitPhrase(item,id,draft,true);
+      return;
+    }
+    if(kind==='meal') {
+      const item=data.meals.find(x=>x.id===id),next={...item,...values,kcal:Number(values.kcal),id:id||`M${String(data.meals.length+1).padStart(3,'0')}`};item?Object.assign(item,next):data.meals.push(next);
+    }
+    if(kind==='admin') {
+      const password=values.password||'';
+      if(password&&!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/.test(password)))return toast('密码至少12位，并包含大写字母、小写字母、数字和符号','','error');
+      if(!id&&!password)return toast('新建管理员必须设置登录密码','','error');
+      const item=data.admins.find(x=>x.id===id),next={...item,...values,status:form.querySelector('[name="statusSwitch"]')?.checked?'启用':'停用',passwordConfigured:!!password||!!item?.passwordConfigured,id:id||`AD${String(data.admins.length+1).padStart(3,'0')}`,last:item?.last||'尚未登录'};delete next.password;delete next.statusSwitch;item?Object.assign(item,next):data.admins.push(next);
+    }
+    if(kind==='role') {
+      const item=data.roles.find(x=>x.id===id),all=!!($('#role-all')&&$('#role-all').checked);
+      const perms={};Object.keys(pageMeta).forEach(p=>{if(all||values['perm-'+p]==='on')perms[p]=true;});if(all)perms.all=true;
+      const next={...item,...values,perms,id:id||`R${String(data.roles.length+1).padStart(3,'0')}`};item?Object.assign(item,next):data.roles.push(next);
+    }
+    if(kind==='address') {
+      const item=data.addresses.find(x=>x.id===id);
+      const selUser=data.users.find(x=>x.name===(values.userName||'').trim()||String(x.phone).replace(/\s/g,'')===String(values.userPhone||'').replace(/\s/g,''))||(item?data.users.find(x=>x.id===item.userId):null);
+      const isDef=values.isDefault==='是';
+      const tag=values.tag==='其他'?((values.tagOther||'').trim()||'其他'):values.tag;
+      const next={...item,...values,tag,userId:selUser?selUser.id:(item?.userId||`TEMP${Date.now().toString().slice(-8)}`),userName:(values.userName||selUser?.name||item?.userName||'').trim(),phone:(values.userPhone||selUser?.phone||item?.phone||'').trim(),isDefault:isDef,id:id||`ADDR${String(data.addresses.length+1).padStart(3,'0')}`};
+      if(isDef)data.addresses.forEach(a=>{if(a.userId===next.userId)a.isDefault=false;});
+      if(item)Object.assign(item,next);else data.addresses.push(next);
+    }
+    if(kind==='package') {
+      const item=data.packages.find(x=>x.id===id);
+      const advantages=[...form.querySelectorAll('input[name="advantage"]')].map(i=>i.value.trim()).filter(Boolean);
+      if(!advantages.length)return toast('保存失败','请至少添加一个优势点','error');
+      const next={...item,...values,status:form.querySelector('[name="statusSwitch"]')?.checked?'启用':'禁用',showInApp:form.querySelector('[name="showInAppSwitch"]')?.checked?'是':'否',onceOnly:form.querySelector('[name="onceOnlySwitch"]')?.checked?'是':'否',onceScope:document.querySelector('[name="onceScope"]:checked')?.value||item?.onceScope||'多品牌生效',meals:Number(values.meals),price:Number(values.price),advantages,id:id||`PK${String(data.packages.length+1).padStart(3,'0')}`,brands:item?.brands||[],orders:item?.orders||0,subs:item?.subs||0,remaining:item?.remaining||0};delete next.statusSwitch;delete next.showInAppSwitch;delete next.onceOnlySwitch;item?Object.assign(item,next):data.packages.push(next);
+    }
+        if(kind==='plan') {
+      const item=data.plans.find(x=>x.id===id);
+      if(!(values.name||'').trim())return toast('保存失败','请填写配送计划名称','error');
+      if(!(values.user||'').trim())return toast('保存失败','请先选择用户','error');
+      const start=values.startDate||item?.startDate||planDefaultStart(),end=values.endDate||item?.endDate||planEndFor(start);
+      const rule=planFormState.rule||values.cycle||'工作日配送';
+      const days=planFormState.days||'1,2,3,4,5';
+      const ruleDays=planRuleDays(rule,days);
+      const baseCount=planFormState.counts[0]!=null?planFormState.counts[0]:Number(values.dailyCount||2);
+      const baseType=planFormState.types[0]||'午餐';
+      const readTime=(key,kind)=>{const sel=form.querySelector(`select[name="deliveryTime_${key}_${kind}"]`);return sel?sel.value:'';};
+      const readAddress=(key,kind)=>{const sel=form.querySelector(`select[name="deliveryAddr_${key}_${kind}"]`);return sel?sel.value:(values.address||item?.address||'');};
+      const dailySettings={};
+      if(planFormState.perDay){
+        ruleDays.forEach((d,i)=>{const key=i+1,c=planFormState.counts[key]!=null?planFormState.counts[key]:baseCount,t=planFormState.types[key]||baseType;dailySettings[d[0]]={mealCount:c===2?'two':'one',lunchTime:c===2?readTime(key,'both'):(t==='午餐'?readTime(key,'lunch'):''),dinnerTime:c===2?readTime(key,'both'):(t==='晚餐'?readTime(key,'dinner'):''),lunchAddress:c===2||t==='午餐'?readAddress(key,'lunch'):'',dinnerAddress:c===2||t==='晚餐'?readAddress(key,'dinner'):''};});
+      }else{
+        ruleDays.forEach((d)=>{dailySettings[d[0]]={mealCount:baseCount===2?'two':'one',lunchTime:baseCount===2?readTime(0,'both'):(baseType==='午餐'?readTime(0,'lunch'):''),dinnerTime:baseCount===2?readTime(0,'both'):(baseType==='晚餐'?readTime(0,'dinner'):''),lunchAddress:baseCount===2||baseType==='午餐'?readAddress(0,'lunch'):'',dinnerAddress:baseCount===2||baseType==='晚餐'?readAddress(0,'dinner'):''};});
+      }
+      const hasTwo=Object.values(dailySettings).some(x=>x.mealCount==='two');
+      const oneDinner=Object.values(dailySettings).every(x=>x.mealCount==='one'&&x.dinnerTime);
+      const meals=hasTwo?'午餐 + 晚餐':(oneDinner?'晚餐':'午餐');
+      const first=dailySettings[ruleDays[0]?ruleDays[0][0]:1]||{mealCount:'one',lunchTime:'09:00~10:00',dinnerTime:'17:00~18:00'};
+      const time=first.mealCount==='two'?`午餐 ${first.lunchTime} · 晚餐 ${first.dinnerTime}`:(first.dinnerTime?first.dinnerTime:first.lunchTime);
+      const firstBrand=data.brands.find(b=>b.status==='上架')?.name||'',checkedFlags=[...form.querySelectorAll('input[name="ruleFlag"]:checked')].map(i=>i.value);
+      const next={...item,...values,id:id||`PL${Date.now().toString().slice(-6)}`,status:values.status||planUsageStatus(item||{status:'正在使用'}),startDate:start,endDate:end,cycle:rule,days,settingMode:planFormState.perDay?'daily':'unified',daysPerWeek:values.daysPerWeek||item?.daysPerWeek||'每周5天',lunchBrand:values.lunchBrand||item?.lunchBrand||firstBrand,dinnerBrand:values.dinnerBrand||item?.dinnerBrand||firstBrand,dailyCount:baseCount,ruleFlags:checkedFlags.length?checkedFlags:(item?.ruleFlags||['工作日配送']),meals,time,dailySettings,overrides:item?.overrides||0};
+      item?Object.assign(item,next):data.plans.push(next);
+      toast('配送计划已保存','未来配送任务将在下次计算时更新');
+      state.page='plans';
+    }
+
+    if(kind==='content') {
+      const item=data.content.find(x=>x.id===id);
+      const shEl=form.querySelector('[name="showHome"]');
+      const showHome=shEl?(shEl.checked?'是':'否'):(item?.showHome||'否');
+      const statusEl=form.querySelector('[name="statusOn"]');
+      const statusOn=statusEl?(statusEl.type==='checkbox'?(statusEl.checked?'已上架':'已下架'):(statusEl.value==='已下架'?'已下架':'已上架')):'已上架';
+      if(showHome==='是'&&data.content.filter(x=>x!==item&&x.showHome==='是').length>=5)return toast('首页最多展示 5 条','请先取消其他内容的「显示在首页」','error');
+      const next={...item,...values,type:item?.type||values.type||'营养咨询',showHome,status:statusOn,image:values.image||item?.image||'',author:values.author||item?.author||'',id:id||`C${String(data.content.length+1).padStart(3,'0')}`,views:item?.views||0,favorites:item?.favorites||0,homeOrder:item?.homeOrder??(showHome==='是'?data.content.filter(x=>x.type==='营养咨询'&&x.showHome==='是').reduce((m,x)=>Math.max(m,Number(x.homeOrder)||0),0)+1:0)};item?Object.assign(item,next):data.content.push(next);
+    }
+    if(kind==='contenttag') {
+      const item=data.contentTags.find(x=>x.id===id),next={...item,...values,id:id||`CT${String(data.contentTags.length+1).padStart(2,'0')}`};item?Object.assign(item,next):data.contentTags.push(next);
+    }
+    if(kind==='order') {
+      const pkg=data.packages.find(p=>p.name===values.package)||data.packages[0];
+      const oid=`OD${Date.now().toString().slice(-12)}`;
+      data.orders.unshift({id:oid,user:values.user,package:pkg.name,brand:(pkg.brands||[])[0]||'未下发',amount:Number(values.amount),status:'待使用',paid:'2026-08-06 10:52',channel:'后台',operator:currentAdmin().name,note:values.note||'后台人工补录'});
+      data.subscriptions.unshift({id:`SUB${Date.now().toString().slice(-8)}`,orderId:oid,user:values.user,brand:(pkg.brands||[])[0]||'未下发',package:pkg.name,bought:pkg.meals,used:0,remaining:pkg.meals,frozen:0,status:'未开始',valid:'2026.08.06 - 2026.09.06',last:'-',plan:'待创建配送计划'});
+    }
+    if(kind==='subscription') {
+      const pkg=data.packages.find(p=>p.name===values.package);data.subscriptions.unshift({id:`SUB${Date.now().toString().slice(-8)}`,user:values.user,brand:(pkg.brands||[])[0]||'未下发',package:pkg.name,bought:pkg.meals,used:0,remaining:pkg.meals,frozen:0,status:'未开始',valid:`2026.08.06 - 2026.09.06`,last:'-',plan:'待创建配送计划'});
+    }
+    closeModal(); renderApp(); toast('保存成功','相关页面数据已同步更新');
+  }
+
+  function downloadText(filename, content, type='text/csv;charset=utf-8') {
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff',content],{type}));a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('文件已生成',filename);
+  }
+  const xmlEscape=(v='')=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function columnName(n){let s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26);}return s;}
+  function crc32(bytes){let crc=-1;for(const byte of bytes){crc^=byte;for(let k=0;k<8;k++)crc=(crc>>>1)^((crc&1)?0xEDB88320:0);}return (crc^-1)>>>0;}
+  function u16(n){return Uint8Array.of(n&255,(n>>>8)&255)}
+  function u32(n){return Uint8Array.of(n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255)}
+  function concat(parts){const length=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(length);let offset=0;parts.forEach(p=>{out.set(p,offset);offset+=p.length});return out;}
+  function zipStore(files){
+    const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;
+    Object.entries(files).forEach(([name,content])=>{const nameBytes=enc.encode(name),bytes=typeof content==='string'?enc.encode(content):content,crc=crc32(bytes);const local=concat([u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(bytes.length),u32(bytes.length),u16(nameBytes.length),u16(0),nameBytes,bytes]);locals.push(local);const central=concat([u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(bytes.length),u32(bytes.length),u16(nameBytes.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),nameBytes]);centrals.push(central);offset+=local.length;});
+    const central=concat(centrals),end=concat([u32(0x06054b50),u16(0),u16(0),u16(centrals.length),u16(centrals.length),u32(central.length),u32(offset),u16(0)]);return concat([...locals,central,end]);
+  }
+  function worksheetXML(rows, styles=[]) {
+    const widths=(rows[0]||[]).map((_,i)=>`<col min="${i+1}" max="${i+1}" width="${i===7?42:i===1||i===2?20:16}" customWidth="1"/>`).join('');
+    const sheet=rows.map((row,ri)=>`<row r="${ri+1}" ht="${ri===0?26:22}" customHeight="1">${row.map((value,ci)=>{const ref=`${columnName(ci+1)}${ri+1}`,style=ri===0?1:(styles[ri]||0);if(typeof value==='number')return `<c r="${ref}" s="${style}"><v>${value}</v></c>`;return `<c r="${ref}" s="${style}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(value??'')}</t></is></c>`;}).join('')}</row>`).join('');
+    const last=`${columnName((rows[0]||['']).length)}${Math.max(rows.length,1)}`;
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:${last}"/><sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${widths}</cols><sheetData>${sheet}</sheetData><autoFilter ref="A1:${last}"/></worksheet>`;
+  }
+  function buildXlsx(sheetSpecs) {
+    const files={},names=sheetSpecs.map(s=>s.name.replace(/[\\/?*\[\]:]/g,'').slice(0,31));
+    files['[Content_Types].xml']=`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`;
+    files['_rels/.rels']=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+    files['xl/workbook.xml']=`<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names.map((n,i)=>`<sheet name="${xmlEscape(n)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`;
+    files['xl/_rels/workbook.xml.rels']=`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${names.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${names.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+    files['xl/styles.xml']=`<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="10"/><name val="Microsoft YaHei"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="10"/><name val="Microsoft YaHei"/></font></fonts><fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0D3B32"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF1D9"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEE8E6"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFill="1" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="3" borderId="0" xfId="0" applyFill="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="4" borderId="0" xfId="0" applyFill="1" applyAlignment="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+    sheetSpecs.forEach((spec,i)=>files[`xl/worksheets/sheet${i+1}.xml`]=worksheetXML(spec.rows,spec.styles));
+    return zipStore(files);
+  }
+  const taskHeaders=['下单人','手机号','品牌','联系人','联系电话','午餐配送地址','晚餐配送地址','午餐数量','晚餐数量','午餐时间','晚餐时间','忌口','过敏信息','备注'];
+  const joinedTaskValues=(tasks,key)=>[...new Set(tasks.map(t=>String(t[key]||'').trim()).filter(Boolean))].join('、')||'—';
+  function taskExportColumns(row){const source=(row.sourceIds||[]).map(id=>data.tasks.find(t=>t.id===id)).filter(Boolean),lunch=source.filter(t=>t.meal==='午餐'),dinner=source.filter(t=>t.meal==='晚餐');return [row.user,row.phone||source[0]?.userPhone||'—',row.brand,row.contact,row.phone,joinedTaskValues(lunch,'address'),joinedTaskValues(dinner,'address'),row.lunch,row.dinner,joinedTaskValues(lunch,'time'),joinedTaskValues(dinner,'time'),joinedTaskValues(source,'diet'),joinedTaskValues(source,'allergy'),joinedTaskValues(source,'note')];}
+  function exportDetailRows(rows){
+    const out=[];
+    rows.forEach(row=>{
+      const tasks=(row.sourceIds||[]).map(id=>data.tasks.find(t=>t.id===id)).filter(Boolean);
+      const sorted=[...tasks].sort((a,b)=>(a.meal==='午餐'?0:1)-(b.meal==='午餐'?0:1));
+      out.push({cells:taskExportColumns(row),invalid:false});
+    });
+    return out;
+  }
+  function exportDailyWorkbook() {
+    const brandFilter=state.filters.dailyBrand||'全部品牌',start=state.dailyTimeStart||'00:00',end=state.dailyTimeEnd||'23:59',raw=data.tasks.filter(t=>t.date===state.dailyDate&&t.status!=='已失效'&&(brandFilter==='全部品牌'||t.brand===brandFilter)&&t.time>=start&&t.time<=end),merged=consolidateTasks(raw),brandNames=[...new Set(merged.map(r=>r.brand))];
+    const summary=[['品牌','下单人数','午餐总数','晚餐总数'],...brandNames.map(name=>{const rs=merged.filter(r=>r.brand===name),l=rs.reduce((s,r)=>s+r.lunch,0),d=rs.reduce((s,r)=>s+r.dinner,0);return [name,new Set(rs.map(r=>r.userId||r.user)).size,l,d]})];
+    const detail=exportDetailRows(merged);
+    const now=new Date();
+    const meta=[['字段','值'],['生成时间',`${state.dailyDate} ${now.toTimeString().slice(0,8)}`],['生成人',currentAdmin().name]];
+    const specs=[{name:'文件信息',rows:meta,styles:meta.map((_,i)=>i===0?1:0)},{name:'品牌汇总',rows:summary,styles:summary.map(()=>0)},{name:'配送总明细',rows:[taskHeaders,...detail.map(d=>d.cells)],styles:detail.map(()=>0)},...brandNames.map(name=>{const ds=detail.filter(d=>d.cells[2]===name);return{name,rows:[taskHeaders,...ds.map(d=>d.cells)],styles:ds.map(()=>0)}})];
+    const bytes=buildXlsx(specs),blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`渡鸦管家_次日配送表_${state.dailyDate}_V${state.dailyVersion}.xlsx`;document.body.dataset.lastExport=a.download;document.body.dataset.lastExportBytes=String(bytes.length);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);closeModal();addLog('导出次日配送表',`${state.dailyDate} V${state.dailyVersion}，共 ${detail.length} 条任务明细`);toast('Excel 已生成','含文件信息、品牌汇总、配送总明细和品牌分表');
+  }
+
+  function genericExport(name, rows) {
+    const csv=rows.map(row=>row.map(v=>`"${String(v===null||v===undefined||v===''?'—':v).replaceAll('"','""')}"`).join(',')).join('\r\n');downloadText(`${name}.csv`,csv);
+  }
+  const BATCH_SPECS={
+    brands:{name:'品牌',sheet:'品牌导入模板',columns:[['品牌名称','name',1],['品牌描述','abbr',1],['类型','types',1],['特点','tags',1],['最低价格','priceMin',1],['最高价格','priceMax',1],['目标群体','targetGroups',1],['上架状态','status',0],['配送范围','area',0],['运营联系人','contact',0],['备注','note',0],['图片','logo',0]],
+      build(row,errs){const g=k=>String(row[k]===undefined?'':row[k]).trim();const name=g('品牌名称'),abbr=g('品牌描述');if(!name)errs.push('缺少品牌名称');if(!abbr)errs.push('缺少品牌描述');const types=splitList(g('类型')),tags=splitList(g('特点'));if(!types.length)errs.push('类型不能为空');if(!tags.length)errs.push('特点不能为空');const min=Number(g('最低价格')),max=Number(g('最高价格'));if(!isFinite(min))errs.push('最低价格不是数字');if(!isFinite(max))errs.push('最高价格不是数字');if(isFinite(min)&&isFinite(max)&&min>max)errs.push('最低价不能高于最高价');const status=g('上架状态')||'上架';if(!['上架','下架'].includes(status))errs.push('上架状态需为上架/下架');const targetGroups=splitList(g('目标群体')).filter(x=>['健康饮食','减重','增肌','减脂'].includes(x));if(!targetGroups.length)errs.push('目标群体不能为空');if(errs.length)return null;return {name,abbr,types,tags,priceMin:min,priceMax:max,priceRange:`¥${min}-${max}`,targetGroups,status,area:g('配送范围'),contact:g('运营联系人'),note:g('备注'),logo:g('图片'),tone:'mint',meals:0,packages:0,subs:0,historicalBuyers:0,tomorrow:0,tomorrowLunch:0,tomorrowDinner:0,pageViews:0};}},
+    packages:{name:'套餐',sheet:'套餐导入模板',columns:[['套餐名称','name',1],['价格','price',1],['套餐餐数','meals',1],['周期天数','days',1],['套餐描述','desc',1],['套餐标签','tag',1],['套餐简介','intro',1],['优势点','advantages',0],['状态','status',0],['下发品牌','brands',0]],
+      build(row,errs){const g=k=>String(row[k]===undefined?'':row[k]).trim();const name=g('套餐名称'),desc=g('套餐描述'),tag=g('套餐标签'),intro=g('套餐简介');if(!name)errs.push('缺少套餐名称');if(!desc)errs.push('缺少套餐描述');if(!tag)errs.push('缺少套餐标签');if(!intro)errs.push('缺少套餐简介');const price=Number(g('价格')),meals=Number(g('套餐餐数')),days=Number(g('周期天数'));if(!isFinite(price))errs.push('价格不是数字');if(!isFinite(meals))errs.push('套餐餐数不是数字');if(!isFinite(days))errs.push('周期天数不是数字');const status=g('状态')||'启用';if(!['启用','禁用'].includes(status))errs.push('状态需为启用/禁用');const brands=splitList(g('下发品牌')).filter(b=>data.brands.some(x=>x.name===b));if(errs.length)return null;return {name,price,meals,days,desc,tag,intro,advantages:splitList(g('优势点')),note:'',status,brands,orders:0,subs:0,remaining:0};}},
+    phrases:{name:'激励词',sheet:'激励词导入模板',columns:[['激励词','text',1],['所属模块','scene',1],['替换时间','replaceAt',0]],
+      build(row,errs){const g=k=>String(row[k]===undefined?'':row[k]).trim();const text=g('激励词'),scene=g('所属模块')||'首页';if(!text)errs.push('缺少激励词');if(!['首页','计划','择食','订单'].includes(scene))errs.push('所属模块需为首页/计划/择食/订单');const raw=g('替换时间');let replaceAt='',scheduled=false;if(raw){const m=String(raw).match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?/);if(!m)errs.push('替换时间格式需为 2026-08-20 09:00');else{replaceAt=`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}T${String(m[4]||9).padStart(2,'0')}:${m[5]||'00'}`;scheduled=true;}}if(errs.length)return null;return {text,scene,uploadedAt:nowStamp(),scheduled,replaceAt};}},
+    nutrition:{name:'营养咨询',sheet:'营养咨询导入模板',columns:[['标题','title',1],['正文内容','body',1],['标签','tag',0],['发布人','author',0],['发布时间','publishDate',0],['图片','image',0],['是否展示在首页','showHome',0],['状态','status',0]],
+      build(row){const g=k=>String(row[k]===undefined?'':row[k]).trim();const title=g('标题')||'未命名文章',body=g('正文内容')||'待补充',showHome=String(g('是否展示在首页')||'是'),status=String(g('状态')||'已上架'),pub=g('发布时间');return {type:'营养咨询',title,body,tag:g('标签'),author:g('发布人')||'林方',publishDate:/^\d{4}-\d{2}-\d{2}$/.test(pub)?pub:todayDate(),image:g('图片'),showHome:['是','否'].includes(showHome)?showHome:'是',status:['已上架','已下架'].includes(status)?status:'已上架',views:0,favorites:0};}}
+  };
+  function splitList(v){return String(v||'').split(/[、，,;；]/).map(s=>s.trim()).filter(Boolean);}
+  function batchTemplateDownload(key){const spec=BATCH_SPECS[key];if(!spec)return;if(!window.XLSX)return toast('Excel 组件未就绪','请刷新页面后重试','error');const ws=XLSX.utils.aoa_to_sheet([spec.columns.map(c=>c[2]?c[0]+'*':c[0])]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,spec.sheet);XLSX.writeFile(wb,`${spec.name}导入模板.xlsx`);}
+  function openBatchImport(key){const spec=BATCH_SPECS[key];if(!spec)return;openModal({title:`批量导入 · ${spec.name}`,body:`<div class="batch-import"><p class="cell-sub">先下载模板填写，再把填好的 Excel(.xlsx) 文件拖进来或点击选择。模板表头请勿修改。</p><button class="button secondary" data-action="download-template" data-value="${key}">${icon('download')}下载模板</button><div class="batch-drop" data-batch-drop><span>${icon('file',26)}</span><b>拖拽文件到这里</b><small>或点击选择 Excel(.xlsx) 文件</small><input type="file" accept=".xlsx" hidden></div></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button>`});bindBatchDrop(key);}
+  function bindBatchDrop(key){const zone=document.querySelector('[data-batch-drop]'),input=zone?.querySelector('input[type=file]');if(!zone||!input)return;zone.addEventListener('click',()=>input.click());input.addEventListener('change',()=>{if(input.files[0])batchImportFile(key,input.files[0]);});zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over');});zone.addEventListener('dragleave',()=>zone.classList.remove('over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f)batchImportFile(key,f);});}
+  function batchImportFile(key,file){if(!window.XLSX)return toast('Excel 组件未就绪','请刷新页面后重试','error');const reader=new FileReader();reader.onload=e=>{let wb;try{wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});}catch(_){return toast('文件解析失败','请使用下载的模板填写后再导入','error');}const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});runBatchImport(key,rows);};reader.readAsArrayBuffer(file);}
+  function runBatchImport(key,rows){const spec=BATCH_SPECS[key];if(!spec)return;const ok=[],fails=[];rows.forEach((row,idx)=>{if(key==='nutrition'){if(!Object.values(row||{}).some(v=>String(v||'').trim()))return;ok.push(spec.build(row));return;}const errs=[];const rec=spec.build(row,errs);if(errs.length)fails.push({row:idx+2,reason:errs.join('；')});else ok.push(rec);});applyBatchRecords(key,ok);if(key==='nutrition'){if(ok.length){const missing=ok.filter(r=>!r.image);if(missing.length)openArticleImageModal(missing.map(r=>r.id),ok.length);else openBatchResult(key,ok,fails);}else openBatchResult(key,ok,fails);return;}openBatchResult(key,ok,fails);}
+  function applyBatchRecords(key,recs){recs.forEach((r,i)=>{if(key==='brands'){r.id=`B${String(data.brands.length+1+i).padStart(3,'0')}`;data.brands.push(r);}else if(key==='packages'){r.id=`PK${String(data.packages.length+1+i).padStart(3,'0')}`;data.packages.push(r);}else if(key==='phrases'){r.id=`PH${String(data.phrases.length+1+i).padStart(3,'0')}`;data.phrases.push(r);}else if(key==='nutrition'){r.id=`C${String(data.content.length+1+i).padStart(3,'0')}`;data.content.push(r);}});}
+  function openBatchResult(key,ok,fails){const spec=BATCH_SPECS[key];const hint=key==='brands'?'<p class="form-hint">导入仅创建品牌基础信息；品牌介绍请在导入后到品牌介绍页面另行编辑。</p>':'';const failHtml=fails.length?`<div class="batch-summary-list">${fails.map(f=>`<div><b>第 ${f.row} 行</b><span>${f.reason}</span></div>`).join('')}</div>`:'';openModal({title:`导入结果 · ${spec.name}`,body:`<div class="confirm-copy"><h3>成功 ${ok.length} 条${fails.length?` · 跳过 ${fails.length} 条`:''}</h3><p>已导入数据立即生效。</p>${hint}${failHtml}</div>`,footer:`<button class="button primary" data-action="batch-import-done">完成</button>`});}
+  function openArticleImageModal(ids,count){articleImageDraft=ids;const items=data.content.filter(c=>ids.includes(c.id));if(!items.length)return;openModal({title:'上传文章图片',wide:true,body:`<p class="cell-sub">成功导入 ${count||items.length} 篇文章。以下文章未填写图片，可逐条上传或跳过（未上传的显示“待上传”）。</p><div class="article-image-rows">${items.map(c=>`<div class="article-image-row" data-ai-row="${c.id}"><span class="ai-title">${escapeHTML(c.title)}</span>${c.image?`<img src="${c.image}" alt="">`:`<span class="tag warning">待上传</span>`}<button class="row-button compact" data-action="article-pick-image" data-id="${c.id}">${c.image?'更换图片':'上传图片'}</button></div>`).join('')}</div>`,footer:`<button class="button primary" data-action="batch-import-done">完成</button>`});bindArticleImagePickers();}
+  function bindArticleImagePickers(){const rows=document.querySelectorAll('[data-ai-row]');rows.forEach(row=>{const btn=row.querySelector('[data-action="article-pick-image"]');if(!btn)return;const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;btn.after(input);btn.addEventListener('click',()=>input.click());input.addEventListener('change',()=>{const f=input.files[0];if(!f)return;if(!f.type.startsWith('image/'))return toast('格式不支持','请选择图片文件','error');const reader=new FileReader();reader.onload=()=>{const c=data.content.find(x=>x.id===btn.dataset.id);if(c)c.image=reader.result;openArticleImageModal(articleImageDraft);};reader.readAsDataURL(f);});});}
+  function renderPackageDetailPage(){
+    const p=data.packages.find(x=>x.id===state.packageDetailId); if(!p)return renderPackages();
+    const body=`<div class="detail-hero"><span class="detail-avatar">餐</span><div><h4>${p.name}</h4><p>${(p.brands||[]).join('、')||'未下发'} · ${p.desc||''}</p></div></div><div class="detail-list"><div><span>启用状态</span><b>${p.status==='禁用'?'<span class="tag warning">禁用</span>':'<span class="status success">启用</span>'}</b></div><div><span>小程序显示</span><b>${p.showInApp==='否'?'<span class="tag">否</span>':'<span class="status success">是</span>'}</b></div><div><span>仅购买一次</span><b>${p.onceOnly==='是'?`是 · ${p.onceScope||'多品牌生效'}`:'否'}</b></div><div><span>套餐价格</span><b>${money(p.price)}</b></div><div><span>套餐次数 / 周期</span><b>${p.meals} 餐 / ${p.days} 天</b></div><div><span>套餐标签</span><b>${p.tag?`<span class="tag tag-purple">${p.tag}</span>`:'—'}</b></div><div><span>下发品牌</span><b>${(p.brands||[]).join('、')||'未下发'}</b></div><div><span>当前订购</span><b>${p.subs} 人</b></div><div><span>剩余餐次</span><b>${p.remaining.toLocaleString()}</b></div></div><h4 style="margin-top:22px">套餐简介</h4><p class="cell-sub">${p.intro||'—'}</p><h4 style="margin-top:18px">优势点</h4><div>${(p.advantages||[]).map(a=>`<span class="tag tag-amber">${a}</span>`).join('')||'<span class="cell-sub">暂无</span>'}</div><h4 style="margin-top:18px">备注（仅后台）</h4><p class="cell-sub">${p.note||'无'}</p>`;
+    return `<section class="page">${pageHead('套餐详情',`${p.name} · ${money(p.price)}`, `<button class="button secondary" data-action="assign-package" data-id="${p.id}">${icon('arrowRight')}下发品牌</button><button class="button primary" data-action="edit-package" data-id="${p.id}">编辑套餐</button>`)}${body}</section>`;
+  }
+
+  function renderTaskDetailPage(){
+    const tasks=state.taskDetailIds.map(x=>data.tasks.find(t=>t.id===x)).filter(Boolean); if(!tasks.length)return renderDaily();
+    const body=`${tasks.map(t=>`<div class="form-section" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between"><b>${t.meal} · ${t.brand}</b>${status(t.status)}<span class="tag">${t.version||'V1'}</span></div><p class="cell-sub">${t.id} · ${t.package}</p><div class="detail-list"><div><span>用户</span><b>${t.user}</b></div><div><span>联系人</span><b>${t.contact} · ${t.phone||'缺失'}</b></div><div style="grid-column:1/-1"><span>地址</span><b>${t.address||'缺失'}</b></div><div><span>配送时间</span><b>${t.time}</b></div><div><span>计划来源</span><b>${t.plan}</b></div><div style="grid-column:1/-1"><span>备注</span><b>${t.note}</b></div></div></div>`).join('')}`;
+    return `<section class="page">${pageHead('配送任务详情',`共 ${tasks.length} 条配送任务`, `${state.timeline!=='locked'?`<button class="button secondary" data-action="replace-brand" data-id="${tasks[0].id}">替换品牌</button><button class="button primary" data-action="edit-task" data-id="${tasks[0].id}">补充资料</button>`:`<button class="button primary" data-action="new-after-sale">新增异常/售后</button>`}`)}${body}</section>`;
+  }
+  document.addEventListener('click', (event) => {
+    const button=event.target.closest('[data-action]');
+    if(state.profileOpen&&!event.target.closest('.top-operator,.top-profile-menu')){state.profileOpen=false;renderShell();}
+    if(!button)return;
+    const action=button.dataset.action,id=button.dataset.id,value=button.dataset.value,block=button.dataset.block;
+    if(state.page==='manual-order'&&action!=='submit-manual-order')captureManualDraft();
+    if(action==='pick-upload'){const box=event.target.closest('.upload-box'),input=box&&box.querySelector('.upload-input');if(input)input.click();return;}
+    if((button.classList.contains('modal-backdrop')||button.classList.contains('drawer-backdrop'))&&event.target!==button)return;
+    if(action==='navigate') return navigate(button.dataset.page);
+    if(action==='close-modal'){if(phraseDraft){const d=phraseDraft;phraseDraft=null;closeModal();return openPhraseForm(d.id,d.draft);}return closeModal();}
+    if(action==='close-drawer') return closeDrawer();
+    if(action==='toggle-password'){const input=$('#login-password');input.type=input.type==='password'?'text':'password';button.setAttribute('aria-label',input.type==='password'?'显示密码':'隐藏密码');return;}
+    if(action==='fill-demo'){$('#login-account').value='admin';$('#login-password').value='Raven@2026';$('#login-error').classList.remove('show');$('#login-form').requestSubmit();return;}
+    if(action==='forgot-password')return openModal({title:'找回管理员密码',body:`<div class="confirm-copy"><div class="confirm-illustration">${icon('lock',26)}</div><h3>请联系系统负责人</h3><p>原型暂不连接短信或邮件服务。正式系统将向管理员绑定手机发送安全验证码。</p></div>`,footer:`<button class="button primary" data-action="close-modal">我知道了</button>`});
+    if(action==='toggle-profile'){state.profileOpen=!state.profileOpen;renderShell();return;}
+    if(action==='logout')return confirmAction('确认退出运营后台？','退出后返回登录页，联动数据保留。','退出登录','confirm-logout');
+    if(action==='confirm-logout'){closeModal();state.loggedIn=false;$('#app').classList.add('is-hidden');$('#login-view').classList.remove('is-hidden');$('#login-form').reset();return;}
+    if(action==='notifications'){const menuMissing=menuMissingBrands('W34').length;return openDrawer({title:'运营通知',body:`<div class="risk-list">${menuMissing?`<div class="risk-item"><i class="risk-dot"></i><div><b>${menuMissing} 个品牌下周菜单未上传</b><small>「${menuSwitchLabel()}」小程序切换为下周菜单，请尽快上传</small></div><button class="row-button" data-action="navigate" data-page="menu">处理</button></div>`:''}<div class="risk-item"><i class="risk-dot"></i><div><b>2 条配送资料不完整</b><small>10:40 · 明日配送表暂不可正式导出</small></div><button class="row-button" data-action="navigate" data-page="daily">处理</button></div><div class="risk-item"><i class="risk-dot"></i><div><b>四季食桌已下架</b><small>09:28 · 请确认 22 名关联用户的替换方案</small></div><button class="row-button" data-action="navigate" data-page="brands">查看</button></div><div class="activity-item"><span class="toast-icon">${icon('check')}</span><div><b>数据同步完成</b><small>09:00 · 小程序数据同步正常</small></div></div></div>`});}
+    if(action==='help')return openModal({title:'原型使用指南',body:`<div class="timeline"><div class="timeline-item"><b>先体验登录与工作台</b><small>演示账号为 admin / Raven@2026</small></div><div class="timeline-item"><b>重点查看每日配送中心</b><small>可识别同品牌同人同址的午晚餐合包</small></div><div class="timeline-item"><b>处理资料异常后导出</b><small>可真实下载包含多工作表的 Excel 文件</small></div><div class="timeline-item"><b>刷新即可恢复</b><small>所有操作只在当前页面运行期间有效</small></div></div>`,footer:`<button class="button primary" data-action="close-modal">开始体验</button>`});
+    if(action==='page-info')return toast('分页交互正常','演示数据已完整展示在第 1 页');
+    if(action==='tab-filter'){const f=button.dataset.filter,v=button.dataset.value,multi=button.dataset.multi==='1';if(multi){let arr=selectedValues(f);if(button.dataset.all){arr=[];}else{const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);}state.filters[f]=arr;}else{state.filters[f]=v;}state.pagination.page=1;renderApp();return;}
+    if(action==='apply-filters'){
+      if(state.page==='menu'&&state.menuView==='grid'){
+        const ranges=[['菜单所属日期范围',state.filters.menuGridWeekStart||'',state.filters.menuGridWeekEnd||''],['上传日期范围',state.filters.menuGridUploadStart||'',state.filters.menuGridUploadEnd||'']];
+        for(const [label,start,end] of ranges){if((start&&!end)||(!start&&end))return toast(`${label}不完整`,'请同时选择开始日期和结束日期','error');if(start&&end&&start>end)return toast(`${label}有误`,'开始日期不能晚于结束日期','error');}
+      }
+      if(state.page==='phrases'){const a=state.filters.phraseDateStart||'',b=state.filters.phraseDateEnd||'';if(a&&b&&a>b)return toast('发布时间范围有误','开始日期不能晚于结束日期','error');}
+      if(state.page==='users'){for(const [label,min,max] of [['身高','userHeightMin','userHeightMax'],['体重','userWeightMin','userWeightMax'],['BMI','userBmiMin','userBmiMax'],['BMR','userBmrMin','userBmrMax'],['TDEE','userTdeeMin','userTdeeMax']]){const a=state.filters[min],b=state.filters[max];if((a!==''&&a!=null&&!Number.isFinite(Number(a)))||(b!==''&&b!=null&&!Number.isFinite(Number(b))))return toast(`${label}范围有误`,'请输入有效数字','error');if(a!==''&&a!=null&&b!==''&&b!=null&&Number(a)>Number(b))return toast(`${label}范围有误`,'最小值不能大于最大值','error');}}
+      state.pagination.page=1;renderApp();return toast('已应用筛选','列表已按当前筛选条件刷新');
+    }
+    if(action==='clear-filters'){state.filters={};state.pagination.page=1;renderApp();return;}
+    if(action==='page-go'){state.pagination.page=Number(value)||1;renderApp();return;}
+    if(action==='filter-phrase-scene'){state.filters.phraseScene=value;renderApp();return;}
+    if(action==='toggle-multi-filter'){document.querySelectorAll('.multi-filter-menu').forEach(m=>{if(m.dataset.multiMenu===value)m.hidden=!m.hidden;else m.hidden=true;});return;}
+    if(action==='multi-all'){const menu=document.querySelector(`[data-multi-menu="${value}"]`);state.filters[value]=[...menu.querySelectorAll('input')].map(i=>i.value);renderApp();return;}
+    if(action==='multi-clear'){state.filters[value]=[];renderApp();return;}
+    if(action==='daily-brand-view'){state.dailyBrandView=value;state.pagination.page=1;renderApp();return;}
+    if(action==='daily-status-tab'){state.filters.dailyStatus=value;state.pagination.page=1;renderApp();return;}
+    if(action==='toggle-nav-group'){state.collapsedGroups[value]=!state.collapsedGroups[value];renderShell();return;}
+    if(action==='settings-tab'){state.settingsTab=value;renderApp();return;}
+    if(action==='user-tab'){state.userTab=value;renderApp();return;}
+    if(action==='new-brand')return openBrandForm();if(action==='edit-brand'){closeDrawer();return openBrandForm(id)}if(action==='view-brand')return openBrandDetail(id);
+    if(action==='brand-packages')return openBrandPackages(id);
+    if(action==='save-brand-packages'){const b=data.brands.find(x=>x.id===id);if(b&&packageOrderDraft&&packageOrderDraft.brandId===id)b.packageOrder=[...packageOrderDraft.ids];addLog('调整关联套餐顺序',`${b?.name||''}：${b?.packageOrder?.length||0} 个套餐`);packageOrderDraft=null;closeDrawer();renderApp();return toast('排序已保存','关联套餐顺序已更新');}
+    if(action==='toggle-brand'){const b=data.brands.find(x=>x.id===id);return confirmAction(b.status==='上架'?`下架品牌「${b.name}」？`:`上架品牌「${b.name}」？`,b.status==='上架'?'下架后其已下发的「启用」套餐将自动禁用，小程序不再展示该品牌；重新上架后需人工启用套餐。':'上架后品牌对外重新展示，关联套餐需人工启用后再销售。',b.status==='上架'?'确认下架':'确认上架','confirm-toggle-brand',id);}
+    if(action==='confirm-toggle-brand'){const b=data.brands.find(x=>x.id===id);b.status=b.status==='上架'?'下架':'上架';if(b.status==='下架'){const downed=data.packages.filter(p=>(p.brands||[]).includes(b.name)&&p.status==='启用');downed.forEach(p=>p.status='禁用');addLog('切换品牌状态',`${b.name}：已下架，${downed.length} 个已下发启用套餐自动禁用`);closeModal();renderApp();return toast('品牌已下架',`${downed.length} 个已下发启用套餐已自动禁用`);}addLog('切换品牌状态',`${b.name}：已上架（套餐需人工启用）`);closeModal();renderApp();return toast('品牌已上架','关联套餐需人工启用后再销售');}
+    if(action==='confirm-delete-brand')return confirmAction('删除该品牌？','存在关联套餐或订购时不建议删除。原型将演示业务校验结果。','确认删除','delete-brand',id);
+    if(action==='delete-brand'){const b=data.brands.find(x=>x.id===id),linked=data.packages.filter(p=>(p.brands||[]).includes(b.name)).length;if(linked||b.subs){closeModal();return toast('无法删除品牌','请先处理已下发套餐和订购用户','error')}data.brands=data.brands.filter(x=>x.id!==id);addLog('删除品牌',b.name);closeModal();renderApp();return toast('品牌已删除')}
+    if(action==='brand-add-package'){const b=data.brands.find(x=>x.id===id),candidates=data.packages.filter(p=>!(p.brands||[]).includes(b.name));return openModal({title:`下发套餐到 ${b.name}`,body:candidates.length?`<div class="form-grid">${formField('选择套餐','package',candidates[0].name,'select',false,candidates.map(p=>p.name))}</div><p class="form-hint">下发后该套餐将出现在 ${b.name} 名下，可在套餐管理撤回。</p>`:'<p class="cell-sub">暂无可下发套餐（所有套餐均已下发该品牌）。</p>',footer:`<button class="button secondary" data-action="close-modal">取消</button>${candidates.length?`<button class="button primary" data-action="confirm-brand-add" data-id="${b.id}">确认下发</button>`:''}`});}
+    if(action==='confirm-brand-add'){const b=data.brands.find(x=>x.id===id),name=document.querySelector('[name="package"]')?.value,p=data.packages.find(x=>x.name===name);if(p){p.brands=p.brands||[];if(!p.brands.includes(b.name))p.brands.push(b.name);addLog('下发套餐',`${p.name} → ${b.name}`);}closeModal();closeDrawer();renderApp();return toast('套餐已下发',`${p?.name||''} 已下发至 ${b.name}`);}
+    if(action==='brand-unbind-package'){const p=data.packages.find(x=>x.id===id);if(p.subs>0){closeDrawer();return toast('无法撤回下发','该套餐仍有订购用户，请先处理订购','error');}closeDrawer();return confirmAction('撤回套餐下发？',`${p.name} 将变为未下发并转为禁用，需重新下发后才能启用。`,'确认撤回','confirm-brand-unbind',id);}
+    if(action==='confirm-brand-unbind'){const p=data.packages.find(x=>x.id===id);p.brands=[];p.status='禁用';addLog('撤回套餐下发',`${p.name} 未下发`);closeModal();renderApp();return toast('套餐下发已撤回','套餐已转为禁用');}
+    if(action==='brand-tags')return openBrandTagManager();
+    if(action==='new-brand-tag')return openBrandTagForm(value);
+    if(action==='edit-brand-tag')return openBrandTagForm('',id);
+    if(action==='toggle-brand-tag'){const t=data.brandTags.find(x=>x.id===id);return confirmAction(t.status==='启用'?`停用标签「${t.name}」？`:`启用标签「${t.name}」？`,t.status==='启用'?'停用后小程序将不再展示该标签，已绑定品牌在小程序也不显示该标签；后台品牌表单不可再选择停用标签，已绑定该标签的品牌保存后自动移除。':'启用后小程序恢复展示该标签。','确认','confirm-toggle-brand-tag',id);}
+    if(action==='confirm-toggle-brand-tag'){const t=data.brandTags.find(x=>x.id===id);t.status=t.status==='启用'?'停用':'启用';addLog('切换标签状态',`${t.category==='type'?'类型':'特点'}标签「${t.name}」：${t.status}`);closeModal();renderApp();return toast('标签状态已更新',t.status);}
+    if(action==='delete-brand-tag-confirm'){const t=data.brandTags.find(x=>x.id===id),used=tagUsedByBrands(t);if(used){closeModal();return toast('无法删除标签',`「${t.name}」已被 ${used} 个品牌绑定，请先解绑`,'error');}return confirmAction('删除该标签？',`「${t.name}」将移出标签库，已绑定的品牌展示不受影响。`,'确认删除','delete-brand-tag',id);}
+    if(action==='delete-brand-tag'){const t=data.brandTags.find(x=>x.id===id);data.brandTags=data.brandTags.filter(x=>x.id!==id);addLog('删除标签',`${t.category==='type'?'类型':'特点'}标签「${t.name}」`);closeModal();renderApp();return toast('标签已删除');}
+    if(action==='move-tag-up'||action==='move-tag-down'){const t=data.brandTags.find(x=>x.id===id),list=brandTagsBy(t.category),i=list.findIndex(x=>x.id===id),j=i+(action==='move-tag-up'?-1:1);if(j<0||j>=list.length)return toast('无法移动',action==='move-tag-up'?'已是第一个标签':'已是最后一个标签','error');const a=list[i],b=list[j],tmp=a.sort;a.sort=b.sort;b.sort=tmp;addLog('调整标签排序',`${t.category==='type'?'类型':'特点'}标签「${t.name}」${action==='move-tag-up'?'上移':'下移'}`);openBrandTagManager();return;}
+    if(action==='brand-detail-editor'){closeDrawer();return openBrandDetailEditor(id);}
+    if(action==='brand-detail-preview'){const b=data.brands.find(x=>x.id===id);return openModal({title:`小程序品牌介绍预览 · ${b.name}`,body:`<div class="mobile-preview"><div class="mobile-preview-head">${b.name} · 品牌介绍</div><div class="brand-intro-preview">${(b.detailBlocks||[]).length?renderBrandDetailBlocks(b):'<p class="cell-sub">暂未设置品牌介绍内容。</p>'}</div></div>`,footer:`<button class="button primary" data-action="close-modal">完成预览</button>`});}
+    if(action==='editor-add-text'){const b=data.brands.find(x=>x.id===id),blk={id:'DB'+Date.now().toString().slice(-6),type:'text',content:'',style:{fontSize:'14px',fontFamily:'默认',bold:false,italic:false,color:'#2b2b2b'}};(b.detailBlocks=b.detailBlocks||[]).push(blk);return openRichTextModal(id,blk);}
+    if(action==='editor-add-image'){const inp=document.getElementById('editor-image-input');if(inp)inp.click();return;}
+    if(action==='editor-edit-block'){const b=data.brands.find(x=>x.id===id),blk=(b.detailBlocks||[]).find(x=>x.id===block);if(!blk)return;if(blk.type==='text')return openRichTextModal(id,blk);return openModal({title:'更换图片',body:`<form id="entity-form" data-kind="detail-image"><div class="form-grid">${uploadField('图片','img',blk.content)}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-editor-image" data-id="${id}" data-block="${blk.id}">保存图片</button>`});}
+    if(action==='save-editor-text'){const b=data.brands.find(x=>x.id===id),blk=(b.detailBlocks||[]).find(x=>x.id===block),form=document.querySelector('#entity-form[data-kind="detail-text"]'),v=form?.querySelector('[name="text"]')?.value||'';if(!v.trim())return toast('请输入文字内容','','error');if(blk){blk.content=v;blk.style=collectDetailStyle(form);addLog('编辑品牌介绍文字',b.name);}closeModal();openBrandDetailEditor(id);return;}
+    if(action==='save-editor-image'){const b=data.brands.find(x=>x.id===id),blk=(b.detailBlocks||[]).find(x=>x.id===block),v=document.querySelector('#entity-form [name="img"]')?.value||'';if(blk&&v){blk.content=v;addLog('更换品牌介绍图片',b.name);}closeModal();openBrandDetailEditor(id);return;}
+    if(action==='editor-move-up'||action==='editor-move-down'){const b=data.brands.find(x=>x.id===id),blocks=b.detailBlocks||[],i=blocks.findIndex(x=>x.id===block),j=i+(action==='editor-move-up'?-1:1);if(j<0||j>=blocks.length)return toast('无法移动',action==='editor-move-up'?'已是第一块':'已是最后一块','error');const tmp=blocks[i];blocks[i]=blocks[j];blocks[j]=tmp;openBrandDetailEditor(id);return;}
+    if(action==='editor-delete-block-confirm'){editorDraft={brandId:id,blockId:block};return confirmAction('删除该内容块？','删除后小程序品牌介绍页不再展示该内容。','确认删除','confirm-editor-delete-block');}
+    if(action==='confirm-editor-delete-block'){const b=data.brands.find(x=>x.id===editorDraft?.brandId);if(b)b.detailBlocks=(b.detailBlocks||[]).filter(x=>x.id!==editorDraft?.blockId);addLog('删除品牌介绍内容块',b?.name||'');closeModal();openBrandDetailEditor(editorDraft?.brandId);return;}
+    if(action==='save-brand-detail'){const b=data.brands.find(x=>x.id===id),els=[...document.querySelectorAll('.editor-blocks .editor-block')],map=new Map((b.detailBlocks||[]).map(x=>[x.id,x]));b.detailBlocks=els.map(el=>map.get(el.dataset.blockId)).filter(Boolean);addLog('设置品牌介绍详情',`${b.name}：${b.detailBlocks.length} 个内容块`);closeModal();renderApp();return toast('品牌介绍已保存','小程序品牌介绍页将同步展示');}
+    if(action==='new-phrase')return openPhraseForm();if(action==='edit-phrase')return openPhraseForm(id);
+    if(action==='confirm-phrase-save'){const d=phraseDraft;phraseDraft=null;if(!d)return;return commitPhrase(d.item,d.id,d.draft,false);}
+    if(action==='copy-phrase'){const p=clone(data.phrases.find(x=>x.id===id));if(!p)return;return openPhraseForm('',{...p,id:'',scheduled:false,replaceAt:''});}
+    if(action==='delete-phrase-confirm')return confirmAction('删除这条激励词语？','删除后小程序不再展示该内容。','确认删除','delete-phrase',id);
+    if(action==='delete-phrase'){data.phrases=data.phrases.filter(x=>x.id!==id);closeModal();renderApp();return toast('激励词语已删除')}
+    if(action==='export-phrases')return genericExport('渡鸦管家_激励词语库',[['激励词语','模块','上传时间','替换时间','显示状态'],...filteredPhrases().map(p=>[p.text,p.scene,p.uploadedAt,phraseDisplayTime(p)||'—',phraseStatus(p)])]);
+    if(action==='new-package')return openPackageForm();if(action==='edit-package')return openPackageForm(id);
+    if(action==='view-package'){state.backPage=state.page!=='package-detail'?state.page:state.backPage;state.packageDetailId=id;state.page='package-detail';renderApp();return;}
+    if(action==='copy-package'){const p=clone(data.packages.find(x=>x.id===id));if(!p)return;return openPackageForm('',{...p,id:'',name:p.name+'（副本）',status:'禁用',showInApp:'否',brands:[],orders:0,subs:0,remaining:0});}
+    if(action==='toggle-package'){const p=data.packages.find(x=>x.id===id);return confirmAction(p.status==='启用'?`禁用套餐「${p.name}」？`:`启用套餐「${p.name}」？`,'状态将同步影响小程序购买入口。','确认','confirm-toggle-package',id);}
+    if(action==='confirm-toggle-package'){const p=data.packages.find(x=>x.id===id);p.status=p.status==='启用'?'禁用':'启用';addLog('切换套餐状态',`${p.name}：${p.status}`);closeModal();renderApp();return toast('套餐状态已更新',p.status)}
+    if(action==='package-archive')return openModal({title:'套餐归档',body:`<div class="risk-list">${data.packages.filter(p=>p.status==='禁用').map(p=>`<div class="risk-item"><div><b>${p.name}</b><small>${(p.brands||[]).join('、')||'未下发'} · ${p.subs} 个历史订购</small></div><button class="row-button" data-action="view-package" data-id="${p.id}">查看</button></div>`).join('')||'<p class="cell-sub">暂无已禁用套餐</p>'}</div>`});
+    if(action==='assign-package'){const p=data.packages.find(x=>x.id===id);return openAssignPackage(p);}
+    if(action==='assign-brand'){const p=data.packages.find(x=>x.id===id),brand=button.dataset.brand;if(!brand)return;p.brands=p.brands||[];if(!p.brands.includes(brand))p.brands.push(brand);addLog('下发套餐',`${p.name} → ${brand}`);openAssignPackage(p);return;}
+    if(action==='unassign-brand'){const p=data.packages.find(x=>x.id===id),brand=button.dataset.brand;if(!brand)return;p.brands=(p.brands||[]).filter(x=>x!==brand);addLog('撤回套餐下发',`${p.name} ← ${brand}`);openAssignPackage(p);return;}
+    if(action==='add-advantage'){const rows=document.querySelector('#advantage-rows');if(rows){const div=document.createElement('div');div.className='advantage-row';div.innerHTML=`<input name="advantage" maxlength="10" placeholder="请输入优势点（限 10 字）"><button type="button" class="mini-btn" data-action="remove-advantage" title="删除">${icon('close','11')}</button>`;rows.appendChild(div);}return;}
+    if(action==='remove-advantage'){const row=button.closest('.advantage-row');if(row)row.remove();return;}
+    if(action==='view-order')return openOrderDetail(id);
+    if(action==='view-order-brand'){const item=data.brands.find(x=>x.id===id);return item?openBrandDetail(item.id):toast('品牌数据已失效','该订单关联的品牌已不存在','error');}
+    if(action==='view-order-package'){const item=data.packages.find(x=>x.id===id);if(!item)return toast('套餐数据已失效','该订单关联的套餐已不存在','error');button.dataset.action='view-package';return button.click();}
+    if(action==='view-order-plan'){const item=data.plans.find(x=>x.id===id);return item?openPlanDetail(item.id):toast('配送计划已失效','该订单关联的配送计划已不存在','error');}
+    if(action==='cancel-order-confirm')return confirmAction('取消该订单？','取消后将同步终止尚未开始的套餐订购。','确认取消','cancel-order',id);
+    if(action==='cancel-order'){const o=data.orders.find(x=>x.id===id);o.status='已取消';const s=data.subscriptions.find(x=>x.user===o.user&&x.package===o.package);if(s&&s.used===0)s.status='已完成';addLog('取消订单',`${o.id} · ${o.user}`);closeModal();closeDrawer();renderApp();return toast('订单已取消','关联未使用订购已同步结束')}
+    if(action==='confirm-payment'){const o=data.orders.find(x=>x.id===id);return openModal({title:'确认收款',body:`<div class="confirm-copy"><div class="confirm-illustration">${icon('check',26)}</div><h3>确认已收到 ${o.user} 的 ¥${Number(o.amount).toLocaleString()}？</h3><p>订单 ${o.id} · ${o.package}<br>确认后订单进入「已付款」，关联订购自动生成/激活为「未开始」。</p></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="finalize-payment" data-id="${o.id}">确认收款</button>`});}
+    if(action==='finalize-payment'){const o=data.orders.find(x=>x.id===id);o.status='待使用';o.paid='2026-08-06 10:55';let sub=data.subscriptions.find(s=>s.orderId===o.id)||data.subscriptions.find(s=>s.user===o.user&&s.package===o.package);if(!sub){const pkg=data.packages.find(p=>p.name===o.package);sub={id:`SUB${Date.now().toString().slice(-8)}`,orderId:o.id,user:o.user,brand:o.brand,package:o.package,bought:pkg?pkg.meals:28,used:0,remaining:pkg?pkg.meals:28,frozen:0,status:'未开始',valid:'2026.08.06 - 2026.09.06',last:'-',plan:'待创建配送计划'};data.subscriptions.unshift(sub);}else{sub.orderId=sub.orderId||o.id;if(sub.status==='待使用')sub.status='未开始';}addLog('确认收款',`${o.id} · ¥${o.amount}，订购 ${sub.id} 未开始`);closeModal();closeDrawer();renderApp();return toast('收款已确认','订单已付款，关联订购进入未开始');}
+    if(action==='view-refunds'){const o=data.orders.find(x=>x.id===id),records=refundRecordsFor(o);return openModal({title:`退款记录 · ${o.id}`,wide:true,body:`<div class="table-wrap"><table class="data-table"><thead><tr><th>退款金额</th><th>退款类型</th><th>退款原因</th><th>退款时间</th><th>操作人</th><th>操作时间</th></tr></thead><tbody>${records.map(r=>`<tr><td><b class="negative">-¥${Number(r.amount).toLocaleString()}</b></td><td>${r.refundTypeName||'其他'}</td><td>${r.reason||'—'}</td><td>${r.refundTime}</td><td>${r.operator}</td><td>${r.operationTime}</td></tr>`).join('')}</tbody></table></div>`});}
+    if(action==='request-refund'){const o=data.orders.find(x=>x.id===id),lim=orderRefundLimit(o),types=(data.refundTypes||[]).filter(x=>x.status==='启用'),typeField=types.length?`<div class="form-field"><label><em class="req-star">*</em>退款类型</label><select name="refundTypeId" required><option value="">请选择退款类型</option>${types.map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select></div>`:`<div class="form-field wide refund-type-empty"><b>暂无可用退款类型</b><p class="cell-sub">请先在后台设置中启用或新增退款类型。</p><button type="button" class="cell-link" data-action="goto-refund-types">前往退款类型管理</button></div>`;return openModal({title:'发起退款（客服人工输入金额）',body:`<form id="refund-form"><div class="form-grid">${typeField}<div class="form-field"><label><em class="req-star">*</em>退款金额（元）</label><input name="amount" type="number" min="0.01" step="0.01" max="${lim.max}" value="${Math.min(o.amount,lim.max)||''}" required><span class="cell-sub">≤ ¥${Number(lim.max).toLocaleString()}</span></div><div class="form-field"><label>退款原因（选填）</label><textarea name="reason" placeholder="选填退款原因"></textarea></div><div class="form-field wide"><span class="cell-sub">未核销金额（可退上限）：¥${Number(lim.max).toLocaleString()} · 未核销 ${lim.unused} 餐 · 已退款 ¥${Number(lim.already).toLocaleString()}</span></div></div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button danger" data-action="confirm-refund" data-id="${o.id}" ${lim.max<=0||!types.length?'disabled':''}>确认</button>`});}
+    if(action==='confirm-refund'){const o=data.orders.find(x=>x.id===id),amount=Number(document.querySelector('[name="amount"]')?.value||0),refundTypeId=document.querySelector('[name="refundTypeId"]')?.value||'',refundType=(data.refundTypes||[]).find(x=>x.id===refundTypeId&&x.status==='启用'),reason=document.querySelector('[name="reason"]')?.value.trim()||'',release=true,lim=orderRefundLimit(o);if(!refundType)return toast('请选择退款类型','','error');if(!amount||amount<=0)return toast('请输入有效退款金额','','error');if(amount>lim.max)return toast('退款金额超限',`退款金额需小于等于未核销金额 ¥${Number(lim.max).toLocaleString()}`,'error');refundDraft={id,amount,refundTypeId,refundTypeName:refundType.name,reason,release};return openModal({title:'退款二次确认',body:`<div class="confirm-copy"><div class="confirm-illustration">${icon('alert',26)}</div><h3>确认向 ${o.user} 退款 ¥${Number(amount).toLocaleString()}？</h3><p>订单 ${o.id} · 退款类型：${refundType.name} · 退款原因：${reason||'—'}。<br>退款后将释放未使用/冻结餐次转为可用餐次，并保留订购记录及剩余餐次。</p></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button danger" data-action="finalize-refund" data-id="${o.id}">确认退款</button>`});}
+    if(action==='finalize-refund'){const o=data.orders.find(x=>x.id===id),d=refundDraft||{amount:o.amount,reason:'',refundTypeId:'RT005',refundTypeName:'其他',release:false},sub=data.subscriptions.find(s=>s.orderId===o.id)||data.subscriptions.find(s=>s.user===o.user&&s.package===o.package),stamp=nowStamp(),record={amount:d.amount,refundTypeId:d.refundTypeId,refundTypeName:d.refundTypeName,reason:d.reason||'—',refundTime:stamp,operator:currentAdmin().name,operationTime:stamp};o.status='退款';o.refunds=refundRecordsFor(o).map(x=>({...x}));o.refunds.push(record);o.refund={amount:d.amount,refundTypeId:d.refundTypeId,refundTypeName:d.refundTypeName,reason:d.reason||'—',released:d.release,operator:record.operator,time:stamp,operationTime:stamp};let effect='未释放餐次';if(sub){const f=sub.frozen||0;if(d.release){sub.remaining=(sub.remaining||0)+f;sub.frozen=0;effect=`已释放 ${f} 餐转为可用`;}else{sub.status='已完成';sub.remaining=0;sub.frozen=0;effect='套餐购买已结束';}}const fr=data.finance.find(x=>x.orderId===o.id);if(fr){fr.refundAmount=(fr.refundAmount||0)+d.amount;fr.refundTime=stamp;fr.refundNote=d.reason||'—';fr.refundTypeId=d.refundTypeId;fr.refundTypeName=d.refundTypeName;fr.refundOperator=record.operator;fr.refundOperationTime=stamp;}else{data.finance=data.finance||[];data.finance.push({id:`FN${Date.now().toString().slice(-8)}`,orderId:o.id,user:o.user,amount:d.amount,type:'收款',operator:record.operator,time:stamp,note:'订单支付',refundAmount:d.amount,refundTime:stamp,refundNote:d.reason||'—',refundTypeId:d.refundTypeId,refundTypeName:d.refundTypeName,refundOperator:record.operator,refundOperationTime:stamp});}addLog('处理退款',`${o.id} · ${d.refundTypeName} · 退款 ¥${d.amount} · ${effect}`);refundDraft=null;closeModal();closeDrawer();renderApp();return toast('退款已处理',`¥${Number(d.amount).toLocaleString()} · ${effect}，财务流水已同步`);}
+    if(action==='add-order-note')return openModal({title:'添加订单备注',body:`<div class="form-field"><label>备注内容</label><textarea id="order-note" placeholder="请输入客服或运营备注"></textarea></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-order-note" data-id="${id}">保存备注</button>`});
+    if(action==='save-order-note'){const o=data.orders.find(x=>x.id===id);o.note=$('#order-note').value||o.note;addLog('添加订单备注',`${o.id}：${o.note}`);closeModal();toast('订单备注已保存');return;}
+    if(action==='new-payment-method')return openPaymentMethodForm();
+    if(action==='edit-payment-method')return openPaymentMethodForm(id);
+    if(action==='save-payment-method'){const form=$('#payment-method-form'),name=form?.elements.name.value.trim(),editId=form?.dataset.id;if(!name)return toast('请输入支付方式名称','','error');if((data.paymentMethods||[]).some(x=>x.name===name&&x.id!==editId))return toast('支付方式名称已存在','请使用其他名称','error');const item=(data.paymentMethods||[]).find(x=>x.id===editId);if(item)item.name=name;else data.paymentMethods.push({id:`PM${String(data.paymentMethods.length+1).padStart(3,'0')}`,name,system:false,status:'启用',creator:currentAdmin().name,createdAt:nowStamp()});addLog(item?'编辑支付方式':'新增支付方式',name);closeModal();renderApp();return toast('支付方式已保存',name);}
+    if(action==='toggle-payment-method'){const m=data.paymentMethods.find(x=>x.id===id);if(!m||m.system)return;return confirmAction(`${m.status==='启用'?'停用':'启用'}支付方式「${m.name}」？`,'状态变更只影响后续业务选择，历史订单仍保留原支付方式。','确认','confirm-toggle-payment-method',id);}
+    if(action==='confirm-toggle-payment-method'){const m=data.paymentMethods.find(x=>x.id===id);if(!m||m.system)return;m.status=m.status==='启用'?'停用':'启用';addLog('切换支付方式状态',`${m.name}：${m.status}`);closeModal();renderApp();return toast('支付方式状态已更新',m.status);}
+    if(action==='new-refund-type')return openRefundTypeForm();
+    if(action==='edit-refund-type')return openRefundTypeForm(id);
+    if(action==='save-refund-type'){const form=$('#refund-type-form'),name=form?.elements.name.value.trim(),editId=form?.dataset.id;if(!name)return toast('请输入退款类型名称','','error');if((data.refundTypes||[]).some(x=>x.name===name&&x.id!==editId))return toast('退款类型名称已存在','请使用其他名称','error');const item=data.refundTypes.find(x=>x.id===editId);if(item)item.name=name;else data.refundTypes.push({id:`RT${String(data.refundTypes.length+1).padStart(3,'0')}`,name,status:'启用',creator:currentAdmin().name,createdAt:nowStamp()});addLog(item?'编辑退款类型':'新增退款类型',name);closeModal();renderApp();return toast('退款类型已保存',name);}
+    if(action==='toggle-refund-type'){const t=data.refundTypes.find(x=>x.id===id);if(!t)return;return confirmAction(`${t.status==='启用'?'停用':'启用'}退款类型「${t.name}」？`,'停用后新的退款不能再选择该类型，历史退款记录不受影响。','确认','confirm-toggle-refund-type',id);}
+    if(action==='confirm-toggle-refund-type'){const t=data.refundTypes.find(x=>x.id===id);if(!t)return;t.status=t.status==='启用'?'停用':'启用';addLog('切换退款类型状态',`${t.name}：${t.status}`);closeModal();renderApp();return toast('退款类型状态已更新',t.status);}
+    if(action==='goto-refund-types'){closeModal();state.page='backend-settings';state.backendSettingsTab='refund';renderApp();setTimeout(()=>document.querySelector('.refund-types-section')?.scrollIntoView({behavior:'smooth',block:'start'}),0);return;}
+    if(action==='backend-settings-tab'){state.backendSettingsTab=value;renderApp();return;}
+    if(action==='manual-order'){state.backPage=state.page!=='manual-order'?state.page:state.backPage;state.manualOrder=blankManualOrder();state.page='manual-order';renderApp();return;}
+    if(action==='cancel-manual-order'){state.manualOrder=null;state.page='orders';renderApp();return;}
+    if(action==='choose-manual-user')return openManualUserPicker();
+    if(action==='manual-user-mode')return openManualUserPicker(value);
+    if(action==='select-manual-user'){const d=manualDraft();d.userId=id;d.planId='';closeModal();renderApp();return;}
+    if(action==='create-manual-user'){const raw=($('#manual-new-user-phone')?.value||'').replace(/\D/g,'');if(!/^1\d{10}$/.test(raw))return toast('请输入正确的11位手机号','','error');const existing=data.users.find(u=>u.phone.replace(/\D/g,'')===raw);if(existing){toast('手机号已存在','请直接选择已有用户','error');return openManualUserPicker('existing');}const spaced=`${raw.slice(0,3)} ${raw.slice(3,7)} ${raw.slice(7)}`,u={id:`U${Date.now().toString().slice(-10)}`,name:`新用户${raw.slice(-4)}`,phone:spaced,temporary:true,gender:'—',age:'—',goal:'待完善',package:'-',subscription:'0订购',delivery:'待完善',active:'刚刚创建',address:'',height:0,weight:0,target:0,activity:'待完善',diet:'无',allergy:'无',tags:['临时用户']};data.users.push(u);manualDraft().userId=u.id;manualDraft().planId='';closeModal();renderApp();return toast('临时用户已创建',`${u.name} · ${u.phone}`);}
+    if(action==='choose-manual-brand')return openManualBrandPicker();
+    if(action==='select-manual-brand'){const d=manualDraft(),oldPackage=data.packages.find(p=>p.id===d.packageId),brand=data.brands.find(b=>b.id===id);d.brandId=id;if(oldPackage&&!(oldPackage.brands||[]).includes(brand?.name)){d.packageId='';d.amount='';toast('原套餐与新品牌不匹配','请重新选择套餐');}closeModal();renderApp();return;}
+    if(action==='choose-manual-package'){if(!manualDraft().brandId)return toast('请先选择品牌','','error');return openManualPackagePicker();}
+    if(action==='select-manual-package'){const d=manualDraft(),p=data.packages.find(x=>x.id===id);d.packageId=id;d.amount=String(p?.price??'');closeModal();renderApp();return;}
+    if(action==='choose-manual-plan')return openManualPlanPicker();
+    if(action==='select-manual-plan'){manualDraft().planId=id;closeModal();renderApp();return;}
+    if(action==='skip-manual-plan'){manualDraft().planId='';closeModal();renderApp();return;}
+    if(action==='add-manual-plan')return openManualPlanEditor();
+    if(action==='manual-plan-rule'){const form=$('#manual-plan-form');if(!form)return;form.elements.rule.value=value;button.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===button));const custom=$('#manual-plan-weekdays');if(custom)custom.hidden=value!=='自定义配送';const defaults={'工作日配送':'一,二,三,四,五','周末＋节假日配送':'六,日','每日配送':'一,二,三,四,五,六,日','自定义配送':''};form.elements.days.value=defaults[value];custom?.querySelectorAll('button').forEach(x=>x.classList.remove('active'));updateManualDailyRows();return;}
+    if(action==='manual-plan-day'){button.classList.toggle('active');const form=$('#manual-plan-form');form.elements.days.value=[...$('#manual-plan-weekdays').querySelectorAll('button.active')].map(x=>x.dataset.value).join(',');updateManualDailyRows();return;}
+    if(action==='manual-plan-setting'){const form=$('#manual-plan-form'),daily=value==='daily';form.elements.settingMode.value=value;button.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===button));$('#manual-plan-unified').hidden=daily;$('#manual-plan-daily').hidden=!daily;if(daily)updateManualDailyRows();return;}
+    if(action==='manual-plan-meals'){const form=$('#manual-plan-form'),two=value==='two';form.elements.mealCount.value=value;button.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===button));$('#manual-plan-dinner-field').hidden=!two;return;}
+    if(action==='manual-plan-new-address'){const u=data.users.find(x=>x.id===manualDraft().userId);return openModal({title:`新增地址 · ${u?.name||''}`,body:`<form id="manual-address-form"><div class="form-grid">${formField('联系人','contact',u?.name||'')}${formField('联系电话','phone',(u?.phone||'').replace(/\s/g,''))}${formField('配送地址','address','','textarea',true)}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-manual-address">保存地址</button>`});}
+    if(action==='save-manual-address'){const f=$('#manual-address-form'),v=Object.fromEntries(new FormData(f).entries()),u=data.users.find(x=>x.id===manualDraft().userId);if(!v.contact||!/^1\d{10}$/.test(v.phone)||!v.address)return toast('请完整填写联系人、11位手机号和地址','','error');const a={id:`ADDR${Date.now().toString().slice(-6)}`,userId:u.id,contact:v.contact,phone:v.phone,province:'',city:'',district:'',street:v.address,building:'',tag:'其他',isDefault:!data.addresses.some(x=>x.userId===u.id)};data.addresses.push(a);u.address=v.address;return openManualPlanEditor();}
+    if(action==='save-manual-plan'){const f=$('#manual-plan-form'),v=Object.fromEntries(new FormData(f).entries()),rawPhone=(v.phone||'').replace(/\D/g,'');if(!v.name.trim())return toast('请填写配送计划名称','','error');if(!v.contact.trim())return toast('请填写联系人','','error');if(rawPhone&&!/^1\d{10}$/.test(rawPhone))return toast('请输入正确的11位手机号','','error');if(v.rule==='自定义配送'&&!v.days)return toast('请至少选择一个配送日期','','error');const days=(v.days||'').split(',').filter(Boolean),dailySettings={};if(v.settingMode==='daily'){for(const day of days){const meal=v[`dailyMeal_${day}`];if(!meal)return toast(`请设置周${day}的配送餐次`,'每个配送日至少选择一餐','error');dailySettings[day]={mealCount:meal,lunchTime:v[`dailyLunch_${day}`],dinnerTime:v[`dailyDinner_${day}`]};}}const u=data.users.find(x=>x.id===manualDraft().userId),addr=data.addresses.find(x=>x.id===v.addressId),two=v.settingMode==='daily'?days.some(day=>dailySettings[day]?.mealCount==='two'):v.mealCount==='two',plan={id:`PL${Date.now().toString().slice(-6)}`,user:u.name,name:v.name,cycle:v.rule,status:'未使用',startDate:'',endDate:'',lunchBrand:data.brands.find(b=>b.id===manualDraft().brandId)?.name||'',dinnerBrand:two?(data.brands.find(b=>b.id===manualDraft().brandId)?.name||''):'',meals:two?'午餐 + 晚餐':'午餐',time:v.settingMode==='daily'?'按星期分别设置':(two?`午餐 ${v.lunchTime} · 晚餐 ${v.dinnerTime}`:`午餐 ${v.lunchTime}`),contact:v.contact,phone:rawPhone,address:addr?addressText(addr):'',diet:v.diet||'无',allergy:v.allergy||'无',note:v.note||'',settingMode:v.settingMode,days,dailySettings,overrides:0};data.plans.push(plan);manualDraft().planId=plan.id;closeModal();renderApp();return toast('配送计划已创建',plan.name);}
+    if(action==='submit-manual-order'){const d=manualDraft(),amount=Number($('#manual-order-amount')?.value),paymentMethodId=$('#manual-order-payment')?.value,note=$('#manual-order-note')?.value.trim()||'',u=data.users.find(x=>x.id===d.userId),b=data.brands.find(x=>x.id===d.brandId),p=data.packages.find(x=>x.id===d.packageId),method=data.paymentMethods.find(x=>x.id===paymentMethodId),plan=data.plans.find(x=>x.id===d.planId),startIso=$('#manual-order-start-date')?.value||d.startDate||tomorrowISO;if(!u)return toast('请选择用户','','error');if(!b)return toast('请选择品牌','','error');if(!p)return toast('请选择套餐','','error');if(Number.isNaN(amount)||amount<0)return toast('请输入有效实付金额','','error');if(!method||method.status!=='启用')return toast('请选择有效付款方式','','error');if(plan&&!startIso)return toast('请选择开始配送时间','','error');const stamp=nowStamp(),oid=`OD${Date.now().toString().slice(-12)}`,sid=`SUB${Date.now().toString().slice(-8)}`;data.orders.unshift({id:oid,user:u.name,userId:u.id,package:p.name,brand:b.name,amount,status:'待使用',paid:stamp,channel:'后台',operator:currentAdmin().name,paymentMethodId:method.id,paymentMethodName:method.name,note:note||'后台人工补录',deliveryStart:startIso});data.subscriptions.unshift({id:sid,orderId:oid,user:u.name,brand:b.name,package:p.name,bought:p.meals,used:0,remaining:p.meals,frozen:0,status:'未开始',valid:`${todayDate().replace(/-/g,'.')} - 2026.09.06`,last:'-',plan:plan?.name||'待创建配送计划',planId:plan?.id||''});if(plan&&!plan.startDate){plan.startDate=startIso.replace(/-/g,'.');const ed=new Date(startIso+'T00:00:00');ed.setDate(ed.getDate()+28);plan.endDate=`${ed.getFullYear()}.${String(ed.getMonth()+1).padStart(2,'0')}.${String(ed.getDate()).padStart(2,'0')}`;}data.finance.unshift({id:`FN${Date.now().toString().slice(-10)}`,time:stamp,type:'收款',orderId:oid,user:u.name,amount,channel:method.name,operator:currentAdmin().name,note:'后台补录订单收款',refundAmount:0,refundNote:''});addLog('补录订单',`${oid} · ${u.name} · ${method.name}`);state.manualOrder=null;state.page='orders';renderApp();return toast('订单补录成功',`${oid} · ${method.name}`);}
+    if(action==='export-orders')return genericExport('渡鸦管家_订单与套餐明细',[['订单号','订单状态','用户名','用户ID','手机号','品牌','套餐名称','套餐状态','实付金额','支付时间','支付方式','退款总金额','退款时间','退款明细','购买餐次','已使用餐次','剩余餐次','调整餐次','配送计划','开始配送时间','下单渠道','操作人','订单备注'],...filteredOrders().map(o=>{const s=data.subscriptions.find(x=>x.orderId===o.id),u=data.users.find(x=>x.name===o.user),refunds=refundRecordsFor(o),refundText=refunds.length?refunds.map((r,i)=>`${i+1}. ${money(r.amount)}｜${r.refundTypeName||'其他'}｜${r.reason||'—'}｜${r.operator||'—'}｜${r.operationTime||'—'}`).join('\n'):'—';return [o.id,o.status,o.user,u?.id||'—',u?.phone||'—',o.brand,o.package,s?.status||'—',o.amount,o.paid||'—',orderPaymentMethod(o),refunds.reduce((n,r)=>n+Number(r.amount||0),0),refunds.map(r=>r.refundTime||'—').join('\n')||'—',refundText,s?.bought??'—',s?.used??'—',s?.remaining??'—',s&&mealAdjustmentTotal(s)?`${mealAdjustmentTotal(s)>0?'+':''}${mealAdjustmentTotal(s)}`:'—',s?.plan||'—',o.deliveryStart||'—',orderChannel(o),orderOperator(o),o.note||'—'];})]);
+    if(action==='dashboard-user-dim'){if(button.dataset.value==='custom')return openModal({title:'周期新增用户 · 时间范围',body:`<div class="form-grid"><div class="form-field wide"><label>自定义范围</label><div class="dashboard-mini-range show"><input class="date-control" id="dashboard-user-start" type="date" value="${state.dashboardUserStart}"><span>至</span><input class="date-control" id="dashboard-user-end" type="date" value="${state.dashboardUserEnd}"></div></div></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="apply-user-range">应用</button>`});state.dashboardUserDim=button.dataset.value;renderApp();return;}
+    if(action==='apply-user-range'){if(state.dashboardUserDim==='custom'){const s=$('#dashboard-user-start')?.value,e=$('#dashboard-user-end')?.value;if(!s||!e)return toast('请选择完整的日期范围','','error');if(s>e)return toast('开始日期不能晚于结束日期','','error');state.dashboardUserStart=s;state.dashboardUserEnd=e;}closeModal();renderApp();return;}
+    if(action==='dashboard-trend-mode'){state.dashboardTrendMode=button.dataset.value;renderApp();return;}
+    if(action==='dashboard-trend-dim'){state.dashboardTrendDim=button.dataset.value;renderApp();return;}
+    if(action==='apply-trend-range'){const s=$('#dashboard-trend-start')?.value,e=$('#dashboard-trend-end')?.value;if(!s||!e)return toast('请选择完整的日期范围','','error');if(s>e)return toast('开始日期不能晚于结束日期','','error');state.dashboardTrendStart=s;state.dashboardTrendEnd=e;renderApp();return;}
+    if(action==='dashboard-login-dim'){state.dashboardLoginDim=button.dataset.value;renderApp();return;}
+    if(action==='apply-login-range'){const s=$('#dashboard-login-start')?.value,e=$('#dashboard-login-end')?.value;if(!s||!e)return toast('请选择完整的日期范围','','error');if(s>e)return toast('开始日期不能晚于结束日期','','error');state.dashboardLoginStart=s;state.dashboardLoginEnd=e;renderApp();return;}
+    if(action==='view-sub')return openSubDetail(id);
+    if(action==='view-user-remaining'){const u=data.users.find(x=>x.id===id),records=userPurchaseSummary(u).records;return openModal({title:`剩余次数明细 · ${u.name}`,wide:true,body:`<div class="table-wrap"><table class="data-table"><thead><tr><th>品牌</th><th>剩余次数</th><th>已用次数</th><th>对应订单号</th></tr></thead><tbody>${records.map(s=>`<tr><td>${s.brand}</td><td><b>${s.remaining} 次</b></td><td>${s.used||0} 次</td><td><button class="cell-link" data-action="view-order" data-id="${s.orderId}">${s.orderId||'—'}</button></td></tr>`).join('')}</tbody></table></div>`,footer:`<button class="button primary" data-action="close-modal">完成</button>`});}
+    if(action==='toggle-subscribed-users'){state.filters.userSubscribedOnly=button.checked!==undefined?button.checked:!state.filters.userSubscribedOnly;state.pagination.page=1;renderApp();return;}
+    if(action==='toggle-sub'){const s=data.subscriptions.find(x=>x.id===id);if(s.status==='已暂停')return confirmAction('恢复该订购？','恢复后将继续按原配送计划生成任务。','确认恢复','confirm-toggle-sub',id);const start=todayDate(),endDate=new Date(`${start}T00:00:00`);endDate.setDate(endDate.getDate()+7);const end=isoDate(endDate);return openModal({title:'设置暂停时间段',body:`<div class="form-field wide"><label>暂停时间段</label><div class="date-range-control pause-date-range"><input id="pause-start" type="date" value="${start}"><span>至</span><input id="pause-end" type="date" value="${end}" min="${start}"></div></div><div class="form-field wide"><label>是否占用用户的暂停次数</label><label class="switch"><input type="checkbox" id="pause-occupied" checked><span class="switch-track"></span><span>占用（计入小程序单品牌暂停次数限制）</span></label><p class="form-hint">占用时按周/月/季/年暂停次数上限校验，超出将阻止暂停；不勾选则不计数、不校验。</p></div><p class="form-hint">暂停期间不再生成新的配送任务，结束后可由管理员恢复订购。</p>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-pause-range" data-id="${id}">确认暂停</button>`});}
+    if(action==='confirm-pause-range'){const s=data.subscriptions.find(x=>x.id===id),start=$('#pause-start')?.value,end=$('#pause-end')?.value,occupied=$('#pause-occupied')?.checked!==false;if(!start||!end)return toast('请选择完整的暂停时间段','','error');if(end<start)return toast('恢复日期不能早于开始日期','','error');if(occupied){const blocked=pauseLimitBlocked(s,start);if(blocked)return toast('无法暂停',blocked,'error');}s.pauseStart=start;s.pauseEnd=end;s.status='已暂停';s.pauseLogs=s.pauseLogs||[];s.pauseLogs.push({start,end,occupied,operator:currentAdmin().name,time:nowStamp()});addLog('暂停订购',`${s.id} ${s.user}：${start} 至 ${end}${occupied?'（占用暂停次数）':'（不占用暂停次数）'}`);closeModal();closeDrawer();renderApp();return toast('订购已暂停',`${start} 至 ${end}`);}
+    if(action==='confirm-toggle-sub'){const s=data.subscriptions.find(x=>x.id===id);s.status='进行中';addLog('恢复订购',`${s.id} ${s.user}：进行中`);closeModal();closeDrawer();renderApp();return toast('订购已恢复','进行中');}
+    if(action==='adjust-meals'){openModal({title:'赠送/扣除餐次',body:`<div class="form-grid"><div class="form-field wide"><label><em class="req-star">*</em>调整类型</label><div class="meal-adjust-type-grid">${[['gift','赠送'],['deduct','扣除']].map(([v,l])=>`<label class="meal-adjust-type-option"><input type="radio" name="mealAdjustType" value="${v}"><span>${l}</span></label>`).join('')}</div></div><div class="form-field"><label><em class="req-star">*</em>次数（整数）</label><input id="meal-adjust" type="number" min="1" step="1" placeholder="请输入次数"></div><div class="form-field wide"><label>备注（选填）</label><textarea id="meal-adjust-note" placeholder="请输入调整原因或说明"></textarea></div></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-adjust-meals" data-id="${id}">确认调整</button>`});document.querySelectorAll('.meal-adjust-type-option input').forEach(r=>r.addEventListener('change',()=>{document.querySelectorAll('.meal-adjust-type-option').forEach(o=>o.classList.toggle('active',o.querySelector('input').checked));}));return;}
+    if(action==='confirm-adjust-meals'){const s=data.subscriptions.find(x=>x.id===id),type=document.querySelector('[name="mealAdjustType"]:checked')?.value,n=Number($('#meal-adjust')?.value||0),note=$('#meal-adjust-note')?.value.trim()||'—';if(!type)return toast('请选择赠送或扣除','','error');if(!Number.isInteger(n)||n<1)return toast('请输入大于 0 的整数次数','','error');if(type==='deduct'&&n>s.remaining)return toast('扣除次数不能超过当前剩余餐次',`当前剩余 ${s.remaining} 餐`,'error');const label=type==='gift'?'赠送':'扣除',sign=type==='gift'?1:-1;s.bought+=sign*n;s.remaining+=sign*n;s.adjustments=s.adjustments||[];s.adjustments.push({type:label,count:n,note,operator:currentAdmin().name,time:nowStamp()});if(type==='deduct'){const u=data.users.find(x=>x.name===s.user)||{},plan=data.plans.find(p=>p.user===s.user);data.redemptions=data.redemptions||[];data.redemptions.push({id:`RV${Date.now().toString().slice(-6)}`,time:nowStamp(),userId:u.id||'',userName:s.user,phone:u.phone||'—',brand:s.brand,orderId:s.orderId||s.id,plan:(s.plan&&s.plan!=='待创建配送计划')?s.plan:'—',planCycle:plan?plan.cycle:'—',meal:'—',qty:n,address:(plan&&plan.address)||u.address||'—',receiver:(plan&&plan.contact)||'—',receiverPhone:(plan&&plan.phone)||'—',source:'后台扣除',operator:currentAdmin().name,note:note==='—'?'后台扣除':note});}addLog(`${label}餐次`,`${s.id} ${s.user} ${sign>0?'+':'-'}${n} 餐`);closeModal();closeDrawer();renderApp();return toast('餐次调整成功',`${label} ${n} 餐`)}
+    if(action==='view-meal-adjustments'){const s=data.subscriptions.find(x=>x.id===id),items=(s?.adjustments||[]).slice().reverse();return openModal({title:'调整餐次记录',wide:true,body:`<div class="table-wrap"><table class="data-table"><thead><tr><th>类型</th><th>次数</th><th>备注</th><th>操作人</th><th>操作时间</th></tr></thead><tbody>${items.map(x=>`<tr><td>${x.type}</td><td><b class="${x.type==='扣除'?'negative':'positive'}">${x.type==='赠送'?'+':'-'}${x.count}</b></td><td>${x.note||'—'}</td><td>${x.operator}</td><td>${x.time}</td></tr>`).join('')}</tbody></table></div>`});}
+    if(action==='new-subscription')return openModal({title:'创建套餐订购',body:`<form id="entity-form" data-kind="subscription"><div class="form-grid">${formField('用户','user',data.users[0].name,'select',false,data.users.map(u=>u.name))}${formField('套餐','package',data.packages[0].name,'select',false,data.packages.filter(p=>p.status==='启用').map(p=>p.name))}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-entity">创建订购</button>`});
+    if(action==='export-subs')return genericExport('渡鸦管家_套餐购买',[['订单号','用户','用户ID','手机号','品牌','套餐','购买餐次','已使用','冻结','剩余','状态'],...data.subscriptions.map(s=>{const u=data.users.find(x=>x.name===s.user);return [s.orderId||s.id,s.user,u?.id||'—',u?.phone||'—',s.brand,s.package,s.bought,s.used,s.frozen||0,s.remaining,s.status];})]);
+    if(action==='daily-day'){if(value==='custom'){state.dailyDay='custom';state.pagination.page=1;renderApp();return;}state.dailyDay=value;state.dailyDate=value==='today'?todayISO:tomorrowISO;state.pagination.page=1;renderApp();return;}
+    if(action==='apply-daily-range'){const s=$('#daily-start')?.value,e=$('#daily-end')?.value;if(!s||!e)return toast('请选择完整的日期范围','','error');if(s>e)return toast('开始日期不能晚于结束日期','','error');state.dailyStart=s;state.dailyEnd=e;state.dailyDay='custom';state.pagination.page=1;renderApp();return;}
+    if(action==='change-delivery-status'){const ids=(button.dataset.ids||'').split(',').filter(Boolean),tasks=ids.map(taskId=>data.tasks.find(t=>t.id===taskId)).filter(Boolean),lunchTasks=tasks.filter(t=>t.meal==='午餐'),dinnerTasks=tasks.filter(t=>t.meal==='晚餐'),both=lunchTasks.length&&dinnerTasks.length,opts=['已送达','配送中','待配送','未送达','配送异常'],grid=(name,current)=>`<div class="delivery-status-grid">${opts.map(v=>`<label class="delivery-status-option ${v===current?'active':''}"><input type="radio" name="${name}" value="${v}" ${v===current?'checked':''}><span>${v}</span></label>`).join('')}</div>`;const body=both?`<div class="form-field"><label><em class="req-star">*</em>午餐配送状态</label>${grid('deliveryStatusLunch',lunchTasks[0].status)}</div><div class="form-field"><label><em class="req-star">*</em>晚餐配送状态</label>${grid('deliveryStatusDinner',dinnerTasks[0].status)}</div><p class="form-hint">将分别更新该记录的午餐、晚餐任务状态。</p>`:`<div class="form-field"><label><em class="req-star">*</em>配送状态</label>${grid('deliveryStatus',tasks[0]?.status||'待配送')}</div><p class="form-hint">将同步更新该记录关联的全部午餐、晚餐任务。</p>`;openModal({title:'修改配送状态',body,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-delivery-status" data-ids="${ids.join(',')}">确认修改</button>`});document.querySelectorAll('.delivery-status-option input').forEach(r=>r.addEventListener('change',()=>{document.querySelectorAll('.delivery-status-option').forEach(o=>o.classList.toggle('active',o.querySelector('input').checked));}));return;}
+    if(action==='save-delivery-status'){const ids=(button.dataset.ids||'').split(',').filter(Boolean),lunch=document.querySelector('[name="deliveryStatusLunch"]:checked')?.value,dinner=document.querySelector('[name="deliveryStatusDinner"]:checked')?.value,single=document.querySelector('[name="deliveryStatus"]:checked')?.value;if(!lunch&&!dinner&&!single)return toast('请选择配送状态','','error');ids.forEach(taskId=>{const task=data.tasks.find(t=>t.id===taskId);if(!task)return;const next=task.meal==='午餐'?(lunch||single):task.meal==='晚餐'?(dinner||single):(single||lunch||dinner);if(next)task.status=next;});const label=[lunch?`午餐 ${lunch}`:'',dinner?`晚餐 ${dinner}`:'',single||''].filter(Boolean).join('、');addLog('修改配送状态',`${ids.join('、')}：${label}`);closeModal();renderApp();return toast('配送状态已更新',label);}
+    if(action==='view-plan')return openPlanDetail(id);if(action==='edit-plan'){closeDrawer();return openPlanForm(id)}if(action==='new-plan')return openPlanForm();
+    if(action==='plan-pick-user')return openPlanUserPicker();
+    if(action==='plan-user-select'){const u=data.users.find(x=>x.id===id);if(!u)return;planFormState.pickedUser=u.name;closeModal();renderApp();return;}
+    if(action==='toggle-plan'){const p=data.plans.find(x=>x.id===id),active=planUsageStatus(p)==='正在使用';return confirmAction(active?'停用该配送计划？':'启用该配送计划？',active?'停用后不再生成新的配送任务。':'启用后将按计划继续生成配送任务。','确认','confirm-toggle-plan',id);}
+    if(action==='confirm-toggle-plan'){const p=data.plans.find(x=>x.id===id);p.status=planUsageStatus(p)==='正在使用'?'未使用':'正在使用';addLog('切换配送计划状态',`${p.name} ${p.user}：${p.status}`);closeModal();closeDrawer();renderApp();return toast('配送计划状态已更新',p.status)}
+    if(action==='copy-plan'){const p=clone(data.plans.find(x=>x.id===id));if(!p)return;return openPlanForm('',{...p,id:'',name:p.name+'（副本）'});}
+    if(action==='plan-overrides'){const p=data.plans.find(x=>x.id===id),list=(p&&p.overridesList)||[];return openModal({title:`临时调整记录 · ${p?p.name:id}`,body:list.length?`<div class="timeline">${list.slice().reverse().map(x=>`<div class="timeline-item"><b>${x.detail}</b><small>${x.time} · ${x.source}</small></div>`).join('')}</div>`:'<p class="cell-sub">该计划暂无临时调整记录</p>'});}
+    if(action==='plan-cal-month'){const [y,m]=planCalState.month.split('-').map(Number),nd=new Date(Date.UTC(y,m-1+(button.dataset.value==='prev'?-1:1),1));planCalState.month=`${nd.getUTCFullYear()}-${String(nd.getUTCMonth()+1).padStart(2,'0')}`;const dates=planCalDates(),totals=planCalTotals(dates),inMonth=[...dates.keys()].filter(d=>d.startsWith(planCalState.month)).sort();planCalState.date=inMonth[0]||'';refreshPlanCal();return;}
+    if(action==='plan-cal-date'){planCalState.date=button.dataset.date;refreshPlanCal();return;}
+    if(action==='plan-cal-view'){planCalState.view=button.dataset.value;refreshPlanCal();return;}
+    if(action==='plan-cal-export'){const dates=planCalDates(),date=planCalState.date,rows=date?dates.get(date):null;if(!rows||!rows.length)return toast('暂无可导出的明细','该日期没有配送计划','error');if(planCalState.view==='summary'){const m=new Map();rows.forEach(r=>{if(!m.has(r.brand))m.set(r.brand,{lunch:0,dinner:0,users:new Set()});const x=m.get(r.brand);x[r.meal==='午餐'?'lunch':'dinner']++;x.users.add(r.user);});return genericExport(`配送日历_${date}_按品牌`,[['品牌','午餐','晚餐','合计','用户数'],...[...m.entries()].sort((a,b)=>b[1].lunch+b[1].dinner-(a[1].lunch+a[1].dinner)).map(([brand,x])=>[brand,x.lunch,x.dinner,x.lunch+x.dinner,x.users.size])]);}const m=new Map();rows.forEach(r=>{if(!m.has(r.user))m.set(r.user,[]);m.get(r.user).push(r);});return genericExport(`配送日历_${date}_按下单人`,[['下单人','品牌','餐别','配送时间','份数','配送地址'],...[...m.entries()].sort((a,b)=>b[1].length-a[1].length).map(([user,rs])=>[user,rs.map(r=>r.brand).join('、'),rs.map(r=>r.meal).join('、'),rs.map(r=>r.time).join('、'),rs.length,[...new Set(rs.map(r=>r.address))].join('、')])]);}
+    if(action==='user-plan-cal-month'){const [y,m]=userPlanCalState.month.split('-').map(Number),nd=new Date(Date.UTC(y,m-1+(button.dataset.value==='prev'?-1:1),1));userPlanCalState.month=`${nd.getUTCFullYear()}-${String(nd.getUTCMonth()+1).padStart(2,'0')}`;refreshUserPlanCal();return;}
+    if(action==='user-plan-cal-date'){userPlanCalState.date=button.dataset.date;refreshUserPlanCal();return;}
+    if(action==='user-plan-cal-view'){userPlanCalState.view=button.dataset.value;refreshUserPlanCal();return;}
+    if(action==='plan-rule'){planFormState.rule=button.dataset.value;$$('#entity-form .plan-rule-radios button').forEach(b=>b.classList.toggle('active',b.dataset.value===planFormState.rule));const w=$('#plan-weekday-wrap');if(w)w.classList.toggle('show',planFormState.rule==='自定义配送');renderPlanDeliveryConfig();return;}
+    if(action==='plan-days-change'){const vals=[...document.querySelectorAll('#entity-form .plan-weekday-picker input:checked')].map(i=>i.value);planFormState.days=vals.length?vals.join(','):'1,2,3,4,5';renderPlanDeliveryConfig();return;}
+    if(action==='plan-delivery-toggle'){planFormState.perDay=!planFormState.perDay;renderPlanDeliveryConfig();return;}
+    if(action==='plan-meal-count'){planFormState.counts[button.dataset.key]=Number(button.dataset.count);renderPlanDeliveryConfig();return;}
+    if(action==='plan-meal-type'){planFormState.types[button.dataset.key]=button.dataset.type;renderPlanDeliveryConfig();return;}
+    if(action==='plan-addr-toggle'){const panel=button.nextElementSibling;if(panel)panel.hidden=!panel.hidden;return;}
+    if(action==='recalculate'){if(state.timeline==='locked')return toast('任务已锁定','20:00 后不允许重新计算或修改原任务','error');button.disabled=true;button.innerHTML='<i class="login-loader"></i>正在计算';setTimeout(()=>{state.dailyVersion+=1;state.snapshot=false;state.confirmed=false;renderApp();addLog('重新计算配送任务',`${state.dailyDate} 生成 V${state.dailyVersion}`);toast('配送任务已重新计算',`已生成 V${state.dailyVersion}，应用最新订购、计划与临时调整`);},700);return;}
+    if(action==='snapshot'){state.snapshot=!state.snapshot;renderApp();addLog(state.snapshot?'生成任务快照':'撤销任务快照',`${state.dailyDate} V${state.dailyVersion}`);return toast(state.snapshot?'任务快照已生成':'任务快照已撤销',state.snapshot?'后续修改将显示差异':'可重新计算最新数据')}
+    if(action==='confirm-daily')return confirmAction(state.confirmed?'取消数据确认？':'确认配送数据？',state.confirmed?'取消后将回到待运营确认状态。':'确认后该日配送任务将进入已确认状态。','确认','confirm-confirm-daily');
+    if(action==='confirm-confirm-daily'){state.confirmed=!state.confirmed;renderApp();addLog(state.confirmed?'确认配送数据':'取消数据确认',`${state.dailyDate} V${state.dailyVersion}`);return toast(state.confirmed?'配送数据已确认':'已取消确认',state.confirmed?'当前数据可进入导出检查':'请确认完成后再导出')}
+    if(action==='view-task'){state.backPage=state.page!=='task-detail'?state.page:state.backPage;state.taskDetailIds=(button.dataset.ids||'').split(',').filter(Boolean);state.page='task-detail';renderApp();return;}
+    if(action==='edit-task'){if(state.timeline==='locked')return toast('任务已锁定','20:00 后只能新增异常/售后记录','error');const t=data.tasks.find(x=>x.id===id);return openModal({title:'补充配送资料',body:`<form id="task-fix-form"><div class="form-grid">${formField('联系人','contact',t.contact)}${formField('联系电话','phone',t.phone)}${formField('配送地址','address',t.address,'textarea',true)}${formField('配送备注','note',t.note,'textarea',true)}</div></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-task" data-id="${id}">保存资料</button>`})}
+    if(action==='save-task'){const t=data.tasks.find(x=>x.id===id),v=Object.fromEntries(new FormData($('#task-fix-form')).entries());Object.assign(t,v,{status:v.phone&&v.address&&v.contact?'待确认':'资料异常'});addLog('补充配送资料',`${t.id} ${t.user}`);closeModal();closeDrawer();renderApp();return toast('配送资料已更新')}
+    if(action==='replace-brand'){if(state.timeline==='locked')return toast('任务已锁定','20:00 后不允许替换品牌','error');const t=data.tasks.find(x=>x.id===id),candidates=data.brands.filter(b=>b.status==='上架'&&b.name!==t.brand);return openModal({title:`替换配送品牌 · ${t.id}`,body:`<div class="form-grid">${formField('原品牌','oldBrand',t.brand,'text',true)}${formField('新品牌','newBrand',candidates[0]?.name||'','select',false,candidates.map(b=>b.name))}${formField('替换原因','reason','品牌停供 / 当日满额','text',true)}${formField('操作人','operator','林方')}</div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button danger" data-action="confirm-replace-brand" data-id="${id}">确认替换并生成新版本</button>`});}
+    if(action==='confirm-replace-brand'){const t=data.tasks.find(x=>x.id===id),newBrand=document.querySelector('[name="newBrand"]')?.value,reason=document.querySelector('[name="reason"]')?.value||'',operator=document.querySelector('[name="operator"]')?.value||'林方';if(!newBrand){closeModal();return toast('请选择新品牌','','error');}const pkg=data.packages.find(p=>(p.brands||[]).includes(newBrand)&&p.status==='启用')||data.packages.find(p=>(p.brands||[]).includes(newBrand));const oldBrand=t.brand;t.status='已失效';t.note=(t.note?t.note+'；':'')+`已替换为${newBrand}（${reason}）`;data.tasks.push({...clone(t),id:`DL${Date.now().toString().slice(-6)}`,brand:newBrand,package:pkg?pkg.name:t.package,version:'V2',status:'待确认',plan:'临时调整',note:`品牌替换：${oldBrand}→${newBrand}（${reason}，操作人 ${operator}）`});state.dailyVersion+=1;state.snapshot=false;state.confirmed=false;addLog('品牌替换',`${t.user} ${t.meal}：${oldBrand}→${newBrand}，原因：${reason}，操作人 ${operator}`,operator);closeModal();closeDrawer();renderApp();return toast('品牌替换完成',`旧任务 ${t.id} 已失效，生成新任务 V2（结算按最终实际配送品牌）`);}
+    if(action==='new-after-sale'){const tasks=data.tasks.filter(t=>t.date===state.dailyDate&&t.status!=='已失效');return openModal({title:'新增配送异常/售后记录',body:`<div class="form-grid">${formField('关联任务','task',tasks[0]?.id||'','select',false,tasks.map(t=>t.id))}${formField('记录类型','type','配送异常','select',false,['配送异常','售后记录'])}${formField('说明','detail','','textarea',true)}</div><p class="form-hint">只新增记录并关联原任务，不覆盖任何原始数据（20:00 后规则）。</p>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-after-sale">保存记录</button>`});}
+    if(action==='save-after-sale'){const task=document.querySelector('[name="task"]')?.value||'',type=document.querySelector('[name="type"]')?.value||'配送异常',detail=document.querySelector('[name="detail"]')?.value||'';addLog(type,`关联任务 ${task}：${detail||'无说明'}`);closeModal();return toast('异常/售后记录已新增','已关联原任务，未覆盖任何原始数据');}
+    if(action==='prepare-export')return exportDailyWorkbook();
+    if(action==='export-errors'){const invalidTasks=data.tasks.filter(t=>t.date===state.dailyDate&&t.status!=='已失效'&&(!t.contact||!t.phone||!t.address));return genericExport('渡鸦管家_配送资料异常',[taskHeaders,...invalidTasks.map(taskExportColumns)])}
+    if(action==='fix-demo-data')return confirmAction('修复演示数据？','将补全 DL008、DL009 的资料异常，随后可正式导出。','确认修复','confirm-fix-demo-data',id);
+    if(action==='confirm-fix-demo-data'){data.tasks.filter(t=>t.id==='DL008').forEach(t=>{t.phone='137 1182 0916';t.status='待确认'});data.tasks.filter(t=>t.id==='DL009').forEach(t=>{t.address='上海市徐汇区宜山路900号科技产业大厦C座1208室';t.area='徐汇区';t.status='待确认'});addLog('修复演示数据','DL008、DL009 资料已补全');closeModal();renderApp();toast('演示数据已修复','2 条异常资料已补全，现在可以正式导出');return;}
+    if(action==='export-daily-xlsx')return exportDailyWorkbook();
+    if(action==='export-report')return genericExport('渡鸦管家_配送情况报表',[['任务编号','日期','品牌','区域','餐别','用户','配送时间','状态','异常原因'],...data.reports.map(r=>[r.id,r.date,r.brand,r.area,r.meal,r.user,r.time||'—',r.status,r.issue||'—'])]);
+    if(action==='create-ticket')return openModal({title:'创建异常工单',body:`<div class="form-grid">${formField('关联任务','task','R080505')}${formField('异常类型','type','地址无法进入','select',false,['地址无法进入','配送超时','用户改期','餐品延迟'])}${formField('负责人','owner','张雪')}${formField('处理时限','deadline','2026-08-06T18:00','datetime-local')}${formField('问题说明','detail','骑手无法进入园区，正在联系用户确认取餐位置。','textarea',true)}</div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-ticket">创建工单</button>`});
+    if(action==='save-ticket'){const detail=document.querySelector('[name="detail"]')?.value||'';addLog('创建异常工单',`关联任务 ${document.querySelector('[name="task"]')?.value||''} · ${detail}`);closeModal();return toast('异常工单已创建','已通知负责人张雪')}
+    if(action==='view-report'){const r=data.reports.find(x=>x.id===id);return openDrawer({title:'配送任务跟进',body:`<div class="detail-hero"><span class="detail-avatar">履</span><div><h4>${r.id}</h4><p>${r.brand} · ${r.area} · ${r.meal}</p></div>${status(r.status)}</div><div class="detail-list"><div><span>用户</span><b>${r.user}</b></div><div><span>送达时间</span><b>${r.time}</b></div><div><span>异常原因</span><b>${r.issue}</b></div><div><span>责任判定</span><b>${r.responsibility||'—'}</b></div><div><span>处理人</span><b>${r.handler}</b></div></div><h4 style="margin-top:20px">处理记录</h4><div class="timeline">${(r.history||[]).slice().reverse().map(h=>`<div class="timeline-item"><b>${h.status}</b><small>${h.time} · ${h.operator} · 责任 ${h.responsibility}</small><small>${h.detail}</small></div>`).join('')||`<div class="timeline-item"><b>${r.status}</b><small>系统已记录最终履约结果</small></div><div class="timeline-item"><b>配送任务已生成</b><small>根据有效配送计划自动创建</small></div>`}</div>`,footer:`<button class="button secondary" data-action="close-drawer">关闭</button><button class="button secondary" data-action="fill-report" data-id="${r.id}">回录结果</button><button class="button primary" data-action="mark-resolved" data-id="${r.id}">标记已解决</button>`})}
+    if(action==='mark-resolved')return confirmAction('标记该任务已解决？','任务状态将更新为「已送达」并写入处理记录。','确认标记','confirm-mark-resolved',id);
+    if(action==='confirm-mark-resolved'){const r=data.reports.find(x=>x.id===id);r.status='已送达';r.issue='已处理';r.history=r.history||[];r.history.push({time:nowTime(),status:'已送达',responsibility:'-',detail:'标记已解决',operator:'林方'});addLog('标记任务已解决',r.id);closeModal();closeDrawer();renderApp();return toast('任务已标记为解决')}
+    if(action==='fill-report'){const r=data.reports.find(x=>x.id===id);return openModal({title:`回录配送结果 · ${r.id}`,body:`<div class="form-grid">${formField('配送状态','status',r.status==='配送失败'?'配送失败':'已送达','select',false,['已送达','延迟送达','已改期','配送失败'])}${formField('责任判定（失败时）','responsibility','待审核','select',false,['品牌责任','不可抗力','用户原因','待审核'])}${formField('处理说明','detail',r.issue==='-'?'':'','textarea',true)}</div><p class="form-hint">失败联动账本：品牌/不可抗力释放冻结餐次；用户原因按已使用扣减；待审核挂起不扣不减。</p>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-fill-report" data-id="${r.id}">确认回录</button>`});}
+    if(action==='confirm-fill-report'){const r=data.reports.find(x=>x.id===id),statusV=document.querySelector('[name="status"]')?.value||'已送达',resp=document.querySelector('[name="responsibility"]')?.value||'待审核',detail=document.querySelector('[name="detail"]')?.value||'';r.status=statusV;r.handler='林方';if(detail)r.issue=detail;let ledger='';if(statusV==='配送失败'){r.responsibility=resp;ledger=ledgerOnFail(r.user,resp);}else{r.responsibility='';}r.history=r.history||[];r.history.push({time:nowTime(),status:statusV,responsibility:r.responsibility||'-',detail:detail||r.issue,operator:'林方'});addLog('回录配送结果',`${r.id} ${r.brand}·${r.meal} → ${statusV}${r.responsibility?'（'+r.responsibility+'）':''}${ledger?'；账本：'+ledger:''}`);closeModal();closeDrawer();renderApp();return toast('配送结果已回录',ledger?`账本联动：${ledger}`:'');}
+    if(action==='batch-fill')return openModal({title:'批量回录配送结果',body:`<div class="form-grid">${formField('业务日期','date','2026-08-05')}${formField('品牌','brand','全部品牌','select',false,['全部品牌',...data.brands.map(b=>b.name)])}${formField('配送状态','status','已送达','select',false,['已送达','延迟送达','已改期','配送失败'])}${formField('责任判定（失败时）','responsibility','待审核','select',false,['品牌责任','不可抗力','用户原因','待审核'])}</div><p class="form-hint">将按条件更新报表记录并联动餐次账本。</p>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-batch-fill">确认批量回录</button>`});
+    if(action==='confirm-batch-fill'){const dateV=document.querySelector('[name="date"]')?.value||'',brandV=document.querySelector('[name="brand"]')?.value||'全部品牌',statusV=document.querySelector('[name="status"]')?.value||'已送达',resp=document.querySelector('[name="responsibility"]')?.value||'待审核';const targets=data.reports.filter(r=>(!dateV||r.date===dateV)&&(brandV==='全部品牌'||r.brand===brandV));const ledgerNotes=[];targets.forEach(r=>{r.status=statusV;r.handler='林方';if(statusV==='配送失败'){r.responsibility=resp;ledgerNotes.push(ledgerOnFail(r.user,resp));}else{r.responsibility='';}r.history=r.history||[];r.history.push({time:nowTime(),status:statusV,responsibility:r.responsibility||'-',detail:'批量回录',operator:'林方'});});addLog('批量回录配送结果',`${dateV||'全部日期'} · ${brandV} · ${statusV}，共 ${targets.length} 条${ledgerNotes.length?'；账本：'+[...new Set(ledgerNotes)].join('、'):''}`);closeModal();renderApp();return toast('批量回录完成',`已更新 ${targets.length} 条配送记录`);}
+    if(action==='report-definition')return openModal({title:'配送指标口径',body:`<div class="detail-list"><div><span>准时送达</span><b>实际到达时间不晚于承诺时间</b></div><div><span>延迟送达</span><b>到达时间晚于承诺时间</b></div><div><span>配送失败</span><b>当日未完成且无法重新派送</b></div><div><span>异常关闭</span><b>已记录原因、责任和处理结论</b></div></div>`});
+    if(action==='view-user')return openUserDetail(id);if(action==='jump-user'){const u=data.users.find(x=>x.name===button.dataset.name);if(u){state.page='users';renderApp();return openUserDetail(u.id)}return toast('演示用户档案未收录',button.dataset.name,'error')}
+    if(action==='brand-tab'){return toast('品牌详情标签已切换','演示占位：原型已展示该入口的交互反馈')}
+    if(action==='jump-plan'){const p=data.plans.find(x=>x.name===button.dataset.name);state.page='plans';renderApp();return p?openPlanDetail(p.id):toast('尚未创建配送计划','请在配送计划页新建','error')}
+    if(action==='new-admin')return openAdminForm();if(action==='edit-admin')return openAdminForm(id);
+    if(action==='reset-admin-password'){const a=data.admins.find(x=>x.id===id);return openModal({title:`重置密码 · ${a.name}`,body:`<form id="reset-admin-password-form"><div class="form-field"><label><em class="req-star">*</em>新密码</label><input name="password" type="password" minlength="12" autocomplete="new-password" placeholder="至少12位，含大小写字母、数字和符号" required></div><p class="form-hint">密码至少12位，并同时包含数字、大写字母、小写字母和符号。</p></form>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-reset-admin-password" data-id="${id}">确认重置</button>`});}
+    if(action==='confirm-reset-admin-password'){const a=data.admins.find(x=>x.id===id),password=$('#reset-admin-password-form [name="password"]')?.value||'';if(!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/.test(password)))return toast('密码至少12位，并包含大写字母、小写字母、数字和符号','','error');a.passwordConfigured=true;addLog('重置管理员密码',`${a.account} · ${a.name}`);closeModal();return toast('密码已重置',`管理员 ${a.name} 的新密码已生效`);}
+    if(action==='view-admin'){const a=data.admins.find(x=>x.id===id),r=data.roles.find(x=>x.id===a.roleId);return openDrawer({title:'管理员详情',body:`<div class="detail-hero"><span class="detail-avatar">${a.name.slice(0,1)}</span><div><h4>${a.name}</h4><p>${a.account} · ${a.id}</p></div>${status(a.status)}</div><div class="detail-list"><div><span>角色</span><b>${r?r.name:'未分配'}</b></div><div><span>模块权限</span><b>${r?rolePermCount(r)+' / '+Object.keys(pageMeta).length:'-'}</b></div><div><span>联系电话</span><b>${a.phone}</b></div><div><span>最近登录</span><b>${a.last}</b></div></div>`,footer:`<button class="button secondary" data-action="close-drawer">关闭</button><button class="button primary" data-action="edit-admin" data-id="${a.id}">编辑</button>`});}
+    if(action==='toggle-admin'){const a=data.admins.find(x=>x.id===id);return confirmAction(a.status==='启用'?`停用管理员「${a.name}」？`:`启用管理员「${a.name}」？`,'停用后该账号无法登录后台。','确认','confirm-toggle-admin',id);}
+    if(action==='confirm-toggle-admin'){const a=data.admins.find(x=>x.id===id);a.status=a.status==='启用'?'停用':'启用';addLog('切换管理员状态',`${a.account}：${a.status}`);closeModal();renderApp();return toast('管理员状态已更新',a.status);}
+    if(action==='delete-admin-confirm'){const a=data.admins.find(x=>x.id===id);if(a.id===state.currentAdminId)return toast('无法删除当前登录账号','','error');const r=data.roles.find(x=>x.id===a.roleId);if(r&&r.name==='超级管理员'&&data.admins.filter(x=>x.roleId===a.roleId).length<=1)return toast('无法删除','系统至少保留一名超级管理员','error');return confirmAction(`删除管理员「${a.name}」？`,'删除后该账号立即失效。','确认删除','delete-admin',id);}
+    if(action==='delete-admin'){const a=data.admins.find(x=>x.id===id);data.admins=data.admins.filter(x=>x.id!==id);addLog('删除管理员',a.account);closeModal();renderApp();return toast('管理员已删除');}
+    if(action==='new-role')return openRoleForm();if(action==='edit-role')return openRoleForm(id);if(action==='view-role')return openRoleDetail(id);
+    if(action==='toggle-role'){const r=data.roles.find(x=>x.id===id);return confirmAction(r.status==='启用'?`停用角色「${r.name}」？`:`启用角色「${r.name}」？`,'停用后该角色下管理员无法登录后台。','确认','confirm-toggle-role',id);}
+    if(action==='confirm-toggle-role'){const r=data.roles.find(x=>x.id===id);r.status=r.status==='启用'?'停用':'启用';addLog('切换角色状态',`${r.name}：${r.status}`);closeModal();renderApp();return toast('角色状态已更新',r.status);}
+    if(action==='delete-role-confirm'){const r=data.roles.find(x=>x.id===id),assigned=data.admins.filter(a=>a.roleId===id).length;if(r.name==='超级管理员')return toast('无法删除超级管理员角色','','error');if(assigned)return toast('无法删除角色',`仍有 ${assigned} 名管理员使用该角色`,'error');return confirmAction(`删除角色「${r.name}」？`,'删除后无法恢复。','确认删除','delete-role',id);}
+    if(action==='delete-role'){const r=data.roles.find(x=>x.id===id);data.roles=data.roles.filter(x=>x.id!==id);addLog('删除角色',r.name);closeModal();renderApp();return toast('角色已删除');}
+    if(action==='open-login')return openLoginModal();
+    if(action==='confirm-login'){const name=document.querySelector('[name="loginUser"]')?.value||data.users[0].name,device=document.querySelector('[name="loginDevice"]')?.value||'iPhone 小程序',u=data.users.find(x=>x.name===name),now=new Date(),time=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toTimeString().slice(0,5)}`;data.logins.unshift({id:`LG${Date.now().toString().slice(-6)}`,userId:u?u.id:name,userName:name,time,device,ip:'192.168.1.'+(10+Math.floor(Math.random()*200))});addLog('模拟用户登录',`${name} · ${device}`);closeModal();renderApp();return toast('登录记录已写入',`${name} 最近登录：${time}`);}
+    if(action==='export-sub-users'){const g=new Map();data.subscriptions.forEach(s=>{if(!g.has(s.user))g.set(s.user,{user:s.user,userId:s.userId||'',brands:new Set(),remaining:0,status:'',last:''});const x=g.get(s.user);x.brands.add(s.brand);x.remaining+=s.remaining;x.status=x.status||s.status;x.last=s.last;});return genericExport('渡鸦管家_订购用户',[['用户','用户ID','手机号','品牌','订购状态','剩余餐次','最近配送'],...[ ...g.values()].map(x=>{const u=data.users.find(y=>y.name===x.user);return [x.user,x.userId||u?.id||'—',u?.phone||'—',[...x.brands].join('、'),x.status,x.remaining,x.last];})]);}
+    if(action==='export-logins'){const latest=new Map();data.logins.forEach(l=>{const c=latest.get(l.userId);if(!c||l.time>c.time)latest.set(l.userId,l);});return genericExport('渡鸦管家_登录用户',[['用户ID','用户名','手机号','订购状态','基础信息','最近登录时间','首次登录时间','累计登录','活跃度','后台用户备注'],...[...latest.values()].map(l=>{const u=data.users.find(x=>x.id===l.userId),logs=data.logins.filter(x=>x.userId===l.userId).sort((a,b)=>a.time.localeCompare(b.time));return [l.userId,l.userName,u?.phone||'—',u?userSubStatus(u):'—',u?.goal||'—',l.time,logs[0]?.time||l.time,logs.length,loginActivity(l.time),u?.note||'—'];})]);}
+    if(action==='export-finance')return genericExport('渡鸦管家_财务报表',[['收款时间','订单号','用户','用户ID','手机号','品牌','套餐信息','总餐数','应收金额','退款金额','实收金额','已核销金额','已核销餐数','未核销金额','未核销餐数','退款时间','支付方式','退款备注'],...filteredFinance().map(r=>{const st=finRowStats(r),u=data.users.find(x=>x.name===r.user);return [r.time,r.orderId,r.user,u?.id||'—',u?.phone||'—',st.brand,st.package,st.total,r.amount,st.refund,st.net,st.usedAmt,st.used,st.unusedAmt,st.remaining,r.refundTime||'—',canonicalPaymentName(r.channel),r.refundNote||'—']})]);
+    if(action==='review-finance'){const r=data.finance.find(x=>x.id===id),st=finRowStats(r);if(!r)return;const hasRefund=(r.refundAmount||0)>0;return openModal({title:`退款复核 · ${r.orderId}`,body:hasRefund?`<div class="detail-list"><div><span>订单号</span><b>${r.orderId}</b></div><div><span>用户</span><b>${r.user}</b></div><div><span>已收金额</span><b>¥${Number(r.amount).toLocaleString()}</b></div><div><span>退款金额</span><b class="negative">-¥${Number(r.refundAmount).toLocaleString()}</b></div><div><span>退款时间</span><b>${r.refundTime||'—'}</b></div><div><span>退款原因</span><b>${r.refundNote||'—'}</b></div><div><span>实收金额</span><b>¥${Number(st.net).toLocaleString()}</b></div></div>`:`<div class="confirm-copy"><div class="confirm-illustration">${icon('alert',26)}</div><h3>该订单暂无退款记录</h3><p>退款请在订单管理发起，发起后此处自动同步显示退款金额、时间与原因。</p></div>`,footer:`<button class="button secondary" data-action="review-goto-order" data-id="${r.orderId}">查看订单</button><button class="button secondary" data-action="close-modal">关闭</button>${hasRefund&&!r.reviewed?`<button class="button primary" data-action="confirm-review-finance" data-id="${r.id}">确认复核</button>`:''}`});}
+    if(action==='review-goto-order'){closeModal();return openOrderDetail(id);}
+    if(action==='confirm-review-finance'){const r=data.finance.find(x=>x.id===id);if(!r)return;r.reviewed=true;addLog('财务复核退款',`${r.orderId} 退款 ¥${r.refundAmount||0} 已复核`);closeModal();renderApp();return toast('已确认复核',`${r.orderId} 退款已复核`);}
+    if(action==='view-user-addresses')return openUserAddresses(id);
+    if(action==='new-address')return openAddressForm();if(action==='edit-address')return openAddressForm(id);
+    if(action==='set-default-address'){const a=data.addresses.find(x=>x.id===id);return confirmAction(`将「${a.userName} · ${a.tag}」设为默认地址？`,'同一用户的其它地址将自动取消默认。','确认设为默认','confirm-set-default-address',id);}
+    if(action==='confirm-set-default-address'){const a=data.addresses.find(x=>x.id===id);data.addresses.forEach(x=>{if(x.userId===a.userId)x.isDefault=false;});a.isDefault=true;addLog('设置默认地址',`${a.userName} · ${a.tag}`);closeModal();renderApp();return toast('已设为默认地址',`${a.userName} · ${a.tag}`);}
+    if(action==='delete-address-confirm'){const a=data.addresses.find(x=>x.id===id);return confirmAction(`删除地址「${a.userName} · ${a.tag}」？`,'删除后无法恢复；若为默认地址将自动切换同用户其它地址。','确认删除','delete-address',id);}
+    if(action==='delete-address'){const a=data.addresses.find(x=>x.id===id);data.addresses=data.addresses.filter(x=>x.id!==id);if(a.isDefault){const others=data.addresses.filter(x=>x.userId===a.userId);if(others[0])others[0].isDefault=true;}addLog('删除用户地址',`${a.userName} · ${a.tag}`);closeModal();renderApp();return toast('地址已删除');}
+    if(action==='menu-week-tab'){state.menuWeek=value;state.menuFocusBrand='';renderApp();return;}
+    if(action==='menu-week-prev'||action==='menu-week-next'){const vis=data.menuWeeks.filter(w=>w.id>='W31'&&w.id<='W37'),cur=vis.find(w=>w.id===state.menuWeek)||vis.find(w=>w.id==='W33'),i=vis.indexOf(cur),j=i+(action==='menu-week-prev'?-1:1);if(j<0||j>=vis.length)return toast('已到边界',j<0?'当前已是最早一个周次':'当前已是最晚一个周次','error');state.menuWeek=vis[j].id;state.menuFocusBrand='';renderApp();setTimeout(()=>{const el=document.querySelector('.tab-button.active');if(el)el.scrollIntoView({inline:'start',block:'nearest'});},80);return;}
+    if(action==='menu-view-tab'){state.menuView=value;renderApp();return;}
+    if(action==='menu-upload')return openMenuUpload(button.dataset.brand,button.dataset.week);
+    if(action==='menu-upload-all'){const weekId=state.menuWeek,missing=menuMissingBrands(weekId);if(!missing.length)return toast('当前周菜单已全部上传','无需批量上传');state.menuBatchQueue=missing.map(b=>b.name);openMenuUpload(state.menuBatchQueue[0],weekId);return;}
+    if(action==='confirm-menu-upload'){const brand=button.dataset.brand,weekId=button.dataset.week,img=document.querySelector('[name="menuImage"]')?.value||'';if(!img){closeModal();return toast('请先选择菜单图片','','error');}const now=new Date(),t=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${now.toTimeString().slice(0,5)}`;const up=menuUploadFor(brand,weekId);if(up){up.image=img;up.uploadedAt=t;}else{data.menuUploads.push({id:`MU${Date.now().toString().slice(-6)}`,brand,weekId,image:img,uploadedAt:t});}addLog('上传菜单图片',`${brand} ${weekId} 已更新`);state.menuBatchQueue=state.menuBatchQueue.filter(x=>x!==brand);if(state.menuBatchQueue.length){openMenuUpload(state.menuBatchQueue[0],weekId);return;}closeModal();renderApp();return toast('菜单图片已保存',`${brand} ${weekId} 已上传`);}
+    if(action==='menu-preview'){const up=data.menuUploads.find(x=>x.id===id);if(!up)return;return openModal({title:`${up.brand} · ${data.menuWeeks.find(w=>w.id===up.weekId)?.label||up.weekId} 菜单`,body:`<img src="${up.image}" style="width:100%;border-radius:12px" alt="菜单图片"><p class="form-hint">上传时间：${up.uploadedAt}</p>`,footer:`<button class="button primary" data-action="close-modal">关闭</button>`});}
+    if(action==='menu-grid-delete-confirm')return confirmAction('删除该菜单图片？','删除后该品牌该周将显示为未上传。','确认删除','menu-grid-delete',id);
+    if(action==='menu-grid-delete'){const u=data.menuUploads.find(x=>x.id===id);data.menuUploads=data.menuUploads.filter(x=>x.id!==id);addLog('删除菜单图片',`${u.brand} ${u.weekId}`);closeModal();renderApp();return toast('菜单图片已删除',`${u.brand} 该周将显示为未上传`);}
+    if(action==='save-menu-switch'){const day=document.querySelector('#menu-switch-day')?.value||'本周末',time=document.querySelector('#menu-switch-time')?.value||'20:00';state.menuSwitch={day,time};addLog('设置菜单切换时间',`${day} ${time}`);renderApp();return toast('菜单切换设置已保存',`小程序将于「${day} ${time}」切换为下周菜单`);}
+    if(action==='goto-menu'){state.menuWeek='W33';state.menuView='weeks';state.menuFocusBrand=value;navigate('menu');return;}
+    if(action==='edit-user-note'){const u=data.users.find(x=>x.id===id);return openModal({title:'用户备注',body:`<div class="form-field"><label>备注内容</label><textarea id="user-note" placeholder="记录沟通重点或后续跟进事项">${escapeHTML(u?.note||'')}</textarea></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-user-note" data-id="${id}">保存用户备注</button>`});}
+    if(action==='save-user-note'){const u=data.users.find(x=>x.id===id),note=$('#user-note')?.value?.trim()||'';if(u)u.note=note;addLog('保存后台用户备注',`${u?u.name:id}：${note||'清空备注'}`);closeModal();renderApp();return toast('后台用户备注已保存','登录用户与用户数据已同步更新');}
+    if(action==='edit-collaboration-note'){const c=data.collaborations.find(x=>x.id===id);return openModal({title:`合作申请备注 · ${c.userName}`,body:`<div class="form-field"><label>后台备注</label><textarea id="collaboration-note" placeholder="填写跟进重点或后续安排">${escapeHTML(c.backendNote||'')}</textarea></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-collaboration-note" data-id="${id}">保存备注</button>`});}
+    if(action==='save-collaboration-note'){const c=data.collaborations.find(x=>x.id===id);if(!c)return;const note=$('#collaboration-note')?.value?.trim()||'';c.backendNote=note;addLog('保存合作申请备注',`${c.userName}：${note||'清空备注'}`);closeModal();renderApp();return toast('后台备注已保存',c.userName);}
+    if(action==='edit-collaboration-status'){const c=data.collaborations.find(x=>x.id===id);if(!c)return;return openModal({title:`跟进状态 · ${c.userName}`,body:`<div class="form-field"><label><em class="req-star">*</em>跟进状态</label><div class="collaboration-status-options">${['待跟进','跟进中','已达成','暂不合作'].map(v=>`<label class="collaboration-status-option ${c.followStatus===v?'active':''}"><input type="radio" name="collaborationStatus" value="${v}" ${c.followStatus===v?'checked':''}><span>${v}</span></label>`).join('')}</div></div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="save-collaboration-status" data-id="${id}">保存状态</button>`});}
+    if(action==='save-collaboration-status'){const c=data.collaborations.find(x=>x.id===id),next=$('[name="collaborationStatus"]:checked')?.value;if(!c||!['待跟进','跟进中','已达成','暂不合作'].includes(next))return toast('请选择跟进状态','','error');const old=c.followStatus;c.followStatus=next;addLog('更新合作跟进状态',`${c.userName}：${old} → ${next}`);closeModal();renderApp();return toast('跟进状态已更新',next);}
+    if(action==='export-collaborations'){const q=(state.filters.collaborationSearch||'').trim().toLowerCase(),rows=data.collaborations.filter(c=>!q||`${c.userName}${c.userId}${c.userPhone}${c.submittedName}${c.submittedContact}${c.content}`.toLowerCase().includes(q));return genericExport('渡鸦管家_合作申请',[['用户名','用户ID','用户手机号','填写姓名','填写联系方式','填写合作内容','后台备注','跟进状态'],...rows.map(c=>[c.userName,c.userId,c.userPhone,c.submittedName,c.submittedContact,c.content,c.backendNote||'—',c.followStatus])]);}
+    if(action==='export-brands')return genericExport('渡鸦管家_品牌',[['品牌名称','品牌描述','类型','特点','最低价格','最高价格','本周菜单','品牌介绍','备注','当前订购用户','历史订购用户','详情页浏览量','明日配送总餐数','明日午餐','明日晚餐','配送范围','运营联系人','关联套餐','状态'],...filteredBrands().map(b=>[b.name,b.desc||b.abbr||'—',(b.types||[]).join('、'),(b.tags||[]).join('、'),b.priceMin,b.priceMax,menuUploadFor(b.name,'W33')?'已上传':'未上传',(b.detailBlocks||[]).length?'已设置':'未设置',b.note||'—',b.subs,b.historicalBuyers,b.pageViews||0,b.tomorrow,b.tomorrowLunch,b.tomorrowDinner,b.area||'—',b.contact||'—',data.packages.filter(p=>(p.brands||[]).includes(b.name)).map(p=>p.name).join('、')||'—',b.status])]);
+    if(action==='download-template')return batchTemplateDownload(value);
+    if(action==='batch-import')return openBatchImport(value);
+    if(action==='batch-import-done'){closeModal();renderApp();return;}
+    if(action==='export-packages')return genericExport('渡鸦管家_套餐',[['套餐名称','套餐描述','套餐标签','套餐简介','优势点','备注','餐次','价格','状态','小程序显示','是否仅购买一次','生效范围','下发品牌'],...filteredPackages().map(p=>[p.name,p.desc||'—',p.tag||'—',p.intro||'—',(p.advantages||[]).join('、')||'—',p.note||'—',p.meals,p.price,p.status,p.showInApp==='否'?'否':'是',p.onceOnly==='是'?'是':'否',p.onceOnly==='是'?(p.onceScope||'多品牌生效'):'—',(p.brands||[]).join('、')||'—'])]);
+    if(action==='export-plans')return genericExport('渡鸦管家_配送计划',[['计划','用户','用户ID','手机号','配送周期','餐别','配送时间','联系人','联系电话','配送地址','忌口','过敏信息','备注','状态'],...filteredPlans().map(p=>{const u=data.users.find(x=>x.name===p.user);return [p.name,p.user,u?.id||'—',u?.phone||'—',p.cycle,p.meals,p.time,p.contact,p.phone,p.address,p.diet||'—',p.allergy||'—',p.note||'—',planUsageStatus(p)];})]);
+    if(action==='export-content'){const type=state.page==='articles'?'营养咨询':'首页公告',rows=filteredContent(type),headers=type==='营养咨询'?['标题','标签','发布人','发布时间','正文内容','图片','显示在首页','上下架状态']:['标题','标签','发布时间','图片','上下架状态'];return genericExport(`渡鸦管家_${type}`,[headers,...rows.map(c=>type==='营养咨询'?[c.title,c.tag||'—',c.author||'—',c.publishDate||'—',c.body||'—',c.image||'—',c.showHome||'—',c.status]:[c.title,c.tag||'—',c.publishDate||'—',c.image||'—',c.status])]);}
+    if(action==='export-users')return genericExport('渡鸦管家_用户分群',[['用户名称','用户ID','手机号','性别','年龄','身高','体重','活动水平','BMI','BMI分类','BMR','TDEE','总购买次数','订购品牌','剩余次数','最近一次登录时间','登录次数','7天内活跃度','订购状态','后台用户备注'],...filteredUsers().map(u=>{const p=userPurchaseSummary(u),logs=data.logins.filter(l=>l.userId===u.id).sort((a,b)=>b.time.localeCompare(a.time)),bmi=userBMI(u);return [u.name,u.id,u.phone,u.gender,u.age,u.height,u.weight,u.activity,bmi,bmiCategory(bmi),userBMR(u),userTDEE(u),p.records.length,p.brands.join('、')||'—',p.remaining,logs[0]?.time||'—',logs.length,sevenDayActivity(u),userSubStatus(u),u.note||'—'];})]);
+    if(action==='export-redemptions')return genericExport('渡鸦管家_核销明细',[['核销时间','用户','品牌','订单号','配送计划','配送周期','送餐地址','收货人','收货人电话','餐别','核销餐数','数据来源','操作人'],...filteredRedemptions().map(r=>[r.time,r.userName,r.brand,r.orderId,r.plan||'—',r.planCycle||'—',r.address||'—',r.receiver||'—',r.receiverPhone||'—',r.meal&&r.meal!=='—'?r.meal:'—',r.qty,r.source,r.operator||'—'])]);
+if(action==='new-content')return openContentForm(button.dataset.kind||'');if(action==='edit-content')return openContentForm(id);
+    if(action==='copy-content'){const c=clone(data.content.find(x=>x.id===id));if(!c)return;return openContentForm('',{...c,id:'',title:(c.title||'')+'（副本）',showHome:'否'});}
+    if(action==='manage-content-home')return openContentHomeModal();
+    if(action==='save-content-home-order'){if(!contentHomeDraft)return;contentHomeDraft.ids.forEach((cid,i)=>{const c=data.content.find(x=>x.id===cid);if(c)c.homeOrder=i+1;});addLog('调整首页显示顺序',`${contentHomeDraft.ids.length} 条内容`);contentHomeDraft=null;closeModal();renderApp();return toast('排序已保存','首页展示顺序已更新');}
+    if(action==='content-detail')return contentDetail(data.content.find(x=>x.id===id));
+    if(action==='new-meal')return openMealForm();if(action==='edit-meal')return openMealForm(id);
+    if(action==='toggle-meal'){const m=data.meals.find(x=>x.id===id);return confirmAction(m.status==='已上架'?`下架餐品「${m.name}」？`:`上架餐品「${m.name}」？`,'上下架将同步影响小程序择食页展示。','确认','confirm-toggle-meal',id);}
+    if(action==='confirm-toggle-meal'){const m=data.meals.find(x=>x.id===id);m.status=m.status==='已上架'?'已下架':'已上架';addLog('切换餐品状态',`${m.name}：${m.status}`);closeModal();renderApp();return toast('餐品状态已更新',m.status);}
+    if(action==='delete-meal-confirm')return confirmAction('删除该餐品？','删除后小程序择食页不再展示该餐品。','确认删除','delete-meal',id);
+    if(action==='delete-meal'){const m=data.meals.find(x=>x.id===id),referenced=data.packages.some(p=>(p.brands||[]).includes(m.brand))||data.tasks.some(t=>t.brand===m.brand&&t.meal===m.type);if(referenced){closeModal();return toast('无法删除餐品','该餐品品牌/餐别存在关联配送任务或套餐','error');}data.meals=data.meals.filter(x=>x.id!==id);addLog('删除餐品',m.name);closeModal();renderApp();return toast('餐品已删除');}
+    if(action==='toggle-content-home'){const c=data.content.find(x=>x.id===id);if(!c)return;event.preventDefault();const turningOn=c.showHome!=='是';if(turningOn&&data.content.filter(x=>x.showHome==='是').length>=5)return toast('首页最多展示 5 条','请先取消其他内容的「显示在首页」','error');return confirmAction(turningOn?'显示在首页？':'取消首页展示？',`「${c.title}」${turningOn?'将显示在小程序首页':'将不再显示在小程序首页'}。`,'确认','confirm-toggle-content-home',id);}
+    if(action==='confirm-toggle-content-home'){const c=data.content.find(x=>x.id===id);if(!c)return;const turningOn=c.showHome!=='是';c.showHome=turningOn?'是':'否';if(turningOn)c.homeOrder=data.content.filter(x=>x.type==='营养咨询'&&x.showHome==='是'&&x!==c).reduce((m,x)=>Math.max(m,Number(x.homeOrder)||0),0)+1;addLog('切换首页展示',`${c.title}：${c.showHome}`);closeModal();renderApp();return toast('首页展示已更新',`${c.title} ${turningOn?'已':'未'}显示在首页`);}
+    if(action==='confirm-toggle-content'){const c=data.content.find(x=>x.id===id);if(!c)return;event.preventDefault();return confirmAction(c.status==='已上架'?`下架「${c.title}」？`:`上架「${c.title}」？`,'上下架将同步影响小程序展示。','确认','confirm-toggle-content2',id);}
+    if(action==='confirm-toggle-content2'){const c=data.content.find(x=>x.id===id);c.status=c.status==='已上架'?'已下架':'已上架';addLog('切换内容状态',`${c.title}：${c.status}`);closeModal();renderApp();return toast('内容状态已更新',c.status)}
+    if(action==='content-tags')return openContentTagManager();
+    if(action==='new-content-tag')return openContentTagForm();
+    if(action==='edit-content-tag')return openContentTagForm(id);
+    if(action==='delete-content-tag-confirm'){const t=data.contentTags.find(x=>x.id===id),used=data.content.filter(c=>c.tag===t.name).length;if(used){closeModal();return toast('无法删除标签',`「${t.name}」已被 ${used} 篇内容使用，请先修改内容标签`,'error');}return confirmAction('删除该标签？',`「${t.name}」将移出标签库。`,'确认删除','delete-content-tag',id);}
+    if(action==='delete-content-tag'){const t=data.contentTags.find(x=>x.id===id);data.contentTags=data.contentTags.filter(x=>x.id!==id);addLog('删除内容标签',t.name);closeModal();renderApp();return toast('标签已删除');}
+    if(action==='delete-content-confirm')return confirmAction('删除这条内容？','删除后无法在当前演示中恢复，刷新页面可还原初始数据。','确认删除','delete-content',id);
+    if(action==='delete-content'){const c=data.content.find(x=>x.id===id);data.content=data.content.filter(x=>x.id!==id);addLog('删除内容',c?c.title:id);closeModal();renderApp();return toast('内容已删除')}
+    if(action==='save-entity')return saveEntity();
+    if(action==='app-rules-tab'){state.appRulesTab=value;renderApp();return;}
+    if(action==='clear-upload'){const field=document.querySelector(`[name="${value}"]`),box=document.querySelector(`[data-upload-box="${value}"]`),preview=document.getElementById(`${value}-preview`);if(field)field.value='';if(preview)preview.removeAttribute('src');if(box)box.classList.remove('has-image');button.remove();return;}
+    if(action==='add-delivery-slot'){const rows=document.querySelector('#delivery-slot-rows');if(rows){const div=document.createElement('div');div.className='delivery-slot-row';div.innerHTML='';rows.appendChild(div);div.outerHTML=deliverySlotRow({time:'11:30',meals:['午餐','晚餐']});bindRuleSlotMeals();}return;}
+    if(action==='remove-delivery-slot'){const row=button.closest('.delivery-slot-row');if(row)row.remove();return;}
+    if(action==='reset-app-rules')return confirmAction('恢复默认小程序规则？','当前小程序规则与登录页背景设置将被恢复为默认值。','确认恢复','confirm-reset-app-rules');
+    if(action==='confirm-reset-app-rules'){data.appRules=clone(initialData.appRules);closeModal();renderApp();return toast('小程序规则已恢复默认','登录页背景与规则已重置');}
+    if(action==='save-app-rules'){const f=document.querySelector('#app-rules-form'),r=data.appRules||{},cutoff=document.querySelector('#rule-cutoff')?.value||r.cutoff||'17:30',slotRows=[...(f?f.querySelectorAll('.delivery-slot-row'):[])].map(row=>({time:row.querySelector('[name="deliverySlot"]')?.value||'',meals:[...row.querySelectorAll('[name="slotMeal"]:checked')].map(i=>i.value)})).filter(x=>x.time);const phone=f?f.querySelector('[name="servicePhone"]')?.value.trim()||'':'',wechat=f?f.querySelector('[name="serviceWechat"]')?.value.trim()||'':'',hours=f?f.querySelector('[name="serviceHours"]')?.value.trim()||'':'',refundId=f?f.querySelector('[name="refundWechatId"]')?.value.trim()||'':'',refundPh=f?f.querySelector('[name="refundPhone"]')?.value.trim()||'':'',refundQr=f?f.querySelector('[name="refundQr"]')?.value||'':r.refundQr||'',bg=f?f.querySelector('[name="loginBg"]')?.value||r.loginBg||'':r.loginBg||'',pauseLimits={...(r.pauseLimits||{week:1,month:3,quarter:6,year:12})};if(state.appRulesTab==='rules'){const badSlot=slotRows.find(x=>!x.meals.length);if(badSlot)return toast('请为每个配送时间选择适用餐别','午餐或晚餐至少选择一项','error');const raw=$('#pause-limit-value')?.value,n=Number(raw);if(raw===''||!Number.isInteger(n)||n<0)return toast('暂停次数必须为非负整数','','error');pauseLimits[state.pausePeriod||'week']=n;}data.appRules={...r,cutoff,deliverySlots:slotRows.length?slotRows:[{time:'11:30',meals:['午餐','晚餐']},{time:'17:30',meals:['午餐','晚餐']}],pauseLimits,servicePhone:phone,serviceWechat:wechat,serviceHours:hours,refundWechatId:refundId,refundPhone:refundPh,refundQr,loginBg:bg};const isBg=state.appRulesTab==='loginbg';addLog(isBg?'保存小程序登录页背景':'保存小程序规则',isBg?'登录页背景已更新':'截止时间/配送选项/暂停次数/专属客服/退款客服及二维码已更新');renderApp();return toast(isBg?'登录页背景已更新':'小程序规则已保存',isBg?'小程序登录页将同步展示新背景':'小程序端将按新规则生效');}
+    if(action==='save-settings'||action==='reset-settings'){addLog(action==='save-settings'?'保存系统设置':'恢复默认设置','时间线：17:30 冻结 / 20:00 锁定');return toast(action==='save-settings'?'设置已保存':'已恢复默认设置','新的规则将在下次生成配送任务时生效')}
+    if(action==='change-password')return openModal({title:'修改登录密码',body:`<div class="form-grid">${formField('当前密码','old','','password',true)}${formField('新密码','new','','password')}${formField('确认新密码','confirm','','password')}</div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="confirm-password">确认修改</button>`});
+    if(action==='confirm-password'){closeModal();return toast('密码修改演示完成','刷新页面后仍使用原演示密码')}
+    if(action==='export-logs')return genericExport('渡鸦管家_操作日志',[['时间','操作人','操作内容','详情'],...data.logs.map(l=>[l.time,l.user,l.action,l.detail])]);
+    if(action==='reset-demo')return confirmAction('恢复全部演示数据？','当前页面运行期间的新增、编辑和状态变化都会被清除。','恢复初始数据','confirm-reset-demo');
+    if(action==='confirm-reset-demo'){data=hydrateDemoData(clone(initialData));state.filters={};state.snapshot=false;state.confirmed=false;state.timeline='before';state.dailyVersion=1;state.dailyDay='tomorrow';state.dailyDate=tomorrowISO;state.dailyTimeStart='00:00';state.dailyTimeEnd='23:59';state.collapsedGroups={};state.menuWeek='W33';state.menuView='weeks';state.menuSwitch={day:'本周末',time:'20:00'};state.menuFocusBrand='';state.menuBatchQueue=[];state.settingsTab='delivery';state.appRulesTab='rules';state.manualOrder=null;refundDraft=null;menuRemindDraft=null;closeModal();renderApp();return toast('演示数据已恢复')}
+  });
+
+  document.addEventListener('dragstart',(e)=>{const el=e.target.closest('.editor-block');if(!el)return;e.dataTransfer.setData('text/plain',el.dataset.blockId);el.classList.add('dragging');});
+  document.addEventListener('dragover',(e)=>{const el=e.target.closest('.editor-block');if(!el)return;e.preventDefault();document.querySelectorAll('.editor-block').forEach(x=>x.classList.remove('drag-before','drag-after'));const r=el.getBoundingClientRect();el.classList.add(e.clientY<r.top+r.height/2?'drag-before':'drag-after');});
+  document.addEventListener('drop',(e)=>{const target=e.target.closest('.editor-block');if(!target)return;e.preventDefault();const editor=target.closest('.brand-editor');if(!editor)return;const brandId=editor.dataset.brandId,dragId=e.dataTransfer.getData('text/plain'),b=data.brands.find(x=>x.id===brandId);if(!b)return;const blocks=b.detailBlocks||[];const from=blocks.findIndex(x=>x.id===dragId),to=blocks.findIndex(x=>x.id===target.dataset.blockId);if(from<0||to<0)return;const before=e.clientY<target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;const [moved]=blocks.splice(from,1);const insertAt=blocks.findIndex(x=>x.id===target.dataset.blockId);blocks.splice(before?insertAt:insertAt+1,0,moved);openBrandDetailEditor(brandId);});
+  document.addEventListener('dragend',()=>{document.querySelectorAll('.editor-block').forEach(x=>x.classList.remove('dragging','drag-before','drag-after'));});
+
+  document.addEventListener('mouseover',(e)=>{const h=e.target.closest('.hint-icon');if(!h)return;let tip=document.getElementById('hint-tip');if(!tip){tip=document.createElement('div');tip.id='hint-tip';tip.className='hint-tip';document.body.appendChild(tip);}tip.textContent=h.getAttribute('data-tip')||'';const r=h.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(Math.max(r.left,90),window.innerWidth-170)+'px';tip.style.top=(r.top-8)+'px';});
+  document.addEventListener('mouseout',(e)=>{if(e.target.closest('.hint-icon')){const tip=document.getElementById('hint-tip');if(tip)tip.style.display='none';}});
+  document.addEventListener('mouseover',(e)=>{const c=e.target.closest('.chart-hit');if(!c)return;let tip=document.getElementById('chart-tip');if(!tip){tip=document.createElement('div');tip.id='chart-tip';tip.className='chart-tip';document.body.appendChild(tip);}tip.textContent=c.getAttribute('data-tip')||'';tip.style.display='block';tip.style.left=Math.min(Math.max(e.clientX+12,10),window.innerWidth-170)+'px';tip.style.top=(e.clientY-16)+'px';});
+  document.addEventListener('mousemove',(e)=>{const tip=document.getElementById('chart-tip');if(tip&&tip.style.display==='block'){tip.style.left=Math.min(Math.max(e.clientX+12,10),window.innerWidth-170)+'px';tip.style.top=(e.clientY-16)+'px';}});
+  document.addEventListener('mouseout',(e)=>{if(e.target.closest('.chart-hit')){const tip=document.getElementById('chart-tip');if(tip)tip.style.display='none';}});
+
+  document.addEventListener('input',(event)=>{
+    if(event.target.id==='manual-user-search'){const q=event.target.value.replace(/\s/g,'').toLowerCase();document.querySelectorAll('.manual-user-result').forEach(row=>{row.hidden=q&&!row.dataset.search.replace(/\s/g,'').includes(q);});return;}
+    if(event.target.id==='manual-brand-search'){const q=event.target.value.trim().toLowerCase();document.querySelectorAll('#manual-brand-results .risk-item').forEach(row=>{row.hidden=q&&!row.innerText.toLowerCase().includes(q);});return;}
+    if(event.target.id==='pause-limit-value'){const n=Number(event.target.value);if(event.target.value!==''&&Number.isInteger(n)&&n>=0)data.appRules.pauseLimits[state.pausePeriod||'week']=n;return;}
+  });
+
+  document.addEventListener('change', (event) => {
+    if(event.target.matches('[data-multi-filter]')){const key=event.target.dataset.multiFilter,current=new Set(selectedValues(key));event.target.checked?current.add(event.target.value):current.delete(event.target.value);state.filters[key]=[...current];state.pagination.page=1;renderApp();return;}
+    if(event.target.id==='pause-period'){state.pausePeriod=event.target.value;renderApp();return;}
+    if(event.target.id==='manual-order-start-date'){manualDraft().startDate=event.target.value;return;}
+    const control=event.target.closest('[data-filter]');
+    if(control){state.filters[control.dataset.filter]=control.value;renderApp();return;}
+    const picker=event.target.closest('.upload-input');
+    if(picker&&event.target.files&&event.target.files[0]){
+      const file=event.target.files[0];
+      if(!file.type.startsWith('image/')){return toast('请选择图片文件','当前文件不是图片格式','error');}
+      const reader=new FileReader();
+      reader.onload=()=>{const box=picker.closest('.upload-box'),field=picker.closest('.form-field'),hidden=field&&field.querySelector('input[name="'+picker.dataset.imageField+'"]');if(hidden)hidden.value=reader.result;const preview=document.getElementById(picker.dataset.imagePreview);if(preview){preview.src=reader.result;}if(box)box.classList.add('has-image');};
+      reader.readAsDataURL(file);
+      return;
+    }
+    if(event.target.id==='daily-date'){state.dailyDate=event.target.value;state.snapshot=false;state.confirmed=false;renderApp();}
+    if(event.target.id==='daily-timeline'){state.timeline=event.target.value;if(state.timeline==='locked')state.confirmed=true;renderApp();return;}
+    if(event.target.id==='menu-switch-day'){const t=document.querySelector('#menu-switch-time');if(t){const isWeekend=event.target.value==='本周末';t.min=isWeekend?'12:00':'00:00';t.max=isWeekend?'23:59':'10:00';if(t.value<t.min)t.value=t.min;if(t.value>t.max)t.value=t.max;}return;}
+    if(event.target.matches&&event.target.matches('[name="scheduledReplace"]')){const f=document.getElementById('replace-at-field');if(f)f.style.display=event.target.checked?'':'none';return;}
+    if(event.target.matches&&event.target.matches('[name="user"]')){const u=data.users.find(x=>x.name===event.target.value);if(u){const n=document.getElementById('addr-user-name'),i=document.getElementById('addr-user-id'),p=document.getElementById('addr-user-phone');if(n)n.textContent=u.name;if(i)i.textContent=u.id;if(p)p.textContent=u.phone;}return;}
+    if(event.target.matches&&event.target.matches('[name="tag"]')){const f=document.getElementById('tag-other-field');if(f)f.style.display=event.target.value==='其他'?'':'none';return;}
+    if(event.target.matches&&event.target.matches('#role-all')){const on=event.target.checked;document.querySelectorAll('#entity-form input[name^="perm-"]').forEach(i=>i.checked=on);return;}
+    if(event.target.matches&&event.target.matches('#page-size')){state.pagination.size=Number(event.target.value);state.pagination.page=1;renderApp();return;}
+  });
+  document.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if(event.target.id==='login-form') {
+      const account=$('#login-account').value.trim(),password=$('#login-password').value;
+      $$('.field').forEach(x=>x.classList.remove('has-error'));$('#login-error').classList.remove('show');
+      if(!account){$('#account-field').classList.add('has-error');$('#account-field .field-error').textContent='请输入管理员账号';return;}
+      if(!password){$('#password-field').classList.add('has-error');$('#password-field .field-error').textContent='请输入登录密码';return;}
+      if(account!=='admin'||password!=='Raven@2026'){$('#login-error').textContent='账号或密码错误，请使用演示账号 admin / Raven@2026';$('#login-error').classList.add('show');return;}
+      const submit=$('#login-submit');submit.disabled=true;submit.innerHTML='<i class="login-loader"></i><span>正在验证并载入数据...</span>';
+      setTimeout(()=>{state.loggedIn=true;submit.disabled=false;submit.innerHTML='<span>进入运营后台</span>'+icon('arrowRight');$('#login-view').classList.add('is-hidden');$('#app').classList.remove('is-hidden');renderApp();toast('登录成功','欢迎回来，林方')},650);return;
+    }
+    if(event.target.id==='settings-form')toast('设置已保存','新的配置已在当前原型中生效');
+  });
+  document.addEventListener('keydown', (event) => {
+    if(event.key==='Escape'){closeModal();closeDrawer();}
+    if(event.key==='Enter'&&event.target.id==='global-search'){
+      const q=event.target.value.trim();state.search=q;if(!q)return;
+      const users=data.users.filter(u=>`${u.name}${u.id}${u.phone}`.includes(q)),orders=data.orders.filter(o=>`${o.id}${o.user}${o.package}`.includes(q)),packages=data.packages.filter(p=>p.name.includes(q));
+      openModal({title:`全局搜索：“${escapeHTML(q)}”`,body:`<div class="risk-list">${users.map(u=>`<div class="risk-item"><span class="brand-avatar">${u.name[0]}</span><div><b>${u.name}</b><small>用户 · ${u.id}</small></div><button class="row-button" data-action="view-user" data-id="${u.id}">查看</button></div>`).join('')}${orders.map(o=>`<div class="risk-item"><span class="brand-avatar amber">订</span><div><b>${o.id}</b><small>订单 · ${o.user} · ${o.package}</small></div><button class="row-button" data-action="view-order" data-id="${o.id}">查看</button></div>`).join('')}${packages.map(p=>`<div class="risk-item"><div><b>${p.name}</b><small>套餐 · ${(p.brands||[]).join('、')||'未下发'}</small></div><button class="row-button" data-action="view-package" data-id="${p.id}">查看</button></div>`).join('')||emptyState('暂无匹配结果','请尝试用户姓名、订单号或套餐名称。')}</div>`});
+    }
+  });
+
+  /* ================================================================
+     V1.5 后台新增模块：优惠券管理 / 问卷调查 / 邀请码管理 / 食物库
+     注入到 app.js 的 IIFE 内部，可直接使用 data / state / 渲染helper
+     ================================================================ */
+
+  /* ---------------- 演示数据 ---------------- */
+  Object.assign(data, {
+    coupons: [
+      { id: 'CP001', name: '满 39 减 8 元券', desc: '全品牌通用满减券', amount: 8, threshold: 39, brands: ['全部品牌'], validMode: '固定有效期', validRange: '2026-10-01 至 2026-12-31', limit: 1, status: '启用', sent: 1280, used: 486, expired: 96, issued: 0 },
+      { id: 'CP002', name: '无门槛 5 元券', desc: '新客与邀请奖励券', amount: 5, threshold: 0, brands: ['全部品牌'], validMode: '相对有效期', validRange: '获得后 15 天', limit: 1, status: '启用', sent: 2640, used: 1512, expired: 210, issued: 0 },
+      { id: 'CP003', name: '满 69 减 15 元券', desc: '指定品牌联名券', amount: 15, threshold: 69, brands: ['薄荷晨间', '谷物碗社'], validMode: '固定有效期', validRange: '2026-10-10 至 2026-11-10', limit: 1, status: '启用', sent: 320, used: 96, expired: 0, issued: 0 },
+      { id: 'CP004', name: '新客立减 10 元券', desc: '新客首单专用（草稿）', amount: 10, threshold: 49, brands: ['全部品牌'], validMode: '相对有效期', validRange: '获得后 30 天', limit: 1, status: '草稿', sent: 0, used: 0, expired: 0, issued: 0 },
+      { id: 'CP005', name: '满 39 减 8 元券（9 月活动）', desc: '9 月口味调研活动券', amount: 8, threshold: 39, brands: ['全部品牌'], validMode: '固定有效期', validRange: '2026-09-01 至 2026-09-30', limit: 1, status: '停用', sent: 860, used: 702, expired: 158, issued: 0 }
+    ],
+    couponRecords: [
+      { id: 'CR001', couponId: 'CP001', time: '2026-10-08 14:20', mode: '手动发放', source: '手动发放', operator: '林方', note: '双十活动补发', target: 200, ok: 198, fail: 2, status: '已完成' },
+      { id: 'CR002', couponId: 'CP001', time: '2026-10-12 09:00', mode: '自动发放', source: '问卷调查', operator: '系统', note: '口味偏好调研奖励', target: 36, ok: 36, fail: 0, status: '已完成' },
+      { id: 'CR003', couponId: 'CP002', time: '2026-10-01 00:00', mode: '定时发放', source: '定时任务', operator: '系统', note: '国庆新人礼包', target: 500, ok: 500, fail: 0, status: '已完成' },
+      { id: 'CR004', couponId: 'CP001', time: '2026-10-14 16:40', mode: '自动发放', source: '邀请码', operator: '系统', note: '老用户邀请奖励', target: 12, ok: 12, fail: 0, status: '已完成' },
+      { id: 'CR005', couponId: 'CP003', time: '2026-10-13 11:05', mode: '手动发放', source: '手动发放', operator: '周敏', note: '联名活动冻结名单补发', target: 40, ok: 36, fail: 4, status: '部分失败' }
+    ],
+    surveys: [
+      { id: 'SV001', type: '目标问卷', name: '健康饮食目标问卷', goal: '健康饮食', questions: 12, base: 8, own: 4, validRange: '长期有效', audience: '健康饮食目标用户', limit: '不限', reward: '满 39 减 8 元券', answers: 486, finishRate: '92%', avgTime: '3 分 12 秒', status: '已发布' },
+      { id: 'SV002', type: '目标问卷', name: '减重目标问卷', goal: '减重', questions: 13, base: 8, own: 5, validRange: '长期有效', audience: '减重目标用户', limit: '不限', reward: '满 39 减 8 元券', answers: 1264, finishRate: '89%', avgTime: '3 分 40 秒', status: '已发布' },
+      { id: 'SV003', type: '目标问卷', name: '增肌目标问卷', goal: '增肌', questions: 13, base: 8, own: 5, validRange: '长期有效', audience: '增肌目标用户', limit: '不限', reward: '无门槛 5 元券', answers: 312, finishRate: '86%', avgTime: '3 分 26 秒', status: '已发布' },
+      { id: 'SV004', type: '目标问卷', name: '减脂目标问卷', goal: '减脂', questions: 12, base: 8, own: 4, validRange: '长期有效', audience: '减脂目标用户', limit: '不限', reward: '无门槛 5 元券', answers: 208, finishRate: '88%', avgTime: '3 分 18 秒', status: '已发布' },
+      { id: 'SV005', type: '自定义问卷', name: '口味偏好调研', goal: '—', questions: 8, base: 0, own: 8, validRange: '2026-10-01 至 2026-11-30', audience: '全部用户', limit: '每人 1 次', reward: '满 39 减 8 元券（90%）/ 赠餐 1 餐（8%）/ 定制餐具（2%）', answers: 36, finishRate: '94%', avgTime: '2 分 05 秒', status: '已发布' },
+      { id: 'SV006', type: '自定义问卷', name: '配送体验回访', goal: '—', questions: 6, base: 0, own: 6, validRange: '2026-10-10 至 2026-10-25', audience: '近 30 天有订购的用户', limit: '每人 1 次', reward: '无门槛 5 元券', answers: 118, finishRate: '71%', avgTime: '1 分 48 秒', status: '已发布' }
+    ],
+    surveyAnswers: [
+      { id: 'SA001', user: '张小琴', userId: 'U20260412', survey: '减重目标问卷', time: '2026-10-14 20:18', cost: '3 分 22 秒', reward: '满 39 减 8 元券', status: '已发放' },
+      { id: 'SA002', user: '许安然', userId: 'U20260413', survey: '减重目标问卷', time: '2026-10-14 12:41', cost: '4 分 02 秒', reward: '满 39 减 8 元券', status: '已发放' },
+      { id: 'SA003', user: '李文昊', userId: 'U20260414', survey: '口味偏好调研', time: '2026-10-13 19:05', cost: '2 分 11 秒', reward: '赠餐 1 餐', status: '待发放' },
+      { id: 'SA004', user: '王一鸣', userId: 'U20260415', survey: '增肌目标问卷', time: '2026-10-13 08:36', cost: '3 分 05 秒', reward: '无门槛 5 元券', status: '已发放' }
+    ],
+    invites: [
+      { id: 'MC001', merchant: '肌动健身（成都高新店）', phone: '139****5521', note: '健身房前台物料与私教推荐', withReward: '是', reward: '满 39 减 8 元券', code: 'K7HQ92MD', validRange: '2026-10-01 至 2026-12-31', status: '启用', users: 34, buyers: 21, orders: 46, revenue: 6886 },
+      { id: 'MC002', merchant: '云汇写字楼物业', phone: '138****8890', note: '楼宇电梯海报投放', withReward: '否', reward: '—', code: 'P3FZ68TN', validRange: '2026-09-01 至 2026-11-30', status: '启用', users: 18, buyers: 9, orders: 19, revenue: 2410 },
+      { id: 'MC003', merchant: '轻食实验室（合作门店）', phone: '—', note: '门店联动试吃引流', withReward: '是', reward: '赠餐 1 餐', code: 'W9LC47XK', validRange: '2026-10-20 至 2027-01-20', status: '启用', users: 0, buyers: 0, orders: 0, revenue: 0 },
+      { id: 'MC004', merchant: '星火瑜伽（天府店）', phone: '137****3322', note: '夏季活动已结束', withReward: '是', reward: '无门槛 5 元券', code: 'B4RD25QM', validRange: '2026-08-01 至 2026-09-30', status: '已过期', users: 26, buyers: 11, orders: 24, revenue: 3120 }
+    ],
+    inviteSettings: {
+      enabled: true, activityStart: '2026-10-01', activityEnd: '2026-12-31',
+      target: '双方都能获得', oldReward: '满 39 减 8 元券', newReward: '无门槛 5 元券',
+      cap: 10, validRule: '受邀人注册成功即算有效邀请'
+    },
+    inviteRelations: [
+      { id: 'IR001', inviter: '张小琴（用户）', invitee: '新用户 138****2210', source: '用户邀请码 ZH3K7M2P', time: '2026-10-12 09:20', firstOrder: '已下单 ¥299', reward: '双方各得 1 张券', status: '有效' },
+      { id: 'IR002', inviter: '肌动健身（成都高新店）', invitee: '新用户 189****6621', source: '商户邀请码 K7HQ92MD', time: '2026-10-11 18:44', firstOrder: '已下单 ¥549', reward: '用户得满 39 减 8 元券', status: '有效' },
+      { id: 'IR003', inviter: '云汇写字楼物业', invitee: '新用户 135****9902', source: '商户邀请码 P3FZ68TN', time: '2026-10-10 12:02', firstOrder: '未下单', reward: '—', status: '有效' },
+      { id: 'IR004', inviter: '张小琴（用户）', invitee: '新用户 138****2210', source: '用户邀请码重复提交', time: '2026-10-12 09:22', firstOrder: '—', reward: '已拦截：该用户已使用过邀请码', status: '已拦截' },
+      { id: 'IR005', inviter: '许安然（用户）', invitee: '新用户 137****1188', source: '用户邀请码 H8NQ4W3R', time: '2026-10-13 21:10', firstOrder: '—', reward: '奖励挂起', status: '疑似异常' }
+    ],
+    foods: [
+      { id: 'F001', name: '香草鸡胸藜麦碗', alias: '鸡胸藜麦碗', cat: '套餐菜品', kcal: 139, carb: 15, protein: 11, fat: 4, fiber: 3.4, na: 149, k: 174, ca: 34, fe: 0.9, zn: 0.7, units: [['份', 350]], source: '品牌菜单', barcode: '', status: '启用' },
+      { id: 'F002', name: '牛油果温泉蛋沙拉', alias: '温泉蛋沙拉', cat: '套餐菜品', kcal: 122, carb: 6, protein: 7, fat: 8, fiber: 4.3, na: 168, k: 210, ca: 28, fe: 1.1, zn: 0.6, units: [['份', 350]], source: '品牌菜单', barcode: '', status: '启用' },
+      { id: 'F003', name: '五谷三蔬能量碗', alias: '五谷能量碗', cat: '套餐菜品', kcal: 144, carb: 22, protein: 8, fat: 3, fiber: 4.8, na: 132, k: 190, ca: 26, fe: 1.3, zn: 0.8, units: [['份', 350]], source: '品牌菜单', barcode: '', status: '启用' },
+      { id: 'F004', name: '糙米饭', alias: '', cat: '主食', kcal: 112, carb: 23, protein: 2.6, fat: 0.9, fiber: 1.6, na: 3, k: 78, ca: 10, fe: 0.6, zn: 0.6, units: [['碗', 150], ['小碗', 100]], source: '自有录入', barcode: '', status: '启用' },
+      { id: 'F005', name: '鸡胸肉（煮）', alias: '', cat: '肉蛋奶', kcal: 133, carb: 1.2, protein: 24.6, fat: 3.2, fiber: 0, na: 63, k: 338, ca: 9, fe: 0.6, zn: 0.9, units: [['份', 100], ['块', 120]], source: '自有录入', barcode: '', status: '启用' },
+      { id: 'F006', name: '水煮蛋', alias: '', cat: '肉蛋奶', kcal: 143, carb: 1.1, protein: 12.6, fat: 9.5, fiber: 0, na: 131, k: 154, ca: 50, fe: 1.2, zn: 1.1, units: [['个', 50]], source: '自有录入', barcode: '', status: '启用' },
+      { id: 'F007', name: '西兰花（蒸）', alias: '', cat: '蔬菜', kcal: 34, carb: 6.6, protein: 2.8, fat: 0.4, fiber: 2.6, na: 33, k: 316, ca: 47, fe: 0.7, zn: 0.4, units: [['份', 150]], source: '自有录入', barcode: '', status: '启用' },
+      { id: 'F008', name: '无糖希腊酸奶', alias: '希腊酸奶', cat: '肉蛋奶', kcal: 62, carb: 4, protein: 9, fat: 1.5, fiber: 0, na: 40, k: 140, ca: 110, fe: 0.1, zn: 0.5, units: [['杯', 120]], source: '外部数据', barcode: '6900000000012', status: '启用' },
+      { id: 'F009', name: '蓝莓', alias: '', cat: '水果', kcal: 57, carb: 14.5, protein: 0.7, fat: 0.3, fiber: 2.4, na: 1, k: 77, ca: 6, fe: 0.3, zn: 0.2, units: [['份', 100], ['盒', 125]], source: '外部数据', barcode: '', status: '启用' },
+      { id: 'F010', name: '菌菇汤', alias: '', cat: '汤羹', kcal: 42, carb: 4.6, protein: 2.4, fat: 1.6, fiber: 1.6, na: 210, k: 190, ca: 14, fe: 0.5, zn: 0.4, units: [['碗', 250]], source: '自有录入', barcode: '', status: '启用' },
+      { id: 'F011', name: '美式咖啡（无糖）', alias: '美式', cat: '饮品', kcal: 2, carb: 0.3, protein: 0.1, fat: 0, fiber: 0, na: 5, k: 49, ca: 2, fe: 0, zn: 0, units: [['杯', 350]], source: '外部数据', barcode: '6900000000029', status: '启用' },
+      { id: 'F012', name: '菌菇豆腐杂粮饭', alias: '', cat: '套餐菜品', kcal: null, carb: null, protein: null, fat: null, fiber: null, na: null, k: null, ca: null, fe: null, zn: null, units: [], source: '品牌菜单', barcode: '', status: '停用' }
+    ],
+    foodUnits: [
+      { id: 'U01', name: '份', grams: 100, note: '通用默认份量', used: 6 },
+      { id: 'U02', name: '碗', grams: 150, note: '米饭、汤羹', used: 3 },
+      { id: 'U03', name: '小碗', grams: 100, note: '小份主食', used: 1 },
+      { id: 'U04', name: '盒', grams: 350, note: '套餐餐盒', used: 0 },
+      { id: 'U05', name: '杯', grams: 350, note: '饮品', used: 2 },
+      { id: 'U06', name: '瓶', grams: 500, note: '瓶装饮料', used: 0 },
+      { id: 'U07', name: '个', grams: 50, note: '蛋类、水果', used: 2 },
+      { id: 'U08', name: '块', grams: 120, note: '肉类', used: 1 },
+      { id: 'U09', name: '片', grams: 35, note: '面包类', used: 0 }
+    ],
+    menuNutrition: [
+      { id: 'MN1', brand: '薄荷晨间', week: 'W33', name: '香草鸡胸藜麦碗', spec: '350g', kcal: 486, done: true },
+      { id: 'MN2', brand: '薄荷晨间', week: 'W33', name: '牛油果温泉蛋沙拉', spec: '350g', kcal: 428, done: true },
+      { id: 'MN3', brand: '谷物碗社', week: 'W33', name: '五谷三蔬能量碗', spec: '350g', kcal: 505, done: true },
+      { id: 'MN4', brand: '谷物碗社', week: 'W33', name: '菌菇豆腐杂粮饭', spec: '350g', kcal: null, done: false },
+      { id: 'MN5', brand: '暖汤小馆', week: 'W33', name: '菌菇鸡肉暖汤', spec: '350g', kcal: null, done: false },
+      { id: 'MN6', brand: '青禾轻食', week: 'W33', name: '时蔬鸡肉谷物碗', spec: '350g', kcal: null, done: false }
+    ],
+    barcodeQueue: [
+      { id: 'BQ01', code: '6901234567890', name: '低脂鸡胸肉肠', submitter: '用户 138****2210', count: 6, time: '2026-10-14 19:20', status: '待补录' },
+      { id: 'BQ02', code: '6902345678901', name: '0 糖气泡水', submitter: '用户 189****6621', count: 3, time: '2026-10-14 08:12', status: '待补录' },
+      { id: 'BQ03', code: '6903456789012', name: '全麦贝果', submitter: '用户 135****9902', count: 1, time: '2026-10-13 21:40', status: '已补录' }
+    ],
+    foodSubmissions: [
+      { id: 'FS01', name: '自制鸡胸沙拉', user: '用户 137****1188', time: '2026-10-14 12:30', kcal: 320, status: '待审核' },
+      { id: 'FS02', name: '番茄牛腩饭（外食）', user: '用户 138****2210', time: '2026-10-13 19:05', kcal: 620, status: '待审核' },
+      { id: 'FS03', name: '公司食堂青菜', user: '用户 189****6621', time: '2026-10-12 12:12', kcal: 90, status: '已通过' }
+    ],
+    recognition: { calls: 1286, hitRate: '82%', confirmRate: '94%', fixRate: '6%', dailyLimit: 20 }
+  });
+  const V15A = () => (state.v15Admin = state.v15Admin || { couponTab: '全部', foodTab: 'list', editingId: null, editingFoodId: null, editingInviteId: null, editingSurveyId: null, keyword: '' });
+
+  /* ---------------- 侧边栏与面包屑 ---------------- */
+  const v15Group = { label: '增长运营', items: [['coupons', 'tag', '优惠券管理'], ['surveys', 'help', '问卷调查'], ['invites', 'spark', '邀请码管理'], ['foods', 'box', '食物库']] };
+  if (!navGroups.some((g) => g.label === '增长运营')) {
+    const at = navGroups.findIndex((g) => g.label === '互动运营');
+    navGroups.splice(at < 0 ? navGroups.length - 2 : at, 0, v15Group);
+  }
+  Object.assign(pageMeta, {
+    coupons: ['增长运营', '优惠券管理'], 'coupon-form': ['增长运营', '优惠券编辑'],
+    surveys: ['增长运营', '问卷调查'], 'survey-form': ['增长运营', '问卷编辑'], 'survey-data': ['增长运营', '答题数据'],
+    invites: ['增长运营', '邀请码管理'], 'invite-form': ['增长运营', '商户邀请码'],
+    foods: ['增长运营', '食物库'], 'food-form': ['增长运营', '食物编辑']
+  });
+
+  const v15NumText = (n, d) => (n == null ? '—' : (d ? Number(n).toFixed(d) : String(n)));
+  const v15BtnPrimary = (label, action, id, ico) => `<button class="button primary small" data-action="${action}"${id ? ` data-id="${id}"` : ''}>${ico ? icon(ico) : ''}${label}</button>`;
+  const v15BtnGhost = (label, action, id) => `<button class="button secondary small" data-action="${action}"${id ? ` data-id="${id}"` : ''}>${label}</button>`;
+
+  /* ---------------- 优惠券管理 ---------------- */
+  function v15CouponRows(list) { return list.length ? list.map((c) => {
+    const recs = data.couponRecords.filter((r) => r.couponId === c.id).length;
+    return `<tr>
+      <td><span class="cell-title">${escapeHTML(c.name)}</span><span class="cell-sub">${escapeHTML(c.desc || '')}</span></td>
+      <td><b>¥${c.amount}</b></td>
+      <td>${c.threshold ? `满 ${c.threshold} 元可用` : '无门槛'}</td>
+      <td>${(c.brands || []).length > 2 ? `全部品牌` : (c.brands || []).join('、') || '—'}</td>
+      <td>${c.validMode}<span class="cell-sub">${c.validRange}</span></td>
+      <td>${c.limit ? '每人 ' + c.limit + ' 张' : '不限'}</td>
+      <td><b>${c.sent}</b><span class="cell-sub">已用 ${c.used} · 过期 ${c.expired}</span></td>
+      <td>${status(c.status)}</td>
+      <td><div class="table-actions">
+        <button class="row-button compact" data-action="v15-edit-coupon" data-id="${c.id}">编辑</button>
+        <button class="row-button compact" data-action="v15-issue-coupon" data-id="${c.id}">下发</button>
+        <button class="row-button compact" data-action="v15-coupon-records" data-id="${c.id}">下发记录（${recs}）</button>
+        <button class="row-button compact" data-action="v15-toggle-coupon" data-id="${c.id}">${c.status === '启用' ? '停用' : '启用'}</button>
+      </div></td></tr>`;
+  }).join('') : ''; }
+
+  function renderV15Coupons() {
+    const ui = V15A();
+    const tabs = ['全部', '启用', '草稿', '停用'];
+    const list = data.coupons.filter((c) => ui.couponTab === '全部' || c.status === ui.couponTab);
+    const totalSent = data.coupons.reduce((s, c) => s + c.sent, 0);
+    const totalUsed = data.coupons.reduce((s, c) => s + c.used, 0);
+    const totalAmount = data.coupons.reduce((s, c) => s + c.used * c.amount, 0);
+    return `<section class="page">${pageHead('优惠券管理', '维护券模板、手动与定时发放，并查看来自问卷调查与邀请码的自动发放记录。',
+      `<button class="button primary" data-action="v15-new-coupon">${icon('plus')}新建优惠券</button>`)}
+      <div class="summary-ribbon">
+        <div><span>券模板</span><strong>${data.coupons.length}</strong></div>
+        <div><span>累计发放</span><strong>${totalSent.toLocaleString()}</strong></div>
+        <div><span>累计使用</span><strong>${totalUsed.toLocaleString()}</strong></div>
+        <div><span>核销金额</span><strong>¥${totalAmount.toLocaleString()}</strong></div>
+        <div><span>自动发放记录</span><strong>${data.couponRecords.filter((r) => r.mode === '自动发放').length}</strong></div>
+      </div>
+      <section class="data-panel">
+        <div class="toolbar-stack"><div class="toolbar toolbar-actions">
+          ${v15BtnGhost('导出券数据', 'v15-export-coupons')}
+          ${v15BtnGhost('查看到期提醒', 'v15-coupon-expiring')}
+        </div><div class="toolbar"><div class="tabs">${tabs.map((t) => `<button class="tab-button ${ui.couponTab === t ? 'active' : ''}" data-action="v15-coupon-tab" data-value="${t}">${t}</button>`).join('')}</div></div></div>
+        <div class="table-wrap">${v15CouponRows(list) ? `<table class="data-table"><thead><tr><th>券名称</th><th>减免金额</th><th>使用条件</th><th>可使用品牌</th><th>有效期</th><th>每人限领</th><th>发放情况</th><th>状态</th><th>操作</th></tr></thead><tbody>${v15CouponRows(list)}</tbody></table>` : emptyState('没有匹配的优惠券', '请切换状态标签或新建券模板。')}</div>
+      </section>
+    </section>`;
+  }
+
+  function renderV15CouponForm() {
+    const id = V15A().editingId;
+    const c = data.coupons.find((x) => x.id === id) || { name: '', desc: '', amount: 8, threshold: 39, brands: ['全部品牌'], validMode: '固定有效期', validRange: '', limit: 1, status: '草稿' };
+    return `<section class="page">${pageHead(id ? '编辑优惠券' : '新建优惠券', '券价值只做减免金额；每单限用一张，不与其它券叠加。',
+      `<button class="button secondary small" data-action="navigate" data-page="coupons">${icon('chevronLeft')}返回列表</button>`)}
+      <section class="data-panel"><form id="v15-coupon-form"><div class="form-grid">
+        ${formField('券名称', 'name', c.name)}
+        ${formField('券描述', 'desc', c.desc)}
+        ${formField('减免金额（元）', 'amount', c.amount, 'number')}
+        ${formField('使用条件', 'condition', c.threshold ? '满减' : '无门槛', 'select', false, ['满减', '无门槛'])}
+        ${formField('满多少元可用', 'threshold', c.threshold, 'number', false, [], '选择无门槛时可填 0')}
+        ${formField('可使用品牌', 'brands', (c.brands || []).join('、'), 'text', true, [], '多个品牌用「、」分隔，填「全部品牌」表示不限制')}
+        ${formField('有效期类型', 'validMode', c.validMode, 'select', false, ['固定有效期', '相对有效期'])}
+        ${formField('有效期', 'validRange', c.validRange, 'text', true, [], '固定有效期填「2026-10-01 至 2026-12-31」，相对有效期填「获得后 15 天」')}
+        ${formField('每人限领张数', 'limit', c.limit, 'number', false, [], '填 0 表示不限制')}
+        ${formField('状态', 'status', c.status, 'select', false, ['草稿', '启用', '停用'])}
+      </div>
+      <p class="form-hint">券价值只支持减免金额；相对有效期从用户获得券的时刻起算；每单限用一张。</p>
+      <div class="form-actions"><button type="button" class="button secondary" data-action="navigate" data-page="coupons">取消</button><button type="button" class="button primary" data-action="v15-save-coupon">保存优惠券</button></div>
+      </form></section>
+    </section>`;
+  }
+
+  /* ---------------- 问卷调查 ---------------- */
+  function renderV15Surveys() {
+    const targets = data.surveys.filter((s) => s.type === '目标问卷');
+    const customs = data.surveys.filter((s) => s.type === '自定义问卷');
+    const row = (s) => `<tr>
+      <td><span class="cell-title">${escapeHTML(s.name)}</span><span class="cell-sub">${s.type === '目标问卷' ? '目标：' + s.goal : '管理员自定义'}</span></td>
+      <td>${s.type}</td>
+      <td>${s.questions} 题<span class="cell-sub">基础 ${s.base} · 专属 ${s.own}</span></td>
+      <td>${escapeHTML(s.validRange)}</td>
+      <td>${escapeHTML(s.audience)}<span class="cell-sub">${s.limit}</span></td>
+      <td><span class="wrap-cell">${escapeHTML(s.reward)}</span></td>
+      <td><b>${s.answers}</b><span class="cell-sub">完成率 ${s.finishRate} · 平均 ${s.avgTime}</span></td>
+      <td>${status(s.status)}</td>
+      <td><div class="table-actions">
+        <button class="row-button compact" data-action="v15-edit-survey" data-id="${s.id}">编辑</button>
+        <button class="row-button compact" data-action="v15-survey-data" data-id="${s.id}">答题数据</button>
+      </div></td></tr>`;
+    return `<section class="page">${pageHead('问卷调查', '目标问卷按四种目标各一套（基础问题通用 + 目标问题专属），自定义问卷由运营自行配置；答题数据与奖励发放都在这里查看。',
+      `<button class="button primary" data-action="v15-new-survey">${icon('plus')}新建问卷</button>`)}
+      <div class="summary-ribbon">
+        <div><span>目标问卷</span><strong>${targets.length}</strong></div>
+        <div><span>自定义问卷</span><strong>${customs.length}</strong></div>
+        <div><span>累计作答</span><strong>${data.surveys.reduce((s, x) => s + x.answers, 0).toLocaleString()}</strong></div>
+        <div><span>平均完成率</span><strong>89%</strong></div>
+      </div>
+      <section class="data-panel">
+        <div class="toolbar-stack"><div class="toolbar toolbar-actions">${v15BtnGhost('查看答题明细', 'v15-survey-data')}${v15BtnGhost('导出问卷数据', 'v15-export-surveys')}</div></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>问卷</th><th>类型</th><th>题量</th><th>有效期</th><th>可见范围</th><th>奖励</th><th>作答情况</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>${targets.map(row).join('')}${customs.map(row).join('')}</tbody></table></div>
+      </section>
+    </section>`;
+  }
+
+  function renderV15SurveyForm() {
+    const id = V15A().editingSurveyId;
+    const s = data.surveys.find((x) => x.id === id) || { name: '', type: '自定义问卷', goal: '—', validRange: '', audience: '全部用户', limit: '每人 1 次', reward: '', status: '草稿' };
+    const qs = v15SampleQuestions(s.goal);
+    return `<section class="page">${pageHead(id ? '编辑问卷' : '新建问卷', '题目与选项可绑定品牌标签并设置 -5 至 +5 的分值，用于品牌推荐；奖励与问卷奖励引擎共用。',
+      `<button class="button secondary small" data-action="navigate" data-page="surveys">${icon('chevronLeft')}返回列表</button>`)}
+      <section class="data-panel"><form id="v15-survey-form">
+        <div class="form-section"><h3>基础信息</h3><div class="form-grid">
+          ${formField('问卷名称', 'name', s.name)}
+          ${formField('问卷类型', 'type', s.type, 'select', false, ['目标问卷', '自定义问卷'])}
+          ${formField('关联目标', 'goal', s.goal, 'select', false, ['健康饮食', '减重', '增肌', '减脂', '—'])}
+          ${formField('有效期', 'validRange', s.validRange, 'text', false, [], '如 2026-10-01 至 2026-11-30，目标问卷可填「长期有效」')}
+          ${formField('可见范围', 'audience', s.audience, 'select', false, ['全部用户', '新用户（注册 7 天内）', '近 30 天有订购的用户', '指定人群', '指定用户'])}
+          ${formField('作答次数上限', 'limit', s.limit, 'select', false, ['不限', '每人 1 次', '每人 2 次', '每人 3 次'])}
+        </div></div>
+        <div class="form-section"><h3>题目与选项（含标签打分）</h3>
+          <p class="form-hint">每个选项可绑定品牌标签并设置分值（-5 至 +5，负分表示排斥）；关闭「参与推荐」的题目只用于收集信息。</p>
+          <div class="table-wrap"><table class="data-table"><thead><tr><th>题目</th><th>题型</th><th>参与推荐</th><th>选项示例</th><th>选项绑定的标签与分值</th></tr></thead>
+          <tbody>${qs.map((q) => `<tr><td><span class="wrap-cell">${escapeHTML(q.text)}</span></td><td>${q.type === 'multi' ? '多选' : '单选'}</td><td>${q.recommend === false ? '否' : '是'}</td>
+            <td><span class="wrap-cell">${q.options.map((o) => escapeHTML(o.text)).join(' / ')}</span></td>
+            <td><span class="wrap-cell">${q.options.map((o) => { const t = Object.keys(o.tags || {}); return t.length ? escapeHTML(o.text) + '：' + t.map((k) => k + (o.tags[k] > 0 ? ' +' : ' ') + o.tags[k]).join('、') : ''; }).filter(Boolean).join('；') || '—'}</span></td></tr>`).join('')}</tbody></table></div>
+          ${v15BtnGhost('添加题目', 'v15-add-question')}${v15BtnGhost('添加选项', 'v15-add-option')}
+        </div>
+        <div class="form-section"><h3>奖励配置</h3><div class="form-grid">
+          ${formField('奖励类型', 'rewardType', '概率抽奖', 'select', false, ['固定奖励', '概率抽奖'])}
+          ${formField('奖励档位', 'reward', s.reward, 'text', true, [], '如 满 39 减 8 元券 90% / 赠餐 1 餐 8% / 定制餐具 2%，合计需等于 100%')}
+          ${formField('结果页文案', 'resultText', '感谢参与，奖励已放入你的券包。', 'textarea', true)}
+        </div><p class="form-hint">概率抽奖档位最多 6 档，概率合计必须等于 100%；赠餐奖励在有订购时直接计入餐次余额，无订购时提示联系客服并记为待发放。</p></div>
+        <div class="form-actions"><button type="button" class="button secondary" data-action="navigate" data-page="surveys">取消</button><button type="button" class="button primary" data-action="v15-save-survey">保存问卷</button>
+        <button type="button" class="button secondary" data-action="v15-publish-survey">发布新建版本</button></div>
+      </form></section>
+    </section>`;
+  }
+
+  function v15SampleQuestions(goal) {
+    const base = [
+      { text: '你更喜欢哪种口味？', type: 'multi', options: [{ text: '清淡少油', tags: { 少油少盐: 4, 低卡轻负担: 2 } }, { text: '温热汤羹', tags: { 暖胃: 3, 汤品: 2 } }] },
+      { text: '有需要避开食材吗？', type: 'multi', options: [{ text: '素食为主', tags: { 素食友好: 4 } }, { text: '没有忌口', tags: {} }] }
+    ];
+    const own = {
+      '减重': [{ text: '能接受少油少盐的清淡口味吗？', type: 'single', options: [{ text: '完全接受', tags: { 少油少盐: 4 } }, { text: '不太接受', tags: { 少油少盐: -3 } }] }],
+      '增肌': [{ text: '每天的蛋白质摄入够吗？', type: 'single', options: [{ text: '明显不足', tags: { 高蛋白: 5 } }, { text: '已经足够', tags: { 高蛋白: 1 } }] }],
+      '健康饮食': [{ text: '每天蔬果吃够了吗？', type: 'single', options: [{ text: '明显不足', tags: { 时令鲜食: 4, 健康食材: 3 } }] }],
+      '减脂': [{ text: '愿意尝试低碳水吗？', type: 'single', options: [{ text: '愿意', tags: { 低卡轻负担: 3 } }, { text: '不太想', tags: { 能量碗: 2 } }] }]
+    }[goal] || [];
+    return base.concat(own);
+  }
+
+  function renderV15SurveyData() {
+    const id = V15A().editingSurveyId;
+    const s = data.surveys.find((x) => x.id === id);
+    const list = data.surveyAnswers.filter((a) => !s || a.survey === s.name);
+    const rows = list.length ? list : data.surveyAnswers;
+    return `<section class="page">${pageHead('答题数据', s ? `${s.name}：份数、完成率、平均耗时与奖励发放情况。` : '全部问卷的作答明细与奖励发放情况。',
+      `<button class="button secondary small" data-action="navigate" data-page="surveys">${icon('chevronLeft')}返回问卷列表</button>`)}
+      <div class="summary-ribbon">
+        <div><span>作答份数</span><strong>${rows.length}</strong></div>
+        <div><span>完成率</span><strong>${s ? s.finishRate : '89%'}</strong></div>
+        <div><span>平均耗时</span><strong>${s ? s.avgTime : '3 分 12 秒'}</strong></div>
+        <div><span>奖励发放</span><strong>${rows.filter((r) => r.status === '已发放').length}</strong></div>
+        <div><span>待发放</span><strong>${rows.filter((r) => r.status === '待发放').length}</strong></div>
+      </div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions">
+        ${v15BtnGhost('导出作答明细', 'v15-export-answers')}${v15BtnGhost('补发未发放奖励', 'v15-reissue-reward')}
+      </div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>用户</th><th>用户 ID</th><th>问卷</th><th>提交时间</th><th>作答耗时</th><th>奖励</th><th>发放状态</th></tr></thead>
+      <tbody>${rows.map((r) => `<tr><td><span class="cell-title">${escapeHTML(r.user)}</span></td><td>${r.userId}</td><td>${escapeHTML(r.survey)}</td><td>${r.time}</td><td>${r.cost}</td><td><span class="wrap-cell">${escapeHTML(r.reward)}</span></td><td>${status(r.status)}</td></tr>`).join('')}</tbody></table></div></section>
+    </section>`;
+  }
+
+  /* ---------------- 邀请码管理 ---------------- */
+  function renderV15Invites() {
+    const st = data.inviteSettings;
+    return `<section class="page">${pageHead('邀请码管理', '商户邀请码用于渠道归因与统计（不做分成结算）；用户邀请码由用户自助生成，奖励与问卷共用同一套奖励引擎。',
+      `<button class="button primary" data-action="v15-new-invite">${icon('plus')}生成商户邀请码</button>`)}
+      <div class="summary-ribbon">
+        <div><span>商户邀请码</span><strong>${data.invites.length}</strong></div>
+        <div><span>带来注册用户</span><strong>${data.invites.reduce((s, i) => s + i.users, 0)}</strong></div>
+        <div><span>其中订购人数</span><strong>${data.invites.reduce((s, i) => s + i.buyers, 0)}</strong></div>
+        <div><span>订购次数</span><strong>${data.invites.reduce((s, i) => s + i.orders, 0)}</strong></div>
+        <div><span>实收金额</span><strong>¥${data.invites.reduce((s, i) => s + i.revenue, 0).toLocaleString()}</strong></div>
+      </div>
+      <section class="data-panel"><div class="toolbar-stack"><div class="toolbar toolbar-actions">${v15BtnGhost('导出商户统计', 'v15-export-invites')}${v15BtnGhost('查看邀请关系', 'v15-invite-relations')}${v15BtnGhost('异常复核队列', 'v15-invite-exceptions')}</div></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>商户名称</th><th>邀请码</th><th>手机号</th><th>备注</th><th>使用奖励</th><th>有效期</th><th>使用人数</th><th>订购人数</th><th>订购次数</th><th>实收金额</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody>${data.invites.map((i) => `<tr>
+          <td><span class="cell-title">${escapeHTML(i.merchant)}</span></td>
+          <td><b>${i.code}</b></td>
+          <td>${i.phone}</td>
+          <td><span class="wrap-cell note-cell">${escapeHTML(i.note || '—')}</span></td>
+          <td>${i.withReward === '是' ? escapeHTML(i.reward) : '不发放'}</td>
+          <td>${escapeHTML(i.validRange)}</td>
+          <td><b>${i.users}</b></td><td><b>${i.buyers}</b></td><td><b>${i.orders}</b></td>
+          <td><b>¥${i.revenue.toLocaleString()}</b></td>
+          <td>${status(i.status)}</td>
+          <td><div class="table-actions">
+            <button class="row-button compact" data-action="v15-invite-detail" data-id="${i.id}">明细</button>
+            <button class="row-button compact" data-action="v15-edit-invite" data-id="${i.id}">编辑</button>
+            <button class="row-button compact" data-action="v15-toggle-invite" data-id="${i.id}">${i.status === '启用' ? '停用' : '启用'}</button>
+          </div></td></tr>`).join('')}</tbody></table></div>
+      </section>
+      <section class="data-panel" style="margin-top:16px">
+        <div class="toolbar-stack"><div class="toolbar toolbar-actions"><b>用户邀请码设置</b><span class="cell-sub">开关与活动时间会同步展示在小程序「邀请码」页，让老用户在活动期内知晓。</span></div></div>
+        <form id="v15-invite-settings"><div class="form-grid">
+          ${formField('是否开启用户邀请码', 'enabled', st.enabled ? '开启' : '关闭', 'select', false, ['开启', '关闭'])}
+          ${formField('活动开始日期', 'activityStart', st.activityStart, 'date')}
+          ${formField('活动结束日期', 'activityEnd', st.activityEnd, 'date')}
+          ${formField('奖励对象', 'target', st.target, 'select', false, ['老用户', '新用户', '双方都能获得'])}
+          ${formField('老用户奖励', 'oldReward', st.oldReward)}
+          ${formField('新用户奖励', 'newReward', st.newReward)}
+          ${formField('老用户最多邀请人数', 'cap', st.cap, 'number')}
+          ${formField('有效邀请判定', 'validRule', st.validRule, 'select', false, ['受邀人注册成功即算有效邀请', '受邀人完成首单才算有效邀请'])}
+        </div>
+        <p class="form-hint">一个新用户只能使用一个邀请码，注册完成后锁定，不可更换与叠加；本期按「注册成功即算」发放奖励。</p>
+        <div class="form-actions"><button type="button" class="button primary" data-action="v15-save-invite-settings">保存设置</button></div>
+        </form>
+      </section>
+    </section>`;
+  }
+
+  function renderV15InviteForm() {
+    const id = V15A().editingInviteId;
+    const i = data.invites.find((x) => x.id === id);
+    return `<section class="page">${pageHead(id ? '编辑商户邀请码' : '生成商户邀请码', '保存后系统随机生成 8 位邀请码（去掉 I、O、0、1 等易混淆字符）；有效期必填并写明起止日期。',
+      `<button class="button secondary small" data-action="navigate" data-page="invites">${icon('chevronLeft')}返回列表</button>`)}
+      <section class="data-panel"><form id="v15-invite-form"><div class="form-grid">
+        ${formField('商户名称', 'merchant', i ? i.merchant : '')}
+        ${formField('联系人手机号', 'phone', i ? i.phone : '', 'text', false, [], '选填')}
+        ${formField('备注', 'note', i ? i.note : '', 'textarea', true, [], '选填，例如投放位置与物料')}
+        ${formField('是否发放使用奖励', 'withReward', i ? i.withReward : '是', 'select', false, ['是', '否'])}
+        ${formField('奖励内容', 'reward', i ? i.reward : '满 39 减 8 元券', 'text', true, [], '奖励类型与问卷一致：优惠券 / 赠餐 / 自定义线下奖励')}
+        ${formField('有效期开始', 'validStart', '2026-10-01', 'date')}
+        ${formField('有效期结束', 'validEnd', '2026-12-31', 'date')}
+      </div>
+      <p class="form-hint">${id ? '邀请码：' + i.code + '（生成后不可修改）' : '保存后自动生成邀请码，生成后不可修改。'}</p>
+      <div class="form-actions"><button type="button" class="button secondary" data-action="navigate" data-page="invites">取消</button><button type="button" class="button primary" data-action="v15-save-invite">保存邀请码</button></div>
+      </form></section>
+    </section>`;
+  }
+
+  /* ---------------- 食物库 ---------------- */
+  function renderV15Foods() {
+    const ui = V15A();
+    const tabs = [['list', '食物列表'], ['units', '单位模板'], ['menu', '菜单待补录'], ['barcode', '条码补录'], ['submit', '自定义食物审核'], ['recognition', '识别效果']];
+    const kw = (ui.keyword || '').trim();
+    const foods = data.foods.filter((f) => !kw || (f.name + f.alias + f.cat).indexOf(kw) >= 0);
+    const foodTable = `<div class="toolbar"><div class="toolbar-group"><label class="search-control">${icon('search')}<input data-filter="v15FoodSearch" value="${escapeHTML(kw)}" placeholder="搜索食物名称、别名或分类"><\/label><button class="button secondary small" data-action="v15-food-search">${icon('search')}查找</button></div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>食物</th><th>分类</th><th>每 100 克热量</th><th>碳水 / 蛋白 / 脂肪</th><th>膳食纤维</th><th>矿物质（钠/钾/钙/铁/锌）</th><th>份量单位</th><th>来源</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>${foods.map((f) => `<tr>
+        <td><span class="cell-title">${escapeHTML(f.name)}</span><span class="cell-sub">${escapeHTML(f.alias || '')}</span></td>
+        <td>${f.cat}</td>
+        <td><b>${v15NumText(f.kcal)}</b> kcal</td>
+        <td>${v15NumText(f.carb, 1)} / ${v15NumText(f.protein, 1)} / ${v15NumText(f.fat, 1)} g</td>
+        <td>${v15NumText(f.fiber, 1)} g</td>
+        <td><span class="cell-sub">${v15NumText(f.na)} / ${v15NumText(f.k)} / ${v15NumText(f.ca)} / ${v15NumText(f.fe, 1)} / ${v15NumText(f.zn, 1)} mg</span></td>
+        <td>${(f.units || []).length ? f.units.map((u) => `${u[0]} ${u[1]}g`).join('<br>') : '<span class="status warning">未设置</span>'}</td>
+        <td>${f.source}</td>
+        <td>${status(f.status)}</td>
+        <td><div class="table-actions"><button class="row-button compact" data-action="v15-edit-food" data-id="${f.id}">编辑</button>
+          <button class="row-button compact" data-action="v15-toggle-food" data-id="${f.id}">${f.status === '启用' ? '停用' : '启用'}</button></div></td></tr>`).join('')}</tbody></table></div>`;
+    const unitsTable = `<div class="table-wrap"><table class="data-table"><thead><tr><th>单位名称</th><th>默认克重</th><th>说明</th><th>被食物引用</th><th>操作</th></tr></thead>
+      <tbody>${data.foodUnits.map((u) => `<tr><td><b>${u.name}</b></td><td>${u.grams} g</td><td>${escapeHTML(u.note)}</td><td>${u.used} 个食物</td>
+      <td><div class="table-actions"><button class="row-button compact" data-action="v15-edit-unit" data-id="${u.id}">编辑克重</button></div></td></tr>`).join('')}</tbody></table></div>
+      <p class="form-hint">新建食物时可一键套用单位模板，再按该食物微调克重；用户选择份量或直接填写克重后，系统按 克重 ÷ 100 × 每 100 克数值 自动计算。</p>`;
+    const done = data.menuNutrition.filter((m) => m.done).length;
+    const menuTable = `<div class="summary-ribbon"><div><span>本周菜品</span><strong>${data.menuNutrition.length}</strong></div><div><span>已补录</span><strong>${done}</strong></div><div><span>待补录</span><strong>${data.menuNutrition.length - done}</strong></div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>品牌</th><th>周次</th><th>菜品</th><th>规格</th><th>热量</th><th>营养值状态</th><th>操作</th></tr></thead>
+      <tbody>${data.menuNutrition.map((m) => `<tr><td>${escapeHTML(m.brand)}</td><td>${m.week}</td><td><span class="cell-title">${escapeHTML(m.name)}</span></td><td>${m.spec}</td>
+      <td>${m.kcal ? '<b>' + m.kcal + '</b> kcal' : '—'}</td>
+      <td>${m.done ? '<span class="status success">已补录</span>' : '<span class="status warning">待补录</span>'}</td>
+      <td><div class="table-actions"><button class="row-button compact" data-action="v15-fill-nutrition" data-id="${m.id}">${m.done ? '修改营养值' : '补录营养值'}</button></div></td></tr>`).join('')}</tbody></table></div>
+      <p class="form-hint">菜单文字识别只负责生成菜品清单；营养值必须由管理员逐条填写后才在小程序菜单与饮食记录中展示，未补录的菜品只显示名称并标注「待补录」。</p>`;
+    const barcodeTable = `<div class="table-wrap"><table class="data-table"><thead><tr><th>条码</th><th>食物名称</th><th>提交人</th><th>提交次数</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>${data.barcodeQueue.map((b) => `<tr><td><b>${b.code}</b></td><td>${escapeHTML(b.name)}</td><td>${b.submitter}</td><td>${b.count}</td><td>${b.time}</td><td>${status(b.status)}</td>
+      <td><div class="table-actions"><button class="row-button compact" data-action="v15-barcode-approve" data-id="${b.id}">${b.status === '待补录' ? '补录入库' : '查看'}</button></div></td></tr>`).join('')}</tbody></table></div>
+      <p class="form-hint">条码只覆盖包装食品；未命中时小程序降级到搜索，并允许用户提交条码进入这个队列。</p>`;
+    const submitTable = `<div class="table-wrap"><table class="data-table"><thead><tr><th>食物名称</th><th>提交用户</th><th>提交时间</th><th>填写热量</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>${data.foodSubmissions.map((f) => `<tr><td><span class="cell-title">${escapeHTML(f.name)}</span></td><td>${f.user}</td><td>${f.time}</td><td>${f.kcal} kcal</td><td>${status(f.status)}</td>
+      <td><div class="table-actions"><button class="row-button compact" data-action="v15-submit-approve" data-id="${f.id}">${f.status === '待审核' ? '通过并入公共库' : '已通过'}</button></div></td></tr>`).join('')}</tbody></table></div>`;
+    const recog = data.recognition;
+    const recogPanel = `<div class="form-grid">
+      <div class="form-field"><label>识别调用量</label><input value="${recog.calls}" readonly></div>
+      <div class="form-field"><label>候选命中率</label><input value="${recog.hitRate}" readonly></div>
+      <div class="form-field"><label>用户确认率</label><input value="${recog.confirmRate}" readonly></div>
+      <div class="form-field"><label>用户纠错率</label><input value="${recog.fixRate}" readonly></div>
+      ${formField('每位用户每日识别次数上限', 'dailyLimit', recog.dailyLimit, 'number')}
+    </div>
+    <p class="form-hint">拍照识别走第三方识别服务，返回前 3 个候选并由用户确认；识别失败降级到搜索，不做自动估重。</p>
+    <div class="form-actions"><button type="button" class="button primary" data-action="v15-save-recognition">保存识别配置</button></div>`;
+    const panels = { list: foodTable, units: unitsTable, menu: menuTable, barcode: barcodeTable, submit: submitTable, recognition: recogPanel };
+    return `<section class="page">${pageHead('食物库', '按每 100 克录入营养值并配置份量单位；菜单识别结果在这里逐条补录，条码与用户自定义食物在这里审核。',
+      `<button class="button primary" data-action="v15-new-food">${icon('plus')}新建食物</button>`)}
+      <div class="summary-ribbon">
+        <div><span>食物条数</span><strong>${data.foods.length}</strong></div>
+        <div><span>启用中</span><strong>${data.foods.filter((f) => f.status === '启用').length}</strong></div>
+        <div><span>待补录菜品</span><strong>${data.menuNutrition.filter((m) => !m.done).length}</strong></div>
+        <div><span>条码待补录</span><strong>${data.barcodeQueue.filter((b) => b.status === '待补录').length}</strong></div>
+        <div><span>自定义待审核</span><strong>${data.foodSubmissions.filter((f) => f.status === '待审核').length}</strong></div>
+      </div>
+      <section class="data-panel">
+        <div class="toolbar-stack"><div class="toolbar"><div class="tabs">${tabs.map(([k, l]) => `<button class="tab-button ${ui.foodTab === k ? 'active' : ''}" data-action="v15-food-tab" data-value="${k}">${l}</button>`).join('')}</div></div>
+        <div class="toolbar toolbar-actions">${v15BtnGhost('批量导入食物', 'v15-import-food')}${v15BtnGhost('导出食物库', 'v15-export-food')}</div></div>
+        ${panels[ui.foodTab] || foodTable}
+      </section>
+    </section>`;
+  }
+
+  function renderV15FoodForm() {
+    const id = V15A().editingFoodId;
+    const f = data.foods.find((x) => x.id === id) || { name: '', alias: '', cat: '主食', kcal: '', carb: '', protein: '', fat: '', fiber: '', na: '', k: '', ca: '', fe: '', zn: '', units: [], source: '自有录入', barcode: '', status: '启用' };
+    const fields = [['kcal', '热量（kcal）'], ['carb', '碳水化合物（g）'], ['protein', '蛋白质（g）'], ['fat', '脂肪（g）'], ['fiber', '膳食纤维（g）'],
+      ['na', '钠（mg）'], ['k', '钾（mg）'], ['ca', '钙（mg）'], ['fe', '铁（mg）'], ['zn', '锌（mg）']];
+    return `<section class="page">${pageHead(id ? '编辑食物' : '新建食物', '每 100 克为基准录入营养值；热量、碳水、蛋白质、脂肪为必填，膳食纤维与矿物质可先留空，小程序会显示「暂无」且不参与达标判定。',
+      `<button class="button secondary small" data-action="navigate" data-page="foods">${icon('chevronLeft')}返回食物库</button>`)}
+      <section class="data-panel"><form id="v15-food-form">
+        <div class="form-section"><h3>基础信息</h3><div class="form-grid">
+          ${formField('食物名称', 'name', f.name)}
+          ${formField('别名（用于搜索）', 'alias', f.alias, 'text', false, [], '选填')}
+          ${formField('分类', 'cat', f.cat, 'select', false, ['主食', '肉蛋奶', '蔬菜', '水果', '汤羹', '饮品', '零食', '调味', '套餐菜品'])}
+          ${formField('包装食品条码', 'barcode', f.barcode, 'text', false, [], '选填，仅包装食品')}
+          ${formField('数据来源', 'source', f.source, 'select', false, ['自有录入', '品牌菜单', '外部数据'])}
+          ${formField('状态', 'status', f.status, 'select', false, ['启用', '停用'])}
+        </div></div>
+        <div class="form-section"><h3>每 100 克营养值</h3><div class="form-grid">
+          ${fields.map(([k, label]) => formField(label, k, f[k] == null ? '' : f[k], 'number', false, [], '留空表示暂无')).join('')}
+        </div></div>
+        <div class="form-section"><h3>份量单位</h3>
+          <div class="table-wrap"><table class="data-table"><thead><tr><th>单位</th><th>等价克重</th><th>操作</th></tr></thead>
+          <tbody>${(f.units || []).length ? f.units.map((u) => `<tr><td>${u[0]}</td><td>${u[1]} g</td><td><button type="button" class="row-button compact" data-action="v15-del-unit">删除</button></td></tr>`).join('') : '<tr><td colspan="3" class="cell-sub">尚未配置份量单位</td></tr>'}</tbody></table></div>
+          <p class="form-hint">可从单位模板一键套用（份 100g、碗 150g、盒 350g、杯 350g 等），再按本食物调整克重。</p>
+          ${v15BtnGhost('套用单位模板', 'v15-apply-units')}${v15BtnGhost('添加自定义单位', 'v15-add-unit')}
+        </div>
+        <div class="form-actions"><button type="button" class="button secondary" data-action="navigate" data-page="foods">取消</button><button type="button" class="button primary" data-action="v15-save-food">保存食物</button></div>
+      </form></section>
+    </section>`;
+  }
+
+  /* ---------------- 已有一期页面的增强 ---------------- */
+  // 每周菜单页的操作栏由 enhanceCurrentPageDOM 动态生成，采用渲染后注入的方式添加「营养值补录」
+  const v15OrigRenderApp = renderApp;
+  renderApp = function () {
+    v15OrigRenderApp();
+    try {
+      if (state.page === 'menu' && !document.querySelector('[data-action="v15-goto-nutrition"]')) {
+        const box = document.querySelector('#workspace .menu-actions-bar') ||
+          document.querySelector('#workspace .toolbar-actions') ||
+          document.querySelector('#workspace .toolbar-stack') ||
+          document.querySelector('#workspace .data-panel');
+        if (box) {
+          const btn = document.createElement('button');
+          btn.className = 'button primary small';
+          btn.setAttribute('data-action', 'v15-goto-nutrition');
+          btn.innerHTML = icon('chart') + '营养值补录';
+          if (box.classList.contains('menu-actions-bar')) box.appendChild(btn);
+          else box.insertBefore(btn, box.firstChild);
+        }
+      }
+    } catch (err) { /* 注入失败不影响主流程 */ }
+  };
+  const v15OrigUsers = renderUsers;
+  renderUsers = function () {
+    const card = `<section class="data-panel" style="margin-bottom:14px"><div class="toolbar-stack"><div class="toolbar toolbar-actions">
+      <b>人群筛选（V1.5）</b><span class="cell-sub">按持券、邀请关系与饮食记录筛选人群，供批量发券直接调用。</span></div>
+      <div class="toolbar"><div class="toolbar-group">
+        <button class="button secondary small" data-action="v15-user-segment" data-value="持券用户">持券用户 486</button>
+        <button class="button secondary small" data-action="v15-user-segment" data-value="被邀请用户">被邀请用户 76</button>
+        <button class="button secondary small" data-action="v15-user-segment" data-value="已记录饮食用户">已记录饮食用户 214</button>
+        <button class="button secondary small" data-action="v15-user-segment" data-value="赠餐待发放用户">赠餐待发放用户 9</button>
+      </div></div></div></section>`;
+    return v15OrigUsers().replace('<div class="summary-ribbon">', card + '<div class="summary-ribbon">');
+  };
+  const v15OrigAppRules = renderAppRules;
+  renderAppRules = function () {
+    const html = v15OrigAppRules();
+    if (state.appRulesTab === 'loginbg') return html;
+    const st = data.inviteSettings;
+    const section = `<div class="form-section" id="v15-rules-section"><h3>四、V1.5 增长与饮食记录</h3>
+      <p class="form-hint">这里的开关会直接影响小程序端：用户邀请码入口、邀请码页展示的活动有效期、饮食记录入口与拍照识别次数上限。</p>
+      <div class="form-grid">
+        ${formField('用户邀请码', 'v15InviteEnabled', st.enabled ? '开启' : '关闭', 'select', false, ['开启', '关闭'])}
+        ${formField('活动开始日期', 'v15ActivityStart', st.activityStart, 'date')}
+        ${formField('活动结束日期', 'v15ActivityEnd', st.activityEnd, 'date')}
+        ${formField('老用户最多邀请人数', 'v15InviteCap', st.cap, 'number')}
+        ${formField('饮食记录', 'v15DietEnabled', '开启', 'select', false, ['开启', '关闭'])}
+        ${formField('拍照识别每日次数上限', 'v15PhotoLimit', data.recognition.dailyLimit, 'number')}
+      </div>
+      <div class="form-actions"><button type="button" class="button primary" data-action="v15-save-rules">保存 V1.5 配置</button></div>
+    </div>`;
+    return html.replace('<div class="form-actions">', section + '<div class="form-actions">');
+  };
+
+  /* ---------------- 动作 ---------------- */
+  const v15Actions = {
+    'v15-coupon-tab': (n) => { V15A().couponTab = n.dataset.value; renderApp(); },
+    'v15-new-coupon': () => { V15A().editingId = null; navigate('coupon-form'); },
+    'v15-edit-coupon': (n) => { V15A().editingId = n.dataset.id; navigate('coupon-form'); },
+    'v15-save-coupon': () => {
+      const form = document.querySelector('#v15-coupon-form');
+      if (!form) return;
+      const get = (k) => (form.querySelector(`[name="${k}"]`) || {}).value || '';
+      const name = get('name').trim();
+      if (!name) return toast('请填写券名称', '券名称不能为空', 'error');
+      const isNew = !V15A().editingId;
+      const target = isNew
+        ? { id: 'CP' + String(data.coupons.length + 1).padStart(3, '0'), sent: 0, used: 0, expired: 0, issued: 0 }
+        : data.coupons.find((c) => c.id === V15A().editingId);
+      Object.assign(target, {
+        name, desc: get('desc'), amount: Number(get('amount')) || 0,
+        threshold: get('condition') === '无门槛' ? 0 : Number(get('threshold')) || 0,
+        brands: get('brands').split('、').filter(Boolean),
+        validMode: get('validMode'), validRange: get('validRange'),
+        limit: Number(get('limit')), status: get('status')
+      });
+      if (isNew) data.coupons.push(target);
+      addLog(isNew ? '新建优惠券' : '编辑优惠券', `${name}（¥${target.amount}）`);
+      navigate('coupons');
+      toast(isNew ? '优惠券已创建' : '优惠券已保存', `${name} 已生效`);
+    },
+    'v15-toggle-coupon': (n) => {
+      const c = data.coupons.find((x) => x.id === n.dataset.id);
+      c.status = c.status === '启用' ? '停用' : '启用';
+      addLog('切换优惠券状态', `${c.name} → ${c.status}`);
+      renderApp(); toast('状态已更新', `${c.name}：${c.status}`);
+    },
+    'v15-issue-coupon': (n) => {
+      const c = data.coupons.find((x) => x.id === n.dataset.id);
+      openModal({
+        title: `下发「${c.name}」`,
+        body: `<div class="form-grid">
+          ${formField('选人方式', 'way', '按条件筛选人群', 'select', true, ['多选用户', '按条件筛选人群', '导入手机号名单'])}
+          ${formField('筛选条件', 'cond', '持券用户', 'select', true, ['持券用户', '被邀请用户', '已记录饮食用户', '新用户（注册 7 天内）', '近 30 天有订购'])}
+          ${formField('发放方式', 'mode', '立即发放', 'select', true, ['立即发放', '定时发放'])}
+          ${formField('发放时间', 'time', '', 'datetime-local', true, [], '选择定时发放时填写')}
+          ${formField('备注', 'note', '', 'text', true, [], '例如活动名称，用于下发记录留痕')}
+        </div><p class="form-hint">三种选人方式取并集去重；重复发放会被每人限领规则拦截并记录原因。</p>`,
+        footer: `<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="v15-confirm-issue" data-id="${c.id}">确认下发</button>`
+      });
+    },
+    'v15-confirm-issue': (n) => {
+      const c = data.coupons.find((x) => x.id === n.dataset.id);
+      const modal = document.querySelector('.modal, .modal-card, [role="dialog"]');
+      const get = (k) => { const el = document.querySelector(`[name="${k}"]`); return el ? el.value : ''; };
+      const mode = get('mode') === '定时发放' ? '定时发放' : '手动发放';
+      const target = 120 + Math.floor(Math.random() * 80);
+      const fail = mode === '手动发放' ? 2 : 0;
+      data.couponRecords.unshift({
+        id: 'CR' + String(data.couponRecords.length + 1).padStart(3, '0'), couponId: c.id,
+        time: '2026-10-15 ' + new Date().toTimeString().slice(0, 5), mode,
+        source: mode === '定时发放' ? '定时任务' : '手动发放', operator: '林方',
+        note: get('note') || '—', target, ok: target - fail, fail, status: fail ? '部分失败' : '已完成'
+      });
+      c.sent += target - fail;
+      addLog('下发优惠券', `${c.name}：${mode}，成功 ${target - fail} 人`);
+      closeModal(); renderApp();
+      toast('下发完成', `成功 ${target - fail} 人${fail ? `，失败 ${fail} 人可重试` : ''}`);
+    },
+    'v15-coupon-records': (n) => {
+      const c = data.coupons.find((x) => x.id === n.dataset.id);
+      const list = data.couponRecords.filter((r) => r.couponId === c.id);
+      openDrawer({
+        title: `下发记录 · ${c.name}`,
+        body: list.length ? `<div class="detail-list">${list.map((r) => `<div><span>${r.time} · ${r.mode} · ${r.source}</span><b>成功 ${r.ok} / 失败 ${r.fail}</b><small class="cell-sub">操作人 ${r.operator} · 备注 ${escapeHTML(r.note)}</small>
+          <div class="table-actions" style="margin-top:6px">${r.fail ? `<button class="row-button compact" data-action="v15-retry-record" data-id="${r.id}">重试失败项</button>` : ''}<button class="row-button compact" data-action="v15-revoke-record" data-id="${r.id}">撤回未使用券</button></div></div>`).join('')}</div>`
+          : '<p class="cell-sub">该券还没有下发记录。</p>',
+        footer: `<button class="button secondary" data-action="close-drawer">关闭</button>`
+      });
+    },
+    'v15-retry-record': (n) => {
+      const r = data.couponRecords.find((x) => x.id === n.dataset.id);
+      r.ok += r.fail; r.fail = 0; r.status = '已完成';
+      addLog('重试优惠券下发', `${r.id} 失败项已重试成功`);
+      closeDrawer(); renderApp(); toast('重试完成', '失败项已全部补发成功');
+    },
+    'v15-revoke-record': (n) => {
+      const r = data.couponRecords.find((x) => x.id === n.dataset.id);
+      addLog('撤回优惠券', `${r.id} 撤回未使用券 12 张`);
+      closeDrawer(); renderApp(); toast('已撤回未使用券', '已使用的券不受影响');
+    },
+    'v15-export-coupons': () => toast('已导出券数据', '包含券模板与发放使用统计'),
+    'v15-coupon-expiring': () => toast('7 天内到期券 3 张', '小程序会在到期前 3 天提示用户'),
+    'v15-new-survey': () => { V15A().editingSurveyId = null; navigate('survey-form'); },
+    'v15-edit-survey': (n) => { V15A().editingSurveyId = n.dataset.id; navigate('survey-form'); },
+    'v15-save-survey': () => {
+      const form = document.querySelector('#v15-survey-form');
+      const get = (k) => { const el = form && form.querySelector(`[name="${k}"]`); return el ? el.value.trim() : ''; };
+      if (!get('name')) return toast('请填写问卷名称', '问卷名称不能为空', 'error');
+      const isNew = !V15A().editingSurveyId;
+      const target = isNew ? { id: 'SV' + String(data.surveys.length + 1).padStart(3, '0'), questions: 12, base: 8, own: 4, answers: 0, finishRate: '—', avgTime: '—' } : data.surveys.find((s) => s.id === V15A().editingSurveyId);
+      Object.assign(target, { name: get('name'), type: get('type'), goal: get('goal'), validRange: get('validRange'), audience: get('audience'), limit: get('limit'), reward: get('reward'), status: '草稿' });
+      if (isNew) data.surveys.push(target);
+      addLog('保存问卷', `${target.name}`);
+      navigate('surveys'); toast('问卷已保存', '草稿状态不会在小程序展示');
+    },
+    'v15-publish-survey': () => { addLog('发布问卷版本', V15A().editingSurveyId || '新建问卷'); toast('已发布新版本', '旧版本作答记录保留'); },
+    'v15-add-question': () => toast('已新增题目', '原型演示：题目会在正式系统里由编辑器维护'),
+    'v15-add-option': () => toast('已新增选项', '可为选项绑定品牌标签与 -5 至 +5 分值'),
+    'v15-survey-data': (n) => { V15A().editingSurveyId = n && n.dataset.id ? n.dataset.id : null; navigate('survey-data'); },
+    'v15-export-surveys': () => toast('已导出问卷数据', '含逐题分布与作答明细'),
+    'v15-export-answers': () => toast('已导出作答明细', '可追溯到用户与奖励发放状态'),
+    'v15-reissue-reward': () => { data.surveyAnswers.forEach((a) => { if (a.status === '待发放') a.status = '已发放'; }); renderApp(); toast('已补发奖励', '待发放的奖励已全部发放'); },
+    'v15-new-invite': () => { V15A().editingInviteId = null; navigate('invite-form'); },
+    'v15-edit-invite': (n) => { V15A().editingInviteId = n.dataset.id; navigate('invite-form'); },
+    'v15-save-invite': () => {
+      const form = document.querySelector('#v15-invite-form');
+      const get = (k) => { const el = form && form.querySelector(`[name="${k}"]`); return el ? el.value.trim() : ''; };
+      if (!get('merchant')) return toast('请填写商户名称', '商户名称不能为空', 'error');
+      if (!get('validStart') || !get('validEnd')) return toast('请填写有效期', '商户邀请码必须写明起止日期', 'error');
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 8; i += 1) code += chars[Math.floor(Math.random() * chars.length)];
+      const isNew = !V15A().editingInviteId;
+      const target = isNew ? { id: 'MC' + String(data.invites.length + 1).padStart(3, '0'), code, users: 0, buyers: 0, orders: 0, revenue: 0, status: '启用' } : data.invites.find((x) => x.id === V15A().editingInviteId);
+      Object.assign(target, {
+        merchant: get('merchant'), phone: get('phone') || '—', note: get('note') || '—',
+        withReward: get('withReward'), reward: get('withReward') === '是' ? get('reward') : '—',
+        validRange: `${get('validStart')} 至 ${get('validEnd')}`
+      });
+      if (isNew) data.invites.push(target);
+      addLog(isNew ? '生成商户邀请码' : '编辑商户邀请码', `${target.merchant} → ${target.code}`);
+      navigate('invites');
+      toast(isNew ? '邀请码已生成' : '邀请码已保存', `${target.merchant}：${target.code}`);
+    },
+    'v15-toggle-invite': (n) => {
+      const i = data.invites.find((x) => x.id === n.dataset.id);
+      i.status = i.status === '启用' ? '停用' : '启用';
+      addLog('切换商户邀请码状态', `${i.merchant} → ${i.status}`);
+      renderApp(); toast('状态已更新', `${i.merchant}：${i.status}`);
+    },
+    'v15-invite-detail': (n) => {
+      const i = data.invites.find((x) => x.id === n.dataset.id);
+      openDrawer({
+        title: `商户明细 · ${i.merchant}`,
+        body: `<div class="detail-list">
+          <div><span>邀请码</span><b>${i.code}</b></div>
+          <div><span>有效期</span><b>${i.validRange}</b></div>
+          <div><span>使用奖励</span><b>${i.withReward === '是' ? i.reward : '不发放'}</b></div>
+          <div><span>使用人数</span><b>${i.users} 人</b></div>
+          <div><span>其中订购人数</span><b>${i.buyers} 人</b></div>
+          <div><span>订购次数</span><b>${i.orders} 次</b></div>
+          <div><span>实收金额</span><b>¥${i.revenue.toLocaleString()}</b></div>
+        </div>
+        <p class="form-hint">实收 = 该邀请码绑定用户的有效订单支付金额合计，已剔除退款与取消订单；系统只做统计，分成与结算在线下核对。</p>`,
+        footer: `<button class="button secondary" data-action="close-drawer">关闭</button><button class="button primary" data-action="v15-export-invites">导出明细</button>`
+      });
+    },
+    'v15-invite-relations': () => openDrawer({
+      title: '邀请关系',
+      body: `<div class="table-wrap"><table class="data-table"><thead><tr><th>邀请人</th><th>被邀请人</th><th>来源</th><th>绑定时间</th><th>首单</th><th>奖励</th><th>状态</th></tr></thead>
+        <tbody>${data.inviteRelations.map((r) => `<tr><td>${escapeHTML(r.inviter)}</td><td>${escapeHTML(r.invitee)}</td><td>${escapeHTML(r.source)}</td><td>${r.time}</td><td>${r.firstOrder}</td><td><span class="wrap-cell">${escapeHTML(r.reward)}</span></td><td>${status(r.status)}</td></tr>`).join('')}</tbody></table></div>
+        <p class="form-hint">一个新用户只能使用一个邀请码，注册完成后锁定；重复提交会被拦截并留痕。</p>`,
+      footer: `<button class="button secondary" data-action="close-drawer">关闭</button>`
+    }),
+    'v15-invite-exceptions': () => openDrawer({
+      title: '异常复核队列',
+      body: `<div class="risk-list">
+        <div class="risk-item"><i class="risk-dot"></i><div><b>同手机号重复注册</b><small>138****2210 · 两次提交同一邀请码 · 2026-10-12</small></div><button class="row-button" data-action="v15-exception-keep">保留有效</button></div>
+        <div class="risk-item"><i class="risk-dot"></i><div><b>同设备批量注册</b><small>设备 A1B2C3 · 30 分钟内 4 个新账号</small></div><button class="row-button" data-action="v15-exception-drop">判定异常</button></div>
+      </div>
+      <p class="form-hint">复核期间奖励挂起；判定异常则回收奖励并记录原因，正常用户不受影响。</p>`,
+      footer: `<button class="button secondary" data-action="close-drawer">关闭</button>`
+    }),
+    'v15-exception-keep': () => { closeDrawer(); toast('已保留有效关系', '对应奖励恢复发放'); },
+    'v15-exception-drop': () => {
+      const r = data.inviteRelations.find((x) => x.status === '疑似异常');
+      if (r) { r.status = '已判定异常'; r.reward = '奖励已回收'; }
+      closeDrawer(); renderApp(); toast('已判定异常', '奖励已回收并留痕');
+    },
+    'v15-save-invite-settings': () => {
+      const st = data.inviteSettings;
+      const get = (k) => { const el = document.querySelector(`[name="${k}"]`); return el ? el.value.trim() : ''; };
+      Object.assign(st, {
+        enabled: get('enabled') === '开启', activityStart: get('activityStart'), activityEnd: get('activityEnd'),
+        target: get('target'), oldReward: get('oldReward'), newReward: get('newReward'),
+        cap: Number(get('cap')) || 10, validRule: get('validRule')
+      });
+      addLog('保存用户邀请码设置', `${st.enabled ? '开启' : '关闭'} · 活动 ${st.activityStart} 至 ${st.activityEnd} · 上限 ${st.cap} 人`);
+      renderApp();
+      toast('设置已保存', '活动有效期会同步展示在小程序邀请码页');
+    },
+    'v15-export-invites': () => toast('已导出商户统计', '含使用人数、订购人数、订购次数与实收金额'),
+    'v15-food-tab': (n) => { V15A().foodTab = n.dataset.value; renderApp(); },
+    'v15-food-search': () => { const el = document.querySelector('[data-filter="v15FoodSearch"]'); V15A().keyword = el ? el.value : ''; renderApp(); },
+    'v15-new-food': () => { V15A().editingFoodId = null; navigate('food-form'); },
+    'v15-edit-food': (n) => { V15A().editingFoodId = n.dataset.id; navigate('food-form'); },
+    'v15-toggle-food': (n) => {
+      const f = data.foods.find((x) => x.id === n.dataset.id);
+      f.status = f.status === '启用' ? '停用' : '启用';
+      addLog('切换食物状态', `${f.name} → ${f.status}`);
+      renderApp(); toast('状态已更新', `${f.name}：${f.status}`);
+    },
+    'v15-save-food': () => {
+      const form = document.querySelector('#v15-food-form');
+      const get = (k) => { const el = form && form.querySelector(`[name="${k}"]`); return el ? el.value.trim() : ''; };
+      if (!get('name')) return toast('请填写食物名称', '食物名称不能为空', 'error');
+      const require = [['kcal', '热量'], ['carb', '碳水化合物'], ['protein', '蛋白质'], ['fat', '脂肪']];
+      for (const [k, label] of require) if (get(k) === '') return toast(`请填写${label}`, '热量与三大营养素为必填项', 'error');
+      const num = (k) => { const v = get(k); return v === '' ? null : Number(v); };
+      const isNew = !V15A().editingFoodId;
+      const target = isNew ? { id: 'F' + String(data.foods.length + 1).padStart(3, '0'), units: [] } : data.foods.find((f) => f.id === V15A().editingFoodId);
+      Object.assign(target, {
+        name: get('name'), alias: get('alias'), cat: get('cat'), barcode: get('barcode'), source: get('source'), status: get('status'),
+        kcal: num('kcal'), carb: num('carb'), protein: num('protein'), fat: num('fat'), fiber: num('fiber'),
+        na: num('na'), k: num('k'), ca: num('ca'), fe: num('fe'), zn: num('zn')
+      });
+      if (isNew) data.foods.push(target);
+      addLog(isNew ? '新建食物' : '编辑食物', `${target.name}（每 100 克 ${target.kcal} kcal）`);
+      navigate('foods'); toast('食物已保存', '小程序搜索与记录会同步使用该数据');
+    },
+    'v15-apply-units': () => {
+      const f = data.foods.find((x) => x.id === V15A().editingFoodId);
+      if (!f) return toast('请先保存食物', '新建食物保存后即可套用单位模板', 'error');
+      f.units = [['份', 100], ['碗', 150]];
+      renderApp(); toast('已套用单位模板', '可按本食物微调克重');
+    },
+    'v15-add-unit': () => toast('已添加自定义单位', '原型演示：填写单位名称与克重后保存'),
+    'v15-del-unit': () => toast('已删除该单位', '单位删除不影响已有记录'),
+    'v15-goto-nutrition': () => { V15A().foodTab = 'menu'; navigate('foods'); },
+    'v15-fill-nutrition': (n) => {
+      const m = data.menuNutrition.find((x) => x.id === n.dataset.id);
+      openModal({
+        title: `补录营养值 · ${m.name}`,
+        body: `<p class="form-hint">${m.brand} · ${m.week} · ${m.spec}</p><div class="form-grid">
+          ${formField('热量（kcal）', 'kcal', m.kcal || '')}
+          ${formField('碳水化合物（g）', 'carb', '')}
+          ${formField('蛋白质（g）', 'protein', '')}
+          ${formField('脂肪（g）', 'fat', '')}
+          ${formField('膳食纤维（g）', 'fiber', '')}
+          ${formField('钠（mg）', 'na', '')}
+        </div><p class="form-hint">补录完成后小程序菜单与饮食记录才会展示该菜品的营养值。</p>`,
+        footer: `<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="v15-save-nutrition" data-id="${m.id}">保存营养值</button>`
+      });
+    },
+    'v15-save-nutrition': (n) => {
+      const m = data.menuNutrition.find((x) => x.id === n.dataset.id);
+      const el = document.querySelector('[name="kcal"]');
+      const kcal = el && el.value ? Number(el.value) : 0;
+      if (!kcal) return toast('请填写热量', '热量为必填项', 'error');
+      m.kcal = kcal; m.done = true;
+      addLog('补录菜单营养值', `${m.brand} · ${m.name}：${kcal} kcal`);
+      closeModal(); renderApp();
+      toast('营养值已补录', `${m.name} 已在小程序展示营养数据`);
+    },
+    'v15-barcode-approve': (n) => {
+      const b = data.barcodeQueue.find((x) => x.id === n.dataset.id);
+      if (b.status === '待补录') { b.status = '已补录'; addLog('补录条码食物', `${b.code} ${b.name}`); }
+      renderApp(); toast('条码已处理', `${b.name} 已入库`);
+    },
+    'v15-submit-approve': (n) => {
+      const f = data.foodSubmissions.find((x) => x.id === n.dataset.id);
+      if (f.status === '待审核') { f.status = '已通过'; addLog('审核自定义食物', `${f.name} 已并入公共库`); }
+      renderApp(); toast('审核通过', `${f.name} 已并入食物库`);
+    },
+    'v15-save-recognition': () => {
+      const el = document.querySelector('[name="dailyLimit"]');
+      data.recognition.dailyLimit = Number(el && el.value) || 20;
+      addLog('保存识别配置', `每位用户每日上限 ${data.recognition.dailyLimit} 次`);
+      renderApp(); toast('识别配置已保存', `每日上限 ${data.recognition.dailyLimit} 次`);
+    },
+    'v15-import-food': () => toast('已打开导入模板', '支持按 Excel 模板批量导入食物'),
+    'v15-export-food': () => toast('已导出食物库', '含每 100 克营养值与份量单位'),
+    'v15-user-segment': (n) => toast('已应用人群筛选', `当前人群：${n.dataset.value}`),
+    'v15-save-rules': () => {
+      const get = (k) => { const el = document.querySelector(`[name="${k}"]`); return el ? el.value.trim() : ''; };
+      const st = data.inviteSettings;
+      st.enabled = get('v15InviteEnabled') === '开启';
+      st.activityStart = get('v15ActivityStart') || st.activityStart;
+      st.activityEnd = get('v15ActivityEnd') || st.activityEnd;
+      st.cap = Number(get('v15InviteCap')) || st.cap;
+      data.recognition.dailyLimit = Number(get('v15PhotoLimit')) || data.recognition.dailyLimit;
+      addLog('保存 V1.5 配置', `用户邀请码 ${st.enabled ? '开启' : '关闭'} · 活动 ${st.activityStart} 至 ${st.activityEnd} · 识别上限 ${data.recognition.dailyLimit} 次`);
+      renderApp(); toast('V1.5 配置已保存', '小程序端邀请码与饮食记录同步生效');
+    }
+  };
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+    const action = button.dataset.action;
+    if (v15Actions[action]) v15Actions[action](button, event);
+  });
+
+  const V15_PAGES = {
+    coupons: renderV15Coupons, 'coupon-form': renderV15CouponForm,
+    surveys: renderV15Surveys, 'survey-form': renderV15SurveyForm, 'survey-data': renderV15SurveyData,
+    invites: renderV15Invites, 'invite-form': renderV15InviteForm,
+    foods: renderV15Foods, 'food-form': renderV15FoodForm
+  };
+
+const R2_FULL_QUESTIONS={"base":[{"id":"b1","text":"你更喜欢哪种口味？","type":"multi","options":[{"text":"清淡少油","tags":{"少油少盐":4,"低卡轻负担":2}},{"text":"温热汤羹","tags":{"暖胃":3,"汤品":2}},{"text":"西式轻食冷餐","tags":{"西式冷餐":2,"轻食沙拉":2}},{"text":"中式热食","tags":{"中式热食":3}},{"text":"谷物能量碗","tags":{"能量碗":3,"高饱腹":2}}]},{"id":"b2","text":"有需要避开食材吗？","type":"multi","options":[{"text":"素食为主","tags":{"素食友好":4}},{"text":"不吃辣","tags":{"少油少盐":2}},{"text":"乳制品敏感","tags":{}},{"text":"没有忌口","tags":{}}]},{"id":"b3","text":"打算订哪几餐？","type":"multi","recommend":false,"options":[{"text":"午餐","tags":{}},{"text":"晚餐","tags":{}}]},{"id":"b4","text":"能接受的辣度？","type":"single","options":[{"text":"完全不辣","tags":{"少油少盐":2}},{"text":"微辣","tags":{}},{"text":"重辣","tags":{"中式热食":2}}]},{"id":"b5","text":"主食偏好？","type":"single","options":[{"text":"米饭 / 杂粮饭","tags":{"能量碗":3,"高饱腹":2}},{"text":"面食","tags":{"中式热食":3}},{"text":"沙拉蔬菜为主","tags":{"轻食沙拉":3,"低卡轻负担":2}},{"text":"汤品为主","tags":{"汤品":3,"暖胃":2}}]},{"id":"b6","text":"每餐预算？","type":"single","recommend":false,"options":[{"text":"20 元以内","tags":{}},{"text":"20 - 35 元","tags":{}},{"text":"35 元以上","tags":{}}]},{"id":"b7","text":"更喜欢的烹饪方式？","type":"single","options":[{"text":"蒸煮少油","tags":{"少油少盐":4,"低卡轻负担":2}},{"text":"炖煮汤品","tags":{"汤品":3,"暖胃":2}},{"text":"冷餐凉拌","tags":{"西式冷餐":3,"轻食沙拉":2}},{"text":"都可以","tags":{}}]},{"id":"b8","text":"常在外就餐的场景？","type":"multi","options":[{"text":"工作日午餐","tags":{}},{"text":"加班晚餐","tags":{"暖胃":2}},{"text":"周末聚会","tags":{}},{"text":"很少外食","tags":{}}]}],"goals":{"减重":[{"id":"r1","text":"你在意饭后很快饿吗？","type":"single","options":[{"text":"很在意","tags":{"高饱腹":4,"高蛋白":2}},{"text":"一般","tags":{"高饱腹":2}},{"text":"不在意","tags":{}}]},{"id":"r2","text":"每天热量想控制在什么范围？","type":"single","options":[{"text":"1200 千卡以内","tags":{"低卡轻负担":5}},{"text":"1300 - 1500 千卡","tags":{"低卡轻负担":3}},{"text":"不算热量","tags":{}}]},{"id":"r3","text":"甜食和含糖饮料的频次？","type":"single","options":[{"text":"几乎每天","tags":{"低卡轻负担":2}},{"text":"偶尔","tags":{}},{"text":"基本不吃","tags":{}}]},{"id":"r4","text":"能接受少油少盐的清淡口味吗？","type":"single","options":[{"text":"完全接受","tags":{"少油少盐":4}},{"text":"部分接受","tags":{"少油少盐":2}},{"text":"不太接受","tags":{"少油少盐":-3}}]},{"id":"r5","text":"你现在的减重阶段？","type":"single","options":[{"text":"刚开始","tags":{"低卡轻负担":3}},{"text":"平台期","tags":{"高蛋白":3,"高饱腹":2}},{"text":"维持期","tags":{"营养均衡":3}}]}],"增肌":[{"id":"m1","text":"每天的蛋白质摄入够吗？","type":"single","options":[{"text":"明显不足","tags":{"高蛋白":5}},{"text":"一般","tags":{"高蛋白":3}},{"text":"已经足够","tags":{"高蛋白":1}}]},{"id":"m2","text":"有加餐习惯吗？","type":"single","options":[{"text":"每天加餐","tags":{"高蛋白":3,"高饱腹":2}},{"text":"偶尔加餐","tags":{}},{"text":"不加餐","tags":{}}]},{"id":"m3","text":"每周训练几次？","type":"single","options":[{"text":"3 次以上","tags":{"高蛋白":4,"能量碗":3}},{"text":"1 - 2 次","tags":{"高蛋白":2}},{"text":"基本不练","tags":{}}]},{"id":"m4","text":"每餐饭量？","type":"single","options":[{"text":"要大份","tags":{"能量碗":4,"高饱腹":3}},{"text":"正常","tags":{"高饱腹":2}},{"text":"吃不太多","tags":{"低卡轻负担":2}}]},{"id":"m5","text":"训练日的主食安排？","type":"single","options":[{"text":"碳水要够","tags":{"能量碗":4}},{"text":"适中","tags":{"能量碗":2}},{"text":"少吃主食","tags":{"低卡轻负担":3}}]}],"健康饮食":[{"id":"h1","text":"每天蔬果吃够了吗？","type":"single","options":[{"text":"明显不足","tags":{"时令鲜食":4,"健康食材":3}},{"text":"一般","tags":{"健康食材":2}},{"text":"比较充足","tags":{"健康食材":1}}]},{"id":"h2","text":"每周外食频次？","type":"single","options":[{"text":"几乎每天外食","tags":{"少油少盐":4,"健康食材":2}},{"text":"每周几次","tags":{"少油少盐":2}},{"text":"很少外食","tags":{}}]},{"id":"h3","text":"更想要的膳食结构？","type":"single","options":[{"text":"荤素均衡","tags":{"营养均衡":5}},{"text":"清淡为主","tags":{"少油少盐":3}},{"text":"汤羹为主","tags":{"汤品":3,"暖胃":2}}]},{"id":"h4","text":"用餐规律吗？","type":"single","options":[{"text":"规律三餐","tags":{"营养均衡":3}},{"text":"常忙到顾不上","tags":{"高饱腹":3,"能量碗":2}},{"text":"晚睡晚起","tags":{"暖胃":2}}]}],"减脂":[{"id":"f1","text":"最想改善的是？","type":"single","options":[{"text":"降低体脂率","tags":{"低卡轻负担":4,"高蛋白":3}},{"text":"减少腹部脂肪","tags":{"低卡轻负担":3,"高饱腹":2}},{"text":"保持当前体态","tags":{"营养均衡":2}}]},{"id":"f2","text":"愿意尝试低碳水吗？","type":"single","options":[{"text":"愿意","tags":{"低卡轻负担":3,"高蛋白":2}},{"text":"正常碳水","tags":{}},{"text":"不太想","tags":{"能量碗":2}}]},{"id":"f3","text":"对油盐的敏感度？","type":"single","options":[{"text":"特别在意","tags":{"少油少盐":5}},{"text":"一般","tags":{"少油少盐":2}},{"text":"不太在意","tags":{"少油少盐":-3}}]},{"id":"f4","text":"一天的进食节奏？","type":"single","options":[{"text":"一日两餐","tags":{"高饱腹":3}},{"text":"少量多餐","tags":{"低卡轻负担":2}},{"text":"正常三餐","tags":{"营养均衡":2}}]}]}};
+  /* Independent local state for this delivery. No old storage or source is written. */
+  const R2_ADMIN_KEY='duya-admin-v15-r4';
+  const r2DataKeys=['coupons','couponRecords','surveys','surveyAnswers','invites','inviteSettings','inviteRelations','foods','foodUnits','menuNutrition','barcodeQueue','foodSubmissions','recognition','dietEnabled'];
+  const r2AdminDefaults=JSON.parse(JSON.stringify(Object.fromEntries(r2DataKeys.map(k=>[k,data[k]]))));
+  try{const saved=JSON.parse(localStorage.getItem(R2_ADMIN_KEY)||'{}');for(const k of r2DataKeys)if(saved[k]!=null)data[k]=saved[k];}catch(e){}
+  function r2PersistAdmin(){if(!['coupons','surveys','foods','invites'].every(k=>Array.isArray(data[k])))return;try{localStorage.setItem(R2_ADMIN_KEY,JSON.stringify(Object.fromEntries(r2DataKeys.map(k=>[k,data[k]]))));}catch(e){toast('保存失败','浏览器无法保存本地演示数据','error');}}
+  function r2ResetData(){const next=hydrateDemoData(clone(initialData));Object.assign(next,JSON.parse(JSON.stringify(r2AdminDefaults)));state.v15Admin=null;localStorage.removeItem(R2_ADMIN_KEY);return next;}
+  const r2AdminRender=renderApp;
+  renderApp=function(){r2AdminRender();r2PersistAdmin();};
+  const r2Get=(name,scope=document)=>{const el=scope.querySelector('[name="'+name+'"]');return el?el.value.trim():'';};
+  const r2Error=message=>toast('请检查填写内容',message,'error');
+  const r2Now=()=>new Date(Date.now()+8*3600000).toISOString().slice(0,16).replace('T',' ');
+  const r2Clone=x=>JSON.parse(JSON.stringify(x));
+  const r2Nutrients=[['kcal','热量（kcal）'],['carb','碳水（g）'],['protein','蛋白质（g）'],['fat','脂肪（g）'],['fiber','膳食纤维（g）'],['na','钠（mg）'],['k','钾（mg）'],['ca','钙（mg）'],['fe','铁（mg）'],['zn','锌（mg）']];
+  const r2ValidNumber=(value,positive=false)=>value!==''&&Number.isFinite(Number(value))&&(positive?Number(value)>0:Number(value)>=0);
+  const r2DateRange=(a,b)=>a&&b&&a<=b;
+  const r2SurveyBase=renderV15SurveyForm;
+  function r2Questions(){const ui=V15A(),id=ui.editingSurveyId||'new';if(ui.r2QuestionId!==id){ui.r2QuestionId=id;const s=data.surveys.find(x=>x.id===id);const full=R2_FULL_QUESTIONS.base.concat(R2_FULL_QUESTIONS.goals[s?.goal||'健康饮食']||[]);ui.r2Questions=r2Clone(s?.questionList||(s?.type==='目标问卷'?full:[{text:'你对本次体验满意吗？',type:'single',options:[{text:'满意',tags:{}},{text:'需改进',tags:{}}]}]));}return ui.r2Questions;}
+  const r2TagNames=[...new Set(['少油少盐','低卡轻负担','健康食材','营养均衡','高蛋白','高饱腹','素食友好','时令鲜食','暖胃','中式热食','西式冷餐','轻食沙拉','能量碗','汤品'])];
+  function r2QuestionHtml(){return '<div class="r2-question-editor">'+r2Questions().map((q,i)=>`<section class="form-section r2-question" data-question="${i}"><div class="form-grid">${formField('题目 '+(i+1),'q'+i+'-text',q.text)}${formField('题型','q'+i+'-type',q.type==='multi'?'多选':'单选','select',false,['单选','多选'])}${formField('参与推荐','q'+i+'-recommend',q.recommend===false?'否':'是','select',false,['是','否'])}</div><p class="form-hint">标签得分填写如“少油少盐:+4、低卡轻负担:+2”，分值为 −5 至 +5。</p>${q.options.map((o,j)=>`<div class="form-grid r2-option">${formField('选项 '+(j+1),'q'+i+'-o'+j+'-text',o.text)}${formField('标签与得分','q'+i+'-o'+j+'-tags',Object.entries(o.tags||{}).map(([t,s])=>t+':'+s).join('、'))}</div>`).join('')}<button type="button" class="button secondary small" data-action="r2-add-option" data-i="${i}">添加选项</button></section>`).join('')+'<button type="button" class="button secondary" data-action="v15-add-question">添加题目</button></div>';}
+  function r2ReadQuestions(){return r2Questions().map((q,i)=>({text:r2Get('q'+i+'-text'),type:r2Get('q'+i+'-type')==='多选'?'multi':'single',recommend:r2Get('q'+i+'-recommend')!=='否',options:q.options.map((o,j)=>{const tags={};const value=r2Get('q'+i+'-o'+j+'-tags');if(value)for(const part of value.split(/[、,，]/)){const match=part.trim().match(/^(.+?)\s*[:：]\s*([+-]?\d+(?:\.\d+)?)$/);if(!match||!r2TagNames.includes(match[1])||Math.abs(Number(match[2]))>5)throw Error('标签需使用品牌已有标签，得分范围为 −5 至 +5');tags[match[1]]=Number(match[2]);}return {text:r2Get('q'+i+'-o'+j+'-text'),tags};})}));}
+  function r2RewardHtml(prefix,config,mode='固定奖励'){
+    const rows=config?.length?config:[{type:'优惠券',couponId:'CP001',name:'满 39 减 8 元券',probability:100,count:1}];
+    return `<div class="r2-rewards" data-prefix="${prefix}"><div class="form-grid">${formField('发放方式',prefix+'mode',mode,'select',false,['固定奖励','概率抽奖'])}</div><p class="form-hint">固定奖励使用第一档；概率抽奖最多六档，概率合计须为 100%。赠餐未有订购时待发放；线下奖励需联系客服。</p><div class="r2-reward-rows">${rows.map((r,i)=>`<section class="r2-reward-row" data-i="${i}"><h4>奖励档位 ${i+1}</h4><div class="form-grid">${formField('奖励类型',prefix+i+'-type',r.type||'优惠券','select',false,['优惠券','赠餐','自定义'])}${formField('优惠券模板',prefix+i+'-coupon',r.couponId||'CP001','select',false,data.coupons.map(c=>c.id))}${formField('赠餐数量',prefix+i+'-count',r.count||1,'number')}${formField('奖励名称',prefix+i+'-name',r.name||'')}${formField('奖励图片地址（选填）',prefix+i+'-image',r.image||'')}${formField('概率（%）',prefix+i+'-probability',r.probability??100,'number')}</div><p class="form-hint">券模板：${data.coupons.map(c=>escapeHTML(c.id+' '+c.name)).join('；')}</p></section>`).join('')}</div><button type="button" class="button secondary small" data-action="r2-add-reward" data-prefix="${prefix}">添加奖励档位</button></div>`;
+  }
+  function r2ReadRewards(prefix){const box=document.querySelector('.r2-rewards[data-prefix="'+prefix+'"]');if(!box)return null;const mode=r2Get(prefix+'mode'),list=[...box.querySelectorAll('.r2-reward-row')].map((row,i)=>({type:r2Get(prefix+i+'-type'),couponId:r2Get(prefix+i+'-coupon'),name:r2Get(prefix+i+'-name'),count:Number(r2Get(prefix+i+'-count')),image:r2Get(prefix+i+'-image'),probability:mode==='固定奖励'?(i===0?100:0):Number(r2Get(prefix+i+'-probability'))}));const rows=mode==='固定奖励'?list.slice(0,1):list;
+    for(const r of rows){if(r.type==='优惠券'){const c=data.coupons.find(c=>c.id===r.couponId&&c.status==='启用');if(!c)throw Error('请选择已启用的优惠券');r.name=c.name;}else if(r.type==='赠餐'){if(!Number.isInteger(r.count)||r.count<1)throw Error('赠餐数量必须是正整数');r.name='赠餐 '+r.count+' 餐';}else if(!r.name)throw Error('请填写线下奖励名称');if(!Number.isFinite(r.probability)||r.probability<0||r.probability>100)throw Error('奖励概率须在 0 至 100 之间');}
+    if(Math.abs(rows.reduce((n,r)=>n+r.probability,0)-100)>0.001)throw Error('奖励概率合计必须为 100%');return {mode,rows};
+  }
+  const r2RewardSummary=r=>r.rows.map(x=>x.name+(r.mode==='概率抽奖'?' '+x.probability+'%':'')).join(' / ');
+  renderV15SurveyForm=function(){const box=document.createElement('div');box.innerHTML=r2SurveyBase();const s=data.surveys.find(x=>x.id===V15A().editingSurveyId);const sections=box.querySelectorAll('.form-section');sections[1].innerHTML='<h3>题目与选项</h3>'+r2QuestionHtml();sections[2].innerHTML='<h3>奖励配置</h3>'+r2RewardHtml('s-',s?.rewardConfig,s?.rewardMode)+formField('结果页文案','resultText',s?.resultText||'感谢参与，请到优惠券查看奖励。','textarea');return box.innerHTML;};
+  function r2SaveSurvey(publish=false){let questions,rewards;try{questions=r2ReadQuestions();rewards=r2ReadRewards('s-');}catch(e){return r2Error(e.message);}const name=r2Get('name');if(!name)return r2Error('请填写问卷名称');if(questions.some(q=>!q.text||q.options.length<2||q.options.some(o=>!o.text)))return r2Error('每道题须有题目及至少两个完整选项');let s=data.surveys.find(x=>x.id===V15A().editingSurveyId);if(!s){s={id:'SV'+Date.now(),answers:0,finishRate:'—',avgTime:'—'};data.surveys.push(s);}Object.assign(s,{name,type:r2Get('type'),goal:r2Get('goal'),validRange:r2Get('validRange'),audience:r2Get('audience'),limit:r2Get('limit'),questionList:questions,questions:questions.length,rewardMode:rewards.mode,rewardConfig:rewards.rows,reward:r2RewardSummary(rewards),resultText:r2Get('resultText'),status:publish?'已发布':'草稿',version:(s.version||0)+(publish?1:0)});V15A().editingSurveyId=s.id;addLog(publish?'发布问卷':'保存问卷',name);navigate('surveys');r2PersistAdmin();toast(publish?'问卷已发布':'问卷已保存',name);}
+  v15Actions['v15-save-survey']=()=>r2SaveSurvey(false);
+  v15Actions['v15-publish-survey']=()=>r2SaveSurvey(true);
+  v15Actions['v15-add-question']=()=>{let qs;try{qs=r2ReadQuestions();}catch(e){return r2Error(e.message);}V15A().r2Questions=[...qs,{text:'新题目',type:'single',options:[{text:'选项一',tags:{}},{text:'选项二',tags:{}}]}];const editor=document.querySelector('.r2-question-editor');editor.outerHTML=r2QuestionHtml();};
+  v15Actions['r2-add-option']=n=>{try{V15A().r2Questions=r2ReadQuestions();}catch(e){return r2Error(e.message);}V15A().r2Questions[+n.dataset.i].options.push({text:'新选项',tags:{}});document.querySelector('.r2-question-editor').outerHTML=r2QuestionHtml();};
+  v15Actions['r2-add-reward']=n=>{const box=n.closest('.r2-rewards'),rows=box.querySelectorAll('.r2-reward-row');if(rows.length>=6)return r2Error('最多六个奖励档位');const copy=rows[0].cloneNode(true),i=rows.length,prefix=n.dataset.prefix;copy.dataset.i=i;copy.querySelector('h4').textContent='奖励档位 '+(i+1);copy.querySelectorAll('[name]').forEach(el=>{el.name=el.name.replace(prefix+'0-',prefix+i+'-');if(el.name.endsWith('-probability'))el.value='0';});box.querySelector('.r2-reward-rows').append(copy);};
+  for(const a of ['v15-new-survey','v15-edit-survey']){const before=v15Actions[a];v15Actions[a]=n=>{V15A().r2QuestionId=null;before(n);};}
+
+  // Unit editing works before first save and never discards other form input.
+  const r2FoodFormBase=renderV15FoodForm;
+  renderV15FoodForm=function(){const box=document.createElement('div');box.innerHTML=r2FoodFormBase();const f=data.foods.find(x=>x.id===V15A().editingFoodId);const tbody=box.querySelectorAll('.form-section')[2].querySelector('tbody');tbody.innerHTML=(f?.units||[]).map((u,i)=>r2UnitRow(i,u)).join('');return box.innerHTML;};
+  function r2UnitRow(i,u){return `<tr class="r2-unit"><td><input class="filter-input" name="unit${i}-name" value="${escapeHTML(u[0])}" placeholder="份、碗、盒"></td><td><input class="filter-input" name="unit${i}-grams" type="number" min="0.1" step="0.1" value="${u[1]}"></td><td><button type="button" class="row-button" data-action="v15-del-unit">删除</button></td></tr>`;}
+  v15Actions['v15-add-unit']=()=>{const body=document.querySelector('#v15-food-form .form-section:nth-child(3) tbody');const i=[...body.querySelectorAll('input[name$="-name"]')].reduce((n,x)=>Math.max(n,Number(x.name.match(/unit(\d+)/)[1])+1),0);if(body.querySelector('.cell-sub'))body.innerHTML='';body.insertAdjacentHTML('beforeend',r2UnitRow(i,['份',100]));};
+  v15Actions['v15-del-unit']=n=>n.closest('tr').remove();
+  v15Actions['v15-apply-units']=()=>{const body=document.querySelector('#v15-food-form .form-section:nth-child(3) tbody');body.innerHTML=data.foodUnits.slice(0,4).map((u,i)=>r2UnitRow(i,[u.name,u.grams])).join('');};
+  const r2FoodSaveBase=v15Actions['v15-save-food'];
+  v15Actions['v15-save-food']=()=>{const units=[...document.querySelectorAll('.r2-unit')].map(row=>[row.querySelector('input').value.trim(),Number(row.querySelectorAll('input')[1].value)]);if(units.some(u=>!u[0]||!Number.isFinite(u[1])||u[1]<=0))return r2Error('单位名称不能为空，克重须大于零');for(const [key]of r2Nutrients){const value=r2Get(key);if(value!==''&&!r2ValidNumber(value))return r2Error('营养值须为非负数字');}const id=V15A().editingFoodId,knownIds=new Set(data.foods.map(f=>f.id));r2FoodSaveBase();if(document.querySelector('#v15-food-form'))return;const f=data.foods.find(x=>id?x.id===id:!knownIds.has(x.id));if(f)f.units=units;r2PersistAdmin();};
+  v15Actions['v15-fill-nutrition']=n=>{const m=data.menuNutrition.find(x=>x.id===n.dataset.id);openModal({title:'补录营养值 · '+m.name,body:`<p class="form-hint">每 100 克营养值，菜品份量 ${m.spec}；必填热量与三大营养素。</p><div class="form-grid">${r2Nutrients.map(([k,label])=>formField(label,k,m[k]??'','number')).join('')}</div>`,footer:`<button class="button secondary" data-action="close-modal">取消</button><button class="button primary" data-action="v15-save-nutrition" data-id="${m.id}">保存营养值</button>`});};
+  v15Actions['v15-save-nutrition']=n=>{for(const [k]of r2Nutrients){const v=r2Get(k);if((['kcal','carb','protein','fat'].includes(k)&&!r2ValidNumber(v))||(v!==''&&!r2ValidNumber(v)))return r2Error('请填写非负营养值，热量和三大营养素必填');}const m=data.menuNutrition.find(x=>x.id===n.dataset.id);for(const [k]of r2Nutrients)m[k]=r2Get(k)===''?null:Number(r2Get(k));m.done=true;let f=data.foods.find(x=>x.name===m.name);if(!f){f={id:'F'+Date.now(),name:m.name,cat:'套餐菜品',source:'品牌菜单',alias:'',barcode:'',status:'启用',units:[['份',parseFloat(m.spec)||350]]};data.foods.push(f);}for(const[k]of r2Nutrients)f[k]=m[k];closeModal();renderApp();toast('营养值已补录',m.name);};
+
+  const r2CouponSaveBase=v15Actions['v15-save-coupon'];
+  v15Actions['v15-save-coupon']=()=>{if(!r2ValidNumber(r2Get('amount'),true))return r2Error('减免金额须大于零');if(r2Get('condition')!=='无门槛'&&!r2ValidNumber(r2Get('threshold'),true))return r2Error('请填写正数使用门槛');r2CouponSaveBase();};
+  const r2IssueBase=v15Actions['v15-issue-coupon'];
+  v15Actions['v15-issue-coupon']=n=>{const c=data.coupons.find(x=>x.id===n.dataset.id);if(c.status!=='启用')return r2Error('仅可下发启用状态的优惠券');r2IssueBase(n);document.querySelector('#modal-root .form-grid').insertAdjacentHTML('beforeend',formField('选择用户（填写用户编号，逗号分隔）','users','U20260412、U20260413')+formField('导入手机号名单（逗号或换行分隔）','phones','','textarea'));};
+  v15Actions['v15-confirm-issue']=n=>{const c=data.coupons.find(x=>x.id===n.dataset.id),mode=r2Get('mode'),time=r2Get('time'),way=r2Get('way');if(mode==='定时发放'&&(!time||time.replace('T',' ')<=r2Now()))return r2Error('定时发放须选择未来时间');const ids=(way==='多选用户'?r2Get('users'):way==='导入手机号名单'?r2Get('phones'):'').split(/[、,，\s]+/).filter(Boolean);if(way!=='按条件筛选人群'&&!ids.length)return r2Error('请填写发放对象');const unique=[...new Set(ids)];if(way==='导入手机号名单'&&unique.some(x=>!/^1[3-9]\d{9}$/.test(x)))return r2Error('名单中有无效手机号');const target=way==='按条件筛选人群'?12:unique.length,scheduled=mode==='定时发放';data.couponRecords.unshift({id:'CR'+Date.now(),couponId:c.id,time:scheduled?time.replace('T',' '):r2Now(),mode:scheduled?'定时发放':'手动发放',source:scheduled?'定时任务':'手动发放',operator:'林方',note:r2Get('note')||'—',target,ok:scheduled?0:target,fail:0,status:scheduled?'待执行':'已完成',recipients:unique});if(!scheduled)c.sent+=target;closeModal();renderApp();toast(scheduled?'已保存定时任务':'下发完成',scheduled?'任务将在计划时间进入待执行记录，可撤回。当前原型不运行后台调度。':'成功 '+target+' 人');};
+  const r2RecordsBase=v15Actions['v15-coupon-records'];
+  v15Actions['v15-coupon-records']=n=>{r2RecordsBase(n);const c=data.couponRecords.filter(x=>x.couponId===n.dataset.id);document.querySelectorAll('#drawer-root .detail-list>div').forEach((el,i)=>{el.insertAdjacentHTML('afterbegin','<strong class="r2-record-status">'+escapeHTML(c[i].status)+'</strong>');});};
+  v15Actions['v15-revoke-record']=n=>{const r=data.couponRecords.find(x=>x.id===n.dataset.id);if(!r||r.status==='已撤回')return r2Error('该记录已撤回');r.status='已撤回';r.revoked=r.ok;r.ok=0;addLog('撤回优惠券',r.id);closeDrawer();renderApp();toast('已撤回未使用券','已使用的券不受影响');};
+  // Validate activity bounds and keep reward fields structured across all entry points.
+  const r2InviteSettingsBase=v15Actions['v15-save-invite-settings'];
+  v15Actions['v15-save-invite-settings']=()=>{if(!r2DateRange(r2Get('activityStart'),r2Get('activityEnd')))return r2Error('活动结束日期不能早于开始日期');if(!Number.isInteger(Number(r2Get('cap')))||Number(r2Get('cap'))<1)return r2Error('邀请上限须为正整数');r2InviteSettingsBase();};
+  const r2MerchantBase=v15Actions['v15-save-invite'];
+  v15Actions['v15-save-invite']=()=>{if(!r2DateRange(r2Get('validStart'),r2Get('validEnd')))return r2Error('请填写有效的起止日期');r2MerchantBase();};
+  const r2RecognitionBase=v15Actions['v15-save-recognition'];
+  v15Actions['v15-save-recognition']=()=>{if(!Number.isInteger(Number(r2Get('dailyLimit')))||Number(r2Get('dailyLimit'))<1)return r2Error('每日上限须为正整数');r2RecognitionBase();};
+  const r2InvitesFormBase=renderV15InviteForm,r2InvitesBase=renderV15Invites;
+  renderV15InviteForm=function(){const box=document.createElement('div');box.innerHTML=r2InvitesFormBase();const i=data.invites.find(x=>x.id===V15A().editingInviteId);box.querySelector('form .form-actions').insertAdjacentHTML('beforebegin','<section class="form-section"><h3>新用户奖励</h3>'+r2RewardHtml('m-',i?.rewardConfig,i?.rewardMode)+'</section>');return box.innerHTML;};
+  renderV15Invites=function(){const box=document.createElement('div');box.innerHTML=r2InvitesBase();const st=data.inviteSettings,form=box.querySelector('#v15-invite-settings');form.querySelector('[name="validRule"]').innerHTML='<option>受邀人注册成功即算有效邀请</option>';form.querySelector('.form-actions').insertAdjacentHTML('beforebegin','<section class="form-section"><h3>老用户奖励</h3>'+r2RewardHtml('old-',st.oldRewardConfig,st.oldRewardMode)+'<h3>新用户奖励</h3>'+r2RewardHtml('new-',st.newRewardConfig,st.newRewardMode)+'</section>');return box.innerHTML;};
+  const r2SettingsValidated=v15Actions['v15-save-invite-settings'];
+  v15Actions['v15-save-invite-settings']=()=>{let oldR,newR;try{oldR=r2ReadRewards('old-');newR=r2ReadRewards('new-');}catch(e){return r2Error(e.message);}if(!r2DateRange(r2Get('activityStart'),r2Get('activityEnd')))return r2Error('活动结束日期不能早于开始日期');if(!Number.isInteger(Number(r2Get('cap')))||+r2Get('cap')<1)return r2Error('邀请上限须为正整数');if(oldR)document.querySelector('[name="oldReward"]').value=r2RewardSummary(oldR);if(newR)document.querySelector('[name="newReward"]').value=r2RewardSummary(newR);r2SettingsValidated();if(oldR)Object.assign(data.inviteSettings,{oldRewardConfig:oldR.rows,oldRewardMode:oldR.mode,newRewardConfig:newR.rows,newRewardMode:newR.mode});r2PersistAdmin();};
+  const r2MerchantValidated=v15Actions['v15-save-invite'];
+  v15Actions['v15-save-invite']=()=>{let rewards;try{if(r2Get('withReward')==='是')rewards=r2ReadRewards('m-');}catch(e){return r2Error(e.message);}if(!r2DateRange(r2Get('validStart'),r2Get('validEnd')))return r2Error('请填写有效的起止日期');const id=V15A().editingInviteId,knownIds=new Set(data.invites.map(i=>i.id));if(rewards)document.querySelector('[name="reward"]').value=r2RewardSummary(rewards);r2MerchantValidated();const item=data.invites.find(x=>id?x.id===id:!knownIds.has(x.id));if(item&&rewards)Object.assign(item,{rewardConfig:rewards.rows,rewardMode:rewards.mode});r2PersistAdmin();};
+  v15Actions['v15-edit-unit']=n=>{const u=data.foodUnits.find(x=>x.id===n.dataset.id);openModal({title:'编辑单位模板',body:'<div class="form-grid">'+formField('单位名称','templateName',u.name)+formField('默认克重','templateGrams',u.grams,'number')+'</div><p class="form-hint">仅影响之后套用模板的食物，已有食物单位保持不变。</p>',footer:'<button class="button primary" data-action="r2-save-unit-template" data-id="'+u.id+'">保存模板</button>'});};
+  v15Actions['r2-save-unit-template']=n=>{if(!r2Get('templateName')||!r2ValidNumber(r2Get('templateGrams'),true))return r2Error('请填写单位名称和正数克重');const u=data.foodUnits.find(x=>x.id===n.dataset.id);u.name=r2Get('templateName');u.grams=+r2Get('templateGrams');closeModal();renderApp();};
+  const r2FilteredUsers=filteredUsers;
+  const r2UserGroups={'持券用户':data.users.slice(0,4).map(u=>u.id),'被邀请用户':data.users.slice(1,3).map(u=>u.id),'已记录饮食用户':data.users.slice(2,5).map(u=>u.id),'赠餐待发放用户':data.users.slice(0,1).map(u=>u.id)};
+  filteredUsers=function(){const all=r2FilteredUsers(),s=V15A().segment;if(!s)return all;return all.filter(u=>(r2UserGroups[s]||[]).includes(u.id));};
+  v15Actions['v15-user-segment']=n=>{V15A().segment=V15A().segment===n.dataset.value?null:n.dataset.value;state.pagination.page=1;renderApp();};
+  const r2UsersBase=renderUsers;
+  renderUsers=function(){let html=r2UsersBase();const box=document.createElement('div');box.innerHTML=html;box.querySelectorAll('[data-action="v15-user-segment"]').forEach(n=>{n.textContent=n.dataset.value;n.classList.toggle('primary',V15A().segment===n.dataset.value);});if(V15A().segment)box.querySelector('.page').insertAdjacentHTML('afterbegin','<p class="form-hint">已筛选：'+escapeHTML(V15A().segment)+' · 再次点击取消筛选。以下为本地示例人群。</p>');return box.innerHTML;};
+  const r2RulesBase=v15Actions['v15-save-rules'];
+  v15Actions['v15-save-rules']=()=>{if(!r2DateRange(r2Get('v15ActivityStart'),r2Get('v15ActivityEnd')))return r2Error('请检查活动起止日期');if(!Number.isInteger(+r2Get('v15InviteCap'))||+r2Get('v15InviteCap')<1||!Number.isInteger(+r2Get('v15PhotoLimit'))||+r2Get('v15PhotoLimit')<1)return r2Error('邀请上限和识别上限须为正整数');data.dietEnabled=r2Get('v15DietEnabled')==='开启';r2RulesBase();};
+  const r2RulesRender=renderAppRules;
+  renderAppRules=function(){const box=document.createElement('div');box.innerHTML=r2RulesRender();const input=box.querySelector('[name="v15DietEnabled"]');if(input)input.value=data.dietEnabled===false?'关闭':'开启';return box.innerHTML;};
+  function r2DownloadRows(name,rows){const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'数据');XLSX.writeFile(wb,name+'.xlsx');}
+  v15Actions['v15-export-food']=()=>r2DownloadRows('渡鸦管家-食物库',data.foods.map(f=>({名称:f.name,分类:f.cat,每100克热量:f.kcal,碳水:f.carb,蛋白质:f.protein,脂肪:f.fat,膳食纤维:f.fiber,钠:f.na,钾:f.k,钙:f.ca,铁:f.fe,锌:f.zn,条码:f.barcode})));
+  v15Actions['v15-export-coupons']=()=>r2DownloadRows('渡鸦管家-优惠券',data.coupons);
+  v15Actions['v15-export-invites']=()=>r2DownloadRows('渡鸦管家-商户邀请码统计',data.invites);
+  v15Actions['v15-export-surveys']=()=>r2DownloadRows('渡鸦管家-问卷统计',data.surveys.map(s=>({名称:s.name,类型:s.type,题数:s.questions,作答:s.answers,状态:s.status})));
+  v15Actions['v15-export-answers']=()=>r2DownloadRows('渡鸦管家-问卷作答记录',data.surveyAnswers);
+  v15Actions['v15-import-food']=()=>openModal({title:'批量导入食物',body:'<p class="form-hint">使用“导出食物库”的表头填写后上传，支持 xlsx、csv。热量、碳水、蛋白质和脂肪必填，均按每 100 克填写。</p><input id="r2-food-import" type="file" accept=".xlsx,.csv">',footer:'<button class="button primary" data-action="r2-confirm-food-import">读取并导入</button>'});
+  v15Actions['r2-confirm-food-import']=async()=>{const file=document.querySelector('#r2-food-import').files[0];if(!file)return r2Error('请先选择文件');try{const book=XLSX.read(await file.arrayBuffer(),{type:'array'}),rows=XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);if(!rows.length)return r2Error('文件中没有食物记录');const fields={kcal:'每100克热量',carb:'碳水',protein:'蛋白质',fat:'脂肪',fiber:'膳食纤维',na:'钠',k:'钾',ca:'钙',fe:'铁',zn:'锌'};const foods=rows.map((r,i)=>{if(!r.名称||['每100克热量','碳水','蛋白质','脂肪'].some(k=>!r2ValidNumber(String(r[k]??''))))throw Error('第 '+(i+2)+' 行缺少名称或必填营养值');const f={id:'FI'+Date.now()+'-'+i,name:String(r.名称),cat:String(r.分类||'主食'),source:'外部数据',alias:'',status:'启用',barcode:String(r.条码||''),units:[['份',100]]};for(const[k,label]of Object.entries(fields)){const v=r[label];if(v!=null&&!r2ValidNumber(String(v)))throw Error('第 '+(i+2)+' 行营养值无效');f[k]=v==null?null:Number(v);}return f;});data.foods.push(...foods);closeModal();renderApp();r2PersistAdmin();toast('导入完成','成功 '+foods.length+' 条');}catch(e){r2Error(e.message);}};
+  // Persist after mutation, including changes made after a renderer was called.
+  for(const key of Object.keys(v15Actions)){const before=v15Actions[key];v15Actions[key]=(...args)=>{const r=before(...args);r2PersistAdmin();return r;};}
+  V15_PAGES['survey-form']=renderV15SurveyForm;V15_PAGES['food-form']=renderV15FoodForm;V15_PAGES['invite-form']=renderV15InviteForm;V15_PAGES.invites=renderV15Invites;
+  window.__v15Admin={get data(){return data;},get state(){return state;},actions:v15Actions,navigate,save:r2PersistAdmin};
+
+  const ar3=window.R3;
+  const ae=escapeHTML, aq=(name,root=document)=>root.querySelector('[name="'+name+'"]'),av=(name,root=document)=>aq(name,root)?.value?.trim()||'';
+  const an=(name,root=document)=>{const v=av(name,root);return v===''?null:Number(v);};
+  const ast=()=>ar3.state;
+  const af=(label,name,value='',type='text',options=[])=>'<label class="r3-field"><span>'+label+'</span>'+(type==='select'?'<select name="'+name+'">'+options.map(o=>{const [id,text]=Array.isArray(o)?o:[o,o];return '<option value="'+ae(id)+'" '+(String(id)===String(value)?'selected':'')+'>'+ae(text)+'</option>';}).join('')+'</select>':type==='textarea'?'<textarea name="'+name+'">'+ae(value??'')+'</textarea>':'<input name="'+name+'" type="'+type+'" value="'+ae(value??'')+'">')+'</label>';
+  const ab=(label,action,extra='',cls='secondary')=>'<button type="button" class="button '+cls+'" data-action="'+action+'" '+extra+'>'+label+'</button>';
+  const note=t=>'<p class="r3-help">'+t+'</p>';
+  const card=(title,body)=>'<section class="r3-card"><h3>'+title+'</h3>'+body+'</section>';
+  const badge=t=>'<span class="r3-badge">'+ae(t)+'</span>';
+  const dateTime=t=>t?new Date(t).toLocaleString('zh-CN',{hour12:false}):'—';
+  const r3Tables={coupons:['coupon','templates','优惠券管理'],surveys:['survey','surveys','问卷调查'],invites:['merchant','merchants','邀请码管理'],foods:['food','foods','食物库']};
+  let ar3Editing=null,ar3Kind=null,ar3FoodTab='list',ar3UserGroup='all';
+  function ar3Head(title,desc,buttons=''){return '<section class="page r3-admin-page">'+pageHead(title,desc,buttons);}
+  const atable=(headers,rows)=>'<div class="r3-table-wrap"><table class="data-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+(!rows.length?'<tr><td colspan="'+headers.length+'" class="r3-empty">暂无记录</td></tr>':'')+'</tbody></table></div>';
+  function rewardSummary(rows){return (rows||[]).map(r=>r.type==='coupon'?ast().templates.find(t=>t.id===r.couponId)?.name||'优惠券':r.type==='meal'?'赠餐'+r.count+'餐':r.name).join(' / ')||'不发放';}
+  const ar3Safe=fn=>async(n,e)=>{const button=n?.tagName==='BUTTON'?n:null;if(button?.disabled)return;try{if(button)button.disabled=true;await ar3.ready;return await fn(n,e);}catch(err){toast('操作未完成',err.message,'error');return false;}finally{if(button)button.disabled=false;}};
+  function ar3Action(name,fn){v15Actions[name]=ar3Safe(fn);}
+  function ar3Controls(entity,id){return ab('编辑','r3-edit','data-entity="'+entity+'" data-id="'+id+'"','secondary small')+' '+ab('启停','r3-toggle','data-entity="'+entity+'" data-id="'+id+'"','secondary small');}
+  function ar3List(page){const s=ast();if(!s)return ar3Head('正在连接','正在读取共享演示数据…')+'</section>';const [entity,key,title]=r3Tables[page],list=s[key];let extra='';if(page==='coupons')extra=ab('下发记录','r3-issues','','secondary');if(page==='surveys')extra=ab('答题记录','r3-answers','','secondary');if(page==='invites')extra=ab('邀请关系与复核','r3-relations','','secondary');if(page==='foods')return ar3Foods();let rows,headers;
+    if(page==='coupons'){headers=['名称','减免 / 门槛','可用品牌','有效期','发放 / 使用','状态','操作'];rows=list.map(c=>{const wallet=s.users.flatMap(u=>u.wallet).filter(w=>w.templateId===c.id);return ['<b>'+ae(c.name)+'</b><small>'+ae(c.desc||'')+'</small>','¥'+c.amount+'<small>'+(c.threshold?'满¥'+c.threshold:'无门槛')+'</small>',c.brands.length?c.brands.map(id=>s.brands.find(b=>b.id===id)?.name||id).map(ae).join('、'):'全部品牌',c.validMode==='relative'?'获得后'+c.days+'天':c.start+' 至 '+c.end,wallet.length+' / '+wallet.filter(w=>w.status==='已使用').length,badge(c.status),ar3Controls(entity,c.id)+' '+ab('下发','r3-issue','data-id="'+c.id+'"','primary small')];});}
+    if(page==='surveys'){headers=['问卷','类型 / 题量','可见范围 / 次数','奖励','版本 / 作答数','状态','操作'];rows=list.map(q=>['<b>'+ae(q.name)+'</b>',(q.type==='goal'?'目标问卷 · '+q.goal:'自定义问卷')+'<small>'+q.questions.length+'题</small>',q.type==='goal'?'对应目标 · 随时修改':({all:'全部用户',new:'注册7天内',paid:'有支付订单',users:'指定用户',group:'指定人群'}[q.audience])+'<small>'+(q.limit?'每人'+q.limit+'次':'不限次数')+'</small>',q.type==='goal'?'仅用于推荐':ae(rewardSummary(q.reward)),'V'+q.version+' / '+s.answers.filter(a=>a.surveyId===q.id).length,badge(q.status),ar3Controls(entity,q.id)]);}
+    if(page==='invites'){headers=['商户','邀请码','有效期','使用 / 订购人数','订购次数 / 实收','新用户奖励','状态','操作'];rows=list.map(m=>['<b>'+ae(m.name)+'</b><small>'+ae(m.note||'')+'</small>','<code>'+m.code+'</code>',m.start+' 至 '+m.end,m.users+' / '+m.buyers,m.orders+' / ¥'+m.revenue.toFixed(2),ae(m.withReward?rewardSummary(m.reward):'不发放'),badge(m.status),ar3Controls(entity,m.id)]);}
+    return ar3Head(title,'两端共用实时演示数据，保存后小程序读取同一份配置。',extra+ab('新建'+({coupon:'优惠券',survey:'问卷',merchant:'商户码'}[entity]),'r3-new','data-entity="'+entity+'"','primary'))+card('当前记录',atable(headers,rows))+(page==='invites'?ar3SettingsForm():'')+'</section>';
+  }
+  function rewardRow(prefix,r={},i=0){return '<div class="r3-reward-row" data-i="'+i+'"><div class="r3-row-title"><b>奖励档位 '+(i+1)+'</b>'+ab('删除','r3-remove-row','','secondary small')+'</div><div class="r3-form-grid">'+af('奖励类型',prefix+i+'-type',r.type||'coupon','select',[['coupon','优惠券'],['meal','赠餐'],['custom','自定义线下奖励']])+'<div data-condition="reward-coupon">'+af('选择优惠券',prefix+i+'-couponId',r.couponId||ast().templates[0]?.id,'select',ast().templates.filter(t=>t.status==='启用').map(t=>[t.id,t.name+' · ¥'+t.amount]))+'</div><div data-condition="reward-meal">'+af('赠送餐数',prefix+i+'-count',r.count||1,'number')+'</div><div data-condition="reward-custom">'+af('奖励名称',prefix+i+'-name',r.name||'')+af('奖励图片（选填）',prefix+i+'-upload','','file')+'<input type="hidden" name="'+prefix+i+'-image" value="'+ae(r.image||'')+'">'+(r.image?'<img class="r3-upload-preview" src="'+ae(r.image)+'">':'')+note('用户查看后联系客服领取。')+'</div><div data-condition="reward-probability">'+af('概率（%）',prefix+i+'-probability',r.probability??100,'number')+'</div></div></div>';}
+  function rewards(prefix,rows,mode){return '<div class="r3-rewards" data-prefix="'+prefix+'">'+af('发放方式',prefix+'mode',mode||'fixed','select',[['fixed','固定奖励'],['probability','概率抽奖']])+'<div class="r3-reward-rows">'+(rows?.length?rows:[{}]).map((r,i)=>rewardRow(prefix,r,i)).join('')+'</div><div data-condition="reward-add">'+ab('添加奖励档位','r3-add-reward','data-prefix="'+prefix+'"')+note('最多6档，概率合计须为100%。')+'</div></div>';}
+  function readRewards(prefix){const root=document.querySelector('.r3-rewards[data-prefix="'+prefix+'"]'),mode=av(prefix+'mode');let rows=[...root.querySelectorAll('.r3-reward-row')].map(row=>{const i=row.dataset.i,type=av(prefix+i+'-type');return {type,...(type==='coupon'?{couponId:av(prefix+i+'-couponId')}:type==='meal'?{count:an(prefix+i+'-count')}:{name:av(prefix+i+'-name'),image:av(prefix+i+'-image')}),probability:mode==='fixed'?100:an(prefix+i+'-probability')};});if(mode==='fixed')rows=rows.slice(0,1);return {mode,rows};}
+  function brandChecks(ids){return '<div data-condition="brand-selection" class="r3-check-grid">'+ast().brands.map(b=>'<label><input type="checkbox" name="brands" value="'+b.id+'" '+(ids?.includes(b.id)||ids?.includes(b.name)?'checked':'')+'>'+ae(b.name)+'</label>').join('')+'</div>';}
+  function userChecks(name,ids=[]){return '<div class="r3-check-grid">'+ast().users.map(u=>'<label><input type="checkbox" name="'+name+'" value="'+u.id+'" '+(ids.includes(u.id)?'checked':'')+'>'+ae(u.name)+'</label>').join('')+'</div>';}
+  function tagRow(name,score){const names=[...new Set(ast().brands.flatMap(b=>b.tags))];return '<div class="r3-tag-row"><select class="r3-tag-name">'+names.map(t=>'<option '+(t===name?'selected':'')+'>'+ae(t)+'</option>').join('')+'</select><input class="r3-tag-score" type="number" min="-5" max="5" value="'+(score??0)+'">'+ab('移除','r3-remove-row','','secondary small')+'</div>';}
+  function optionHtml(o={text:'',tags:{}},i=0){return '<div class="r3-opt"><label class="r3-field"><span>选项 '+(i+1)+'</span><input class="r3-option-text" value="'+ae(o.text)+'" placeholder="填写选项内容"></label><div data-condition="recommend-tags"><div class="r3-option-tags">'+Object.entries(o.tags||{}).map(([t,n])=>tagRow(t,n)).join('')+'</div>'+ab('绑定标签','r3-add-tag','','secondary small')+'</div></div>';}
+  function questionHtml(q={text:'',type:'single',options:[{text:''},{text:''}]},i=0){return '<details class="r3-question" data-id="'+(q.id||'q'+crypto.randomUUID())+'" '+(i===0?'open':'')+'><summary><b>题目 '+(i+1)+'</b> '+ae(q.text||'新题目')+'</summary><div class="r3-form-grid">'+af('题目内容','questionText',q.text)+af('题型','questionType',q.type,'select',[['single','单选'],['multi','多选']])+'<div data-condition="recommend-config">'+af('是否参与推荐','questionRecommend',q.recommend===false?'no':'yes','select',[['yes','参与'],['no','不参与']])+'</div></div><div class="r3-options">'+q.options.map(optionHtml).join('')+'</div>'+ab('添加选项','r3-add-option','','secondary small')+'</details>';}
+  function readQuestions(){return [...document.querySelectorAll('.r3-question')].map(q=>({id:q.dataset.id,text:av('questionText',q),type:av('questionType',q),recommend:av('type')==='goal'&&av('questionRecommend',q)!=='no',options:[...q.querySelectorAll('.r3-opt')].map(o=>({text:o.querySelector('.r3-option-text').value,tags:av('type')==='goal'&&av('questionRecommend',q)!=='no'?Object.fromEntries([...o.querySelectorAll('.r3-tag-row')].map(t=>[t.querySelector('select').value,Number(t.querySelector('input').value)])):{}}))}));}
+  function ar3Form(entity){const s=ast();if(!s)return '';const r=ar3Editing||{},title={coupon:'优惠券',survey:'问卷',merchant:'商户邀请码',food:'食物'}[entity];let content='';
+    if(entity==='coupon')content=card('优惠券信息','<div class="r3-form-grid">'+af('券名称','name',r.name)+af('描述（选填）','desc',r.desc)+af('减免金额（元）','amount',r.amount??5,'number')+af('使用条件','condition',r.threshold?'threshold':'none','select',[['none','无门槛'],['threshold','满减']])+'<div data-condition="threshold">'+af('满多少元可用','threshold',r.threshold||0,'number')+'</div>'+af('可用品牌','brandMode',r.brands?.length?'selected':'all','select',[['all','全部品牌'],['selected','指定品牌']])+'</div>'+brandChecks(r.brands)+'<div class="r3-form-grid">'+af('有效期类型','validMode',r.validMode||'relative','select',[['fixed','固定有效期'],['relative','相对有效期']])+'<div data-condition="fixed-validity"><div class="r3-form-grid">'+af('开始日期','start',r.start||'2026-10-01','date')+af('结束日期','end',r.end||'2027-12-31','date')+'</div></div><div data-condition="relative-validity">'+af('获得后有效天数','days',r.days||15,'number')+'</div>'+af('每人限领','limitMode',r.limit===0?'off':'on','select',[['on','开启限领'],['off','不限量']])+'<div data-condition="coupon-limit">'+af('每人限领张数','limit',r.limit||1,'number')+'</div>'+af('状态','status',r.status||'草稿','select',['草稿','启用','停用'])+'</div>');
+    if(entity==='survey')content=card('基础信息','<div class="r3-form-grid">'+af('问卷名称','name',r.name)+af('问卷类型','type',r.type||'custom','select',[['goal','目标问卷'],['custom','自定义问卷']])+'<div data-condition="goal-info">'+af('关联目标','goal',r.goal||'健康饮食','select',['健康饮食','减重','增肌','减脂'])+'</div><div data-condition="custom-info"><div class="r3-form-grid">'+af('开始日期','start',r.start||'2026-10-01','date')+af('结束日期','end',r.end||'2027-12-31','date')+af('可见范围','audience',r.audience||'all','select',[['all','全部用户'],['new','注册7天内'],['paid','有支付订单'],['users','指定用户'],['group','指定人群']])+af('每人可回答次数（0表示不限）','limit',r.limit??1,'number')+'</div><div data-condition="audience-users">'+userChecks('audienceUsers',r.userIds)+'</div><div data-condition="audience-group">'+af('选择人群','group',r.group||'已记录饮食用户','select',['已记录饮食用户','持券用户','被邀请用户'])+'</div></div></div>')+card('题目与选项','<div id="r3-question-list">'+(r.questions||[{text:'你对本次体验满意吗？',type:'single',options:[{text:'满意'},{text:'需要改进'}]}]).map(questionHtml).join('')+'</div>'+ab('添加题目','r3-add-question'))+'<div data-condition="custom-reward">'+card('完成问卷奖励',af('是否发放奖励','rewardEnabled',r.rewardEnabled===false?'off':'on','select',[['on','发放'],['off','不发放']])+'<div data-condition="survey-reward-enabled">'+rewards('s-',r.reward,r.rewardMode)+'</div>'+af('完成后提示文案','resultText',r.resultText||'感谢参与！','textarea'))+'</div>';
+    if(entity==='merchant')content=card('商户与有效期','<div class="r3-form-grid">'+af('商户名称','name',r.name)+af('联系电话（选填）','phone',r.phone)+af('备注（选填）','note',r.note)+af('状态','status',r.status||'启用','select',['启用','停用'])+af('开始日期','start',r.start||'2026-10-01','date')+af('结束日期','end',r.end||'2027-12-31','date')+af('是否给受邀用户奖励','withReward',r.withReward===false?'off':'on','select',[['on','发放奖励'],['off','不发放']])+'</div><div data-condition="merchant-reward">'+rewards('m-',r.reward,r.rewardMode)+'</div>'+note('邀请码保存时生成，后续编辑不会更换。绑定前订单不追溯计入商户业绩。'));
+    if(entity==='food')content=card('基础信息','<div class="r3-form-grid">'+af('食物名称','name',r.name)+af('别名（选填）','alias',r.alias)+af('分类','cat',r.cat||'主食','select',['主食','肉蛋奶','蔬菜','水果','汤羹','饮品','套餐菜品','用户补录'])+af('包装食品条码（选填）','barcode',r.barcode)+af('状态','status',r.status||'启用','select',['启用','停用'])+'</div>')+card('每100克营养值','<div class="r3-form-grid">'+[['kcal','热量（kcal）*'],['carb','碳水（g）*'],['protein','蛋白质（g）*'],['fat','脂肪（g）*'],['fiber','膳食纤维（g）'],['na','钠（mg）'],['k','钾（mg）'],['ca','钙（mg）'],['fe','铁（mg）'],['zn','锌（mg）']].map(([k,label])=>af(label,k,r[k],'number')).join('')+'</div>'+note('* 为必填，其他字段留空表示暂无。'))+card('份量单位','<div id="r3-food-units">'+(r.units||[]).map(unitRow).join('')+'</div>'+ab('添加单位','r3-add-unit')+' '+ab('套用单位模板','r3-template-units'));
+    return ar3Head((r.id?'编辑':'新建')+title,'仅填写当前选择所需的信息。',ab('返回列表','r3-back'))+'<form id="r3-editor" data-entity="'+entity+'">'+content+'<div class="r3-form-footer">'+ab('取消','r3-back')+ab('保存'+title,'r3-save','','primary')+(entity==='survey'?' '+ab('保存并发布','r3-publish','','primary'):'')+'</div></form></section>';
+  }
+  function unitRow(u=['份',100]){return '<div class="r3-unit-row"><input placeholder="单位名称" value="'+ae(u[0])+'"><input type="number" placeholder="克重" value="'+u[1]+'"><span>克</span>'+ab('删除','r3-remove-row','','secondary small')+'</div>';}
+  function ar3SettingsForm(){const s=ast().settings;return card('用户邀请码活动','<form id="r3-invite-settings">'+af('用户邀请活动','enabled',s.enabled?'on':'off','select',[['on','开启'],['off','关闭']])+'<div data-condition="invite-enabled"><div class="r3-form-grid">'+af('开始日期','start',s.start,'date')+af('结束日期','end',s.end,'date')+af('奖励对象','target',s.target,'select',[['old','邀请人'],['new','新用户'],['both','双方']])+af('每位邀请人最多邀请人数','cap',s.cap,'number')+'</div><div data-condition="reward-old"><h4>邀请人奖励</h4>'+rewards('old-',s.oldReward,s.oldRewardMode||s.rewardMode)+'</div><div data-condition="reward-new"><h4>新用户奖励</h4>'+rewards('new-',s.newReward,s.newRewardMode||s.rewardMode)+'</div>'+note('有效邀请以注册并成功绑定为准。注册后7天内可补填一次，含已有支付订单的用户；旧订单不追溯。')+'</div><div class="r3-form-footer">'+ab('保存活动设置','r3-save-settings','','primary')+'</div></form>');}
+  function ar3Foods(){const s=ast(),tabs=[['list','食物列表'],['units','份量模板'],['menu','菜单待补录'],['barcode','条码补录'],['audit','自定义食物审核'],['recognition','识别配置']];let body='';if(ar3FoodTab==='list')body=atable(['名称','分类','每100克热量','碳水/蛋白/脂肪','份量单位','状态','操作'],s.foods.map(f=>['<b>'+ae(f.name)+'</b>',ae(f.cat),f.kcal==null?'暂无':f.kcal+' kcal',[f.carb,f.protein,f.fat].map(v=>v??'暂无').join(' / '),(f.units||[]).map(u=>ae(u[0])+' '+u[1]+'g').join('、'),badge(f.status),ar3Controls('food',f.id)]));if(ar3FoodTab==='units')body=note('模板用于之后新建食物，已有食物及历史记录不会随模板修改而改变。')+'<div id="r3-unit-templates">'+s.units.map(unitRow).join('')+'</div>'+ab('添加单位','r3-template-add')+' '+ab('保存模板','r3-template-save','','primary');if(ar3FoodTab==='menu')body=atable(['品牌','菜品','营养值','操作'],s.menu.map(m=>[m.brand,m.name,badge(m.done?'已补录':'待补录'),ab(m.done?'修改':'补录','r3-menu','data-id="'+m.id+'"','secondary small')]));if(ar3FoodTab==='barcode')body=atable(['条码','提交用户','状态','操作'],s.barcodeQueue.map(q=>[q.code,s.users.find(u=>u.id===q.userId)?.name,badge(q.status),ab('补录食物','r3-barcode-food','data-code="'+q.code+'"','secondary small')]));if(ar3FoodTab==='audit')body=atable(['名称','用户','热量','状态','操作'],s.foodSubmissions.map(q=>[ae(q.name),s.users.find(u=>u.id===q.userId)?.name,q.kcal??'暂无',badge(q.status),q.status==='待审核'?ab('通过','r3-audit','data-id="'+q.id+'" data-valid="yes"','secondary small')+' '+ab('驳回','r3-audit','data-id="'+q.id+'"','secondary small'):'—']));if(ar3FoodTab==='recognition')body='<div class="r3-form-grid">'+af('拍照识别每日上限','photoLimit',s.settings.photoLimit,'number')+af('饮食记录入口','dietEnabled',s.settings.dietEnabled?'on':'off','select',[['on','开启'],['off','关闭']])+af('热量参考值（可留空）','referenceKcal',s.settings.references.kcal??'','number')+'</div>'+note('拍照识别为演示候选，次数和记录真实同步；参考值为空时小程序只显示摄入量。')+ab('保存配置','r3-save-recognition','','primary');return ar3Head('食物库','统一管理每100克营养值、份量和菜单补录。',ab('导出食物库','r3-export-food')+ab('新建食物','r3-new','data-entity="food"','primary'))+card('食物与数据','<div class="r3-tabs">'+tabs.map(([id,label])=>ab(label,'r3-food-tab','data-tab="'+id+'"',id===ar3FoodTab?'primary':'secondary')).join('')+'</div>'+body)+'</section>';}
+  for(const page of Object.keys(r3Tables))V15_PAGES[page]=()=>ar3List(page);
+  for(const [page,entity]of [['coupon-form','coupon'],['survey-form','survey'],['invite-form','merchant'],['food-form','food']])V15_PAGES[page]=()=>ar3Form(entity);
+  const routeOf={coupon:'coupon-form',survey:'survey-form',merchant:'invite-form',food:'food-form'},listOf={coupon:'coupons',survey:'surveys',merchant:'invites',food:'foods'};
+  ar3Action('r3-new',n=>{ar3Editing=null;ar3Kind=n.dataset.entity;navigate(routeOf[ar3Kind]);});
+  ar3Action('r3-edit',n=>{ar3Kind=n.dataset.entity;ar3Editing=JSON.parse(JSON.stringify(ast()[{coupon:'templates',survey:'surveys',merchant:'merchants',food:'foods'}[ar3Kind]].find(x=>x.id===n.dataset.id)));navigate(routeOf[ar3Kind]);});ar3Action('r3-back',()=>navigate(listOf[ar3Kind]||'coupons'));
+  function readEditor(publish){const f=$('#r3-editor'),entity=f.dataset.entity,r=ar3Editing||{},x={id:r.id,expectedRevision:r.revision,name:av('name'),status:av('status')||'草稿'};if(entity==='coupon')Object.assign(x,{desc:av('desc'),amount:an('amount'),threshold:av('condition')==='none'?0:an('threshold'),brands:av('brandMode')==='all'?[]:[...f.querySelectorAll('[name="brands"]:checked')].map(n=>n.value),validMode:av('validMode'),...(av('validMode')==='relative'?{days:an('days')}:{start:av('start'),end:av('end')}),limit:av('limitMode')==='off'?0:an('limit')});if(entity==='survey'){const goal=av('type')==='goal',reward=!goal&&av('rewardEnabled')==='on'?readRewards('s-'):{rows:[],mode:'fixed'};Object.assign(x,{type:av('type'),goal:goal?av('goal'):null,questions:readQuestions(),status:publish?'已发布':'草稿',...(goal?{}:{start:av('start'),end:av('end'),audience:av('audience'),userIds:av('audience')==='users'?[...f.querySelectorAll('[name="audienceUsers"]:checked')].map(n=>n.value):[],group:av('audience')==='group'?av('group'):null,limit:an('limit'),rewardEnabled:av('rewardEnabled')==='on',resultText:av('resultText')}),reward:reward.rows,rewardMode:reward.mode});}if(entity==='merchant'){const reward=av('withReward')==='on'?readRewards('m-'):{rows:[],mode:'fixed'};Object.assign(x,{phone:av('phone'),note:av('note'),start:av('start'),end:av('end'),withReward:av('withReward')==='on',reward:reward.rows,rewardMode:reward.mode});}if(entity==='food'){for(const k of ['kcal','carb','protein','fat','fiber','na','k','ca','fe','zn'])x[k]=an(k);Object.assign(x,{alias:av('alias'),cat:av('cat'),barcode:av('barcode'),source:'后台录入',units:[...document.querySelectorAll('.r3-unit-row')].map(n=>[n.querySelectorAll('input')[0].value,Number(n.querySelectorAll('input')[1].value)])});}return {entity,record:x};}
+  ar3Action('r3-save',async()=>{const payload=readEditor(false);await ar3.cmd('ADMIN_SAVE',payload);navigate(listOf[payload.entity]);toast('保存成功','两端已同步');});ar3Action('r3-publish',async()=>{await ar3.cmd('ADMIN_SAVE',readEditor(true));navigate('surveys');toast('问卷已发布','用户进入问卷中心即可查看');});
+  ar3Action('r3-toggle',async n=>{const e=n.dataset.entity,key={coupon:'templates',survey:'surveys',merchant:'merchants',food:'foods'}[e],r=ast()[key].find(x=>x.id===n.dataset.id);await ar3.cmd('ADMIN_SAVE',{entity:e,record:{...r,status:e==='survey'?(r.status==='已发布'?'停用':'已发布'):(r.status==='启用'?'停用':'启用')}});renderApp();});
+  ar3Action('r3-add-unit',()=>$('#r3-food-units').insertAdjacentHTML('beforeend',unitRow()));ar3Action('r3-template-units',()=>$('#r3-food-units').innerHTML=ast().units.map(unitRow).join(''));
+  ar3Action('r3-remove-row',n=>{n.closest('.r3-tag-row,.r3-unit-row,.r3-reward-row').remove();ar3Conditional();});
+  ar3Action('r3-add-reward',n=>{const box=n.closest('.r3-rewards'),prefix=box.dataset.prefix,ids=[...box.querySelectorAll('.r3-reward-row')].map(n=>+n.dataset.i);if(ids.length>=6)throw Error('最多六个奖励档位');box.querySelector('.r3-reward-rows').insertAdjacentHTML('beforeend',rewardRow(prefix,{probability:0},Math.max(-1,...ids)+1));ar3Conditional();});
+  ar3Action('r3-add-question',()=>{const list=$('#r3-question-list');list.insertAdjacentHTML('beforeend',questionHtml(undefined,list.children.length));ar3Conditional();});ar3Action('r3-add-option',n=>{const list=n.closest('.r3-question').querySelector('.r3-options');list.insertAdjacentHTML('beforeend',optionHtml(undefined,list.children.length));ar3Conditional();});ar3Action('r3-add-tag',n=>n.closest('.r3-opt').querySelector('.r3-option-tags').insertAdjacentHTML('beforeend',tagRow()));
+  ar3Action('r3-save-settings',async()=>{const enabled=av('enabled')==='on';let x={enabled};if(enabled){const target=av('target'),old=target!=='new'?readRewards('old-'):null,next=target!=='old'?readRewards('new-'):null;x={enabled,start:av('start'),end:av('end'),cap:an('cap'),target,...(old?{oldReward:old.rows,oldRewardMode:old.mode}:{}),...(next?{newReward:next.rows,newRewardMode:next.mode}:{}),rewardMode:old?.mode||next?.mode};}await ar3.cmd('ADMIN_SAVE',{entity:'settings',record:x});renderApp();toast('活动设置已保存');});
+  ar3Action('r3-food-tab',n=>{ar3FoodTab=n.dataset.tab;renderApp();});ar3Action('r3-save-recognition',async()=>{await ar3.cmd('ADMIN_SAVE',{entity:'settings',record:{photoLimit:an('photoLimit'),dietEnabled:av('dietEnabled')==='on',references:{kcal:an('referenceKcal')}}});renderApp();toast('配置已保存');});
+  ar3Action('r3-menu',n=>{const m=ast().menu.find(x=>x.id===n.dataset.id);openModal({title:'营养值补录 · '+m.name,body:'<div class="r3-form-grid">'+[['kcal','热量'],['carb','碳水'],['protein','蛋白质'],['fat','脂肪'],['fiber','膳食纤维'],['na','钠'],['k','钾'],['ca','钙'],['fe','铁'],['zn','锌']].map(([k,t])=>af(t,k,m[k]??'','number')).join('')+'</div>'+note('每100克为基准，热量及三大营养素必填。历史饮食记录不会被更改。'),footer:ab('保存营养值','r3-menu-save','data-id="'+m.id+'"','primary')});});ar3Action('r3-menu-save',async n=>{const x={id:n.dataset.id};for(const k of ['kcal','carb','protein','fat','fiber','na','k','ca','fe','zn'])x[k]=an(k);await ar3.cmd('ADMIN_MENU',x);closeModal();renderApp();});
+  ar3Action('r3-barcode-food',n=>{ar3Kind='food';ar3Editing={barcode:n.dataset.code};navigate('food-form');});ar3Action('r3-audit',async n=>{await ar3.cmd('ADMIN_AUDIT_FOOD',{id:n.dataset.id,valid:n.dataset.valid==='yes'});renderApp();});
+  ar3Action('r3-issue',n=>openModal({title:'下发优惠券',body:'<form id="r3-issue-form" data-template="'+n.dataset.id+'"><div class="r3-form-grid">'+af('选人方式','issueWay','users','select',[['users','多选用户'],['group','按人群筛选'],['import','导入名单']])+af('发放时间','issueMode','now','select',[['now','立即发放'],['scheduled','定时发放']])+'</div><div data-condition="issue-users">'+userChecks('issueUsers')+'</div><div data-condition="issue-group">'+af('人群','issueGroup','all','select',[['all','全部用户'],['new','注册7天内'],['diet','已记录饮食'],['paid','有支付订单']])+'</div><div data-condition="issue-import">'+af('上传CSV名单（用户编号或手机号）','issueFile','','file')+af('名单内容','issueNames','','textarea')+'</div><div data-condition="issue-time">'+af('计划时间','scheduledAt','','datetime-local')+'</div>'+af('备注（选填）','issueNote')+'</form>',footer:ab('确认下发','r3-issue-save','','primary')}));
+  ar3Action('r3-issue-save',async()=>{const way=av('issueWay');let users=[];if(way==='users')users=[...document.querySelectorAll('[name="issueUsers"]:checked')].map(n=>n.value);if(way==='group'){users=ast().users.filter(u=>av('issueGroup')==='all'||av('issueGroup')==='new'&&Date.parse(ast().now)-Date.parse(u.registeredAt)<=168*3600000||av('issueGroup')==='diet'&&u.diet.length||av('issueGroup')==='paid'&&u.orders.length).map(u=>u.id);}if(way==='import'){const ids=av('issueNames').split(/[\s,，、]+/).filter(Boolean);for(const id of ids){const u=ast().users.find(u=>u.id===id||u.profile.phone===id);if(!u)throw Error('名单用户不存在：'+id);users.push(u.id);}}const job=await ar3.cmd('ADMIN_ISSUE',{templateId:$('#r3-issue-form').dataset.template,users,note:av('issueNote'),scheduledAt:av('issueMode')==='scheduled'?new Date(av('scheduledAt')).toISOString():null});closeModal();renderApp();toast(job.status,job.results?.filter(x=>x.ok).length+'位已发放');});
+  ar3Action('r3-issues',()=>openDrawer({title:'优惠券下发与使用记录',body:atable(['券 / 来源','时间 / 状态','发放结果','操作'],ast().issues.map(j=>[ae(ast().templates.find(t=>t.id===j.templateId)?.name)+'<small>'+ae(j.note)+'</small>',dateTime(j.scheduledAt||j.createdAt)+'<small>'+j.status+'</small>',j.results.map(r=>(ast().users.find(u=>u.id===r.userId)?.name||r.userId)+'：'+(r.ok?'成功':r.reason)).map(ae).join('<br>'),j.status==='待执行'?ab('撤回任务','r3-cancel-job','data-id="'+j.id+'"','secondary small'):j.results.some(r=>!r.ok)?ab('重试失败项','r3-retry','data-id="'+j.id+'"','secondary small'):'—']))+atable(['用户','券','状态','操作'],ast().users.flatMap(u=>u.wallet.map(w=>[ae(u.name),ae(w.name),badge(w.status),ab('撤回','r3-revoke','data-id="'+w.id+'"','secondary small')])))}));
+  ar3Action('r3-cancel-job',async n=>{await ar3.cmd('ADMIN_CANCEL_JOB',{id:n.dataset.id});closeDrawer();v15Actions['r3-issues']();});ar3Action('r3-retry',async n=>{await ar3.cmd('ADMIN_RETRY',{id:n.dataset.id});closeDrawer();v15Actions['r3-issues']();});ar3Action('r3-revoke',async n=>{await ar3.cmd('ADMIN_REVOKE',{walletId:n.dataset.id});closeDrawer();v15Actions['r3-issues']();});
+  ar3Action('r3-answers',()=>openDrawer({title:'问卷作答与奖励',body:atable(['用户 / 问卷','版本 / 时间','奖励 / 状态','查看'],ast().answers.map(a=>[ae(a.user)+'<small>'+ae(a.survey)+'</small>','V'+a.version+'<small>'+dateTime(a.time)+'</small>',a.reward?ae(a.reward.name)+' · '+a.reward.status:'目标推荐，不发奖',ab('查看答案','r3-answer-detail','data-id="'+a.id+'"','secondary small')]))+atable(['用户','待处理奖励','操作'],ast().users.flatMap(u=>u.rewards.filter(r=>r.status!=='已发放').map(r=>[ae(u.name),ae(r.name)+'<small>'+r.status+' · '+ae(r.reason||'')+'</small>',ab('处理发放','r3-reward','data-id="'+ae(r.id)+'"','secondary small')])))}));ar3Action('r3-reward',async n=>{await ar3.cmd('ADMIN_REWARD',{id:n.dataset.id});closeDrawer();v15Actions['r3-answers']();});
+  ar3Action('r3-relations',()=>openDrawer({title:'邀请关系与异常复核',body:atable(['用户','来源 / 绑定时间','状态','操作'],ast().inviteRelations.map(r=>[ae(ast().users.find(u=>u.id===r.userId)?.name),r.code+'<small>'+dateTime(r.boundAt)+'</small>',badge(r.status),r.status==='待复核'?ab('保留为有效','r3-review','data-id="'+r.id+'" data-valid="yes"','secondary small')+' '+ab('判定异常','r3-review','data-id="'+r.id+'"','secondary small'):'—']))+note('注册后7天内可补填一次。已支付不拦截，绑定之前的订单不计入新归属。')}));ar3Action('r3-review',async n=>{await ar3.cmd('ADMIN_REVIEW',{id:n.dataset.id,valid:n.dataset.valid==='yes'});closeDrawer();v15Actions['r3-relations']();});
+  function growthUsers(){return card('V1.5 联动用户',af('筛选用户','r3UserGroup',ar3UserGroup,'select',[['all','全部用户'],['fresh','注册7天内'],['bound','已绑定邀请码'],['unbound','未绑定邀请码'],['diet','已记录饮食'],['paid','有支付订单']])+atable(['用户','首次设置','目标','饮食记录 / 券','操作'],ast().users.filter(u=>ar3UserGroup==='all'||ar3UserGroup==='fresh'&&Date.parse(ast().now)-Date.parse(u.registeredAt)<=168*3600000||ar3UserGroup==='bound'&&u.binding||ar3UserGroup==='unbound'&&!u.binding||ar3UserGroup==='diet'&&u.diet.length||ar3UserGroup==='paid'&&u.orders.some(o=>o.status!=='已退款')).map(u=>[ae(u.name),u.onboarded?'已完成':'待完成',u.hasPlan?u.goal:'尚未创建',u.diet.length+' / '+u.wallet.length,ab('联动详情','r3-user','data-id="'+u.id+'"','secondary small')])));}
+  const ar3UsersBase=renderUsers;renderUsers=function(){return ar3UsersBase()+(ast()?growthUsers():'');};
+  ar3Action('r3-user',n=>{const u=ast().users.find(u=>u.id===n.dataset.id);openDrawer({title:u.name+' · 联动记录',body:card('基础资料',atable(['昵称','年龄','身高','体重','绑定邀请码'],[[ae(u.profile.name),u.profile.age,u.profile.height+'cm',u.profile.weight+'kg',u.binding?.code||'未绑定']]))+card('饮食记录',atable(['日期','餐次','食物','热量'],u.diet.map(i=>[i.date,i.meal,ae(i.name),i.pending?'待补录':i.kcal??'暂无'])))+card('订单与归属',atable(['套餐','金额','归属','状态','操作'],u.orders.map(o=>[ae(o.pkg),'¥'+o.price,o.attributionCode||'绑定前 / 无归属',badge(o.status),o.status==='已退款'?'—':ab('模拟退款','r3-refund','data-id="'+o.id+'" data-user="'+u.id+'"','secondary small')])))});});ar3Action('r3-refund',async n=>{await ar3.cmd('REFUND',{orderId:n.dataset.id});closeDrawer();v15Actions['r3-user']({dataset:{id:n.dataset.user}});});
+  const ar3RulesBase=renderAppRules;renderAppRules=function(){const box=document.createElement('div');box.innerHTML=ar3RulesBase();box.querySelector('#v15-rules-section')?.remove();if(ast()&&state.appRulesTab!=='loginbg')box.insertAdjacentHTML('beforeend',ar3SettingsForm());return box.innerHTML;};
+  ar3Action('r3-export-food',()=>{const ws=XLSX.utils.json_to_sheet(ast().foods.map(f=>({名称:f.name,分类:f.cat,热量:f.kcal,碳水:f.carb,蛋白:f.protein,脂肪:f.fat,钠:f.na,钾:f.k,钙:f.ca,铁:f.fe,锌:f.zn}))),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'食物库');XLSX.writeFile(wb,'渡鸦管家-r3-食物库.xlsx');});
+  function ar3Conditional(){const editor=$('#r3-editor'),type=av('type'),show=(name,visible)=>document.querySelectorAll('[data-condition="'+name+'"]').forEach(el=>{el.hidden=!visible;});show('threshold',av('condition')==='threshold');show('brand-selection',av('brandMode')==='selected');show('fixed-validity',av('validMode')==='fixed');show('relative-validity',av('validMode')==='relative');show('coupon-limit',av('limitMode')==='on');show('goal-info',type==='goal');show('custom-info',type==='custom');show('custom-reward',type==='custom');show('recommend-config',type==='goal');document.querySelectorAll('[data-condition="recommend-tags"]').forEach(el=>el.hidden=type!=='goal'||av('questionRecommend',el.closest('.r3-question'))==='no');show('audience-users',av('audience')==='users');show('audience-group',av('audience')==='group');show('survey-reward-enabled',av('rewardEnabled')==='on');show('merchant-reward',av('withReward')==='on');show('invite-enabled',av('enabled')==='on');show('reward-old',av('target')==='old'||av('target')==='both');show('reward-new',av('target')==='new'||av('target')==='both');show('issue-users',av('issueWay')==='users');show('issue-group',av('issueWay')==='group');show('issue-import',av('issueWay')==='import');show('issue-time',av('issueMode')==='scheduled');for(const box of document.querySelectorAll('.r3-rewards')){const prefix=box.dataset.prefix,mode=av(prefix+'mode');box.querySelector('[data-condition="reward-add"]').hidden=mode!=='probability';box.querySelectorAll('.r3-reward-row').forEach((row,i)=>{row.hidden=mode==='fixed'&&i>0;const p=prefix+row.dataset.i+'-',type=av(p+'type');row.querySelector('[data-condition="reward-coupon"]').hidden=type!=='coupon';row.querySelector('[data-condition="reward-meal"]').hidden=type!=='meal';row.querySelector('[data-condition="reward-custom"]').hidden=type!=='custom';row.querySelector('[data-condition="reward-probability"]').hidden=mode!=='probability';});}}
+  const ar3RenderBase=renderApp;renderApp=function(){ar3RenderBase();ar3Conditional();};
+  document.addEventListener('change',async e=>{if(e.target.closest('.r3-admin-page,#r3-issue-form'))ar3Conditional();if(e.target.type==='file'&&e.target.closest('.r3-reward-row')){const file=e.target.files[0];if(!file)return;if(file.size>2e6){toast('图片过大','请选择2MB以内图片','error');return;}const reader=new FileReader();reader.onload=()=>{e.target.closest('.r3-reward-row').querySelector('input[type="hidden"]').value=reader.result;};reader.readAsDataURL(file);}if(e.target.name==='issueFile'&&e.target.files[0])aq('issueNames').value=await e.target.files[0].text();});
+  const ar3ModalBase=openModal;openModal=function(opts){ar3ModalBase(opts);ar3Conditional();};
+  document.addEventListener('click',e=>{const n=e.target.closest('[data-action]');if(n?.dataset.action==='confirm-reset-demo'){e.stopImmediatePropagation();ar3.cmd('RESET').then(()=>location.reload()).catch(err=>toast('重置失败',err.message,'error'));}},{capture:true});
+  ar3.on(()=>{if(!state.loggedIn||ar3.busy||state.page==='foods'&&['recognition','units'].includes(ar3FoodTab)||$('#r3-editor')||document.querySelector('#modal-root>* , #drawer-root>*'))return;if(state.page==='invites'&&$('#r3-invite-settings')){const box=document.createElement('div');box.innerHTML=ar3List('invites');document.querySelector('.r3-admin-page>.r3-card')?.replaceWith(box.querySelector('.r3-card'));}else if(!$('#r3-invite-settings'))renderApp();});ar3.ready.then(()=>{if(state.loggedIn)renderApp();});
+  document.addEventListener('r3-offline',()=>{if(!document.querySelector('#r3-offline')){const el=document.createElement('div');el.id='r3-offline';el.textContent='共享服务连接中断，修改不会假保存。请检查启动器。';document.body.append(el);}});
+  window.__r3Admin={render:renderApp,conditional:ar3Conditional,get editing(){return ar3Editing;}};
+
+  ar3Action('r3-template-add',()=>$('#r3-unit-templates').insertAdjacentHTML('beforeend',unitRow()));
+  ar3Action('r3-template-save',async()=>{const units=[...document.querySelectorAll('#r3-unit-templates .r3-unit-row')].map(n=>[n.querySelectorAll('input')[0].value,+n.querySelectorAll('input')[1].value]);await ar3.cmd('ADMIN_UNITS',{units});toast('份量模板已保存');});
+  const ar3BrandsBase=renderBrands;renderBrands=function(){return ar3BrandsBase()+(!ast()?'':card('V1.5 推荐品牌标签',note('此处的品牌标签直接用于小程序推荐匹配。')+atable(['品牌','推荐标签','状态','操作'],ast().brands.map(b=>[ae(b.name),b.tags.map(ae).join('、'),badge(b.status),ab('设置推荐标签','r3-brand-tags','data-id="'+b.id+'"','secondary small')]))));};
+  ar3Action('r3-brand-tags',n=>{const b=ast().brands.find(b=>b.id===n.dataset.id),tags=[...new Set(ast().brands.flatMap(b=>b.tags))];openModal({title:'推荐标签 · '+b.name,body:'<div class="r3-check-grid">'+tags.map(t=>'<label><input name="r3BrandTags" type="checkbox" value="'+ae(t)+'" '+(b.tags.includes(t)?'checked':'')+'>'+ae(t)+'</label>').join('')+'</div>'+af('推荐品牌状态','r3BrandStatus',b.status,'select',['上架','下架']),footer:ab('保存推荐配置','r3-brand-tags-save','data-id="'+b.id+'"','primary')});});
+  ar3Action('r3-brand-tags-save',async n=>{const b=ast().brands.find(b=>b.id===n.dataset.id);await ar3.cmd('ADMIN_SAVE',{entity:'brand',record:{...b,tags:[...document.querySelectorAll('[name="r3BrandTags"]:checked')].map(n=>n.value),status:av('r3BrandStatus')}});closeModal();renderApp();toast('推荐配置已同步');});
+  const ar3MenuBase=renderMenuWeek;renderMenuWeek=function(){return ar3MenuBase()+(ast()?card('V1.5 菜品营养值补录',atable(['品牌','菜品','状态','操作'],ast().menu.map(m=>[ae(m.brand),ae(m.name),badge(m.done?'已补录':'待补录'),ab('补录营养值','r3-menu','data-id="'+m.id+'"','secondary small')]))):'');};
+
+  document.addEventListener('change',e=>{if(e.target.name==='r3UserGroup'){ar3UserGroup=e.target.value;renderApp();}});
+  ar3Action('r3-answer-detail',n=>{const a=ast().answers.find(a=>a.id===n.dataset.id);closeDrawer();openDrawer({title:a.user+' · '+a.survey+' · V'+a.version,body:a.questions.map((q,i)=>card((i+1)+'. '+ae(q.text),[].concat(a.answers[q.id]??[]).map(idx=>ae(q.options[idx]?.text||'')).join('、'))).join('')+note('保留作答时题目版本和答案快照。')});});
+  document.addEventListener('r3-online',()=>document.querySelector('#r3-offline')?.remove());
+
+  window.RavenPrototype = { buildXlsx, consolidateTasks, taskExportColumns };
+  injectIcons();
+})();

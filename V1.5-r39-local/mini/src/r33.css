@@ -1,0 +1,62 @@
+/* V1.5-r33 final growth/activity list layout and paginated reward records. */
+html[data-local-role="admin"] .r32-list-card{padding:12px 16px 14px!important}
+html[data-local-role="admin"] .r32-list-card>h3:first-child{border-bottom:0!important;padding-top:0!important}
+html[data-local-role="admin"] .r32-list-card>.r32-filter-divider{display:none!important}
+html[data-local-role="admin"] .r32-list-card>.r32-table-divider{margin:12px 0 10px!important;border-top:1px solid #dfe7e1!important}
+html[data-local-role="admin"] .r32-actions-row{padding:0 0 10px!important}
+html[data-local-role="admin"] .r32-list-card>.g6-filters,
+html[data-local-role="admin"] .r32-list-card>.g20-filter-row,
+html[data-local-role="admin"] .r32-list-card>.g21-record-filters,
+html[data-local-role="admin"] .r32-list-card>.r31-reward-filters{width:100%;box-sizing:border-box}
+html[data-local-role="admin"] .r33-filter{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important}
+html[data-local-role="admin"] .r33-filter .toolbar-group{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;padding:0!important}
+html[data-local-role="admin"] .r33-filter-text-row{display:flex!important;align-items:flex-end!important;gap:10px!important;flex-wrap:nowrap!important;width:100%;overflow-x:auto!important;scrollbar-width:thin;padding-bottom:1px}
+html[data-local-role="admin"] .r33-filter-text-row>.g7-filter,
+html[data-local-role="admin"] .r33-filter-text-row>label{flex:0 0 180px!important;min-width:180px!important;margin:0!important}
+html[data-local-role="admin"] .r33-filter-text-row>.g7-filter:has(input[type="date"]),
+html[data-local-role="admin"] .r33-filter-text-row>label:has(input[type="date"]){flex-basis:148px!important;min-width:148px!important}
+html[data-local-role="admin"] .r33-filter-text-row>.g19-filter-actions{display:flex!important;flex:0 0 auto!important;gap:8px!important;align-items:flex-end!important;margin:0!important;padding:0!important}
+html[data-local-role="admin"] .r33-filter-text-row .button{height:36px!important;white-space:nowrap}
+html[data-local-role="admin"] .r33-filter-tabs-row{display:flex!important;align-items:center!important;gap:18px!important;flex-wrap:nowrap!important;width:100%;overflow-x:auto!important;scrollbar-width:thin;padding:2px 0}
+html[data-local-role="admin"] .r33-tab-group{display:flex!important;align-items:center!important;gap:7px!important;flex:0 0 auto!important;min-width:max-content!important}
+html[data-local-role="admin"] .r33-tab-caption{font-size:11px;font-weight:700;color:#61766a;white-space:nowrap}
+html[data-local-role="admin"] .r33-tab-scroll{display:block;min-width:max-content}
+html[data-local-role="admin"] .r33-tab-scroll-inner{display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:nowrap!important;width:max-content!important;max-width:none!important;overflow:visible!important}
+html[data-local-role="admin"] .r33-tab-scroll-inner button{flex:0 0 auto!important;min-width:max-content!important;max-width:none!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+html[data-local-role="admin"] .r31-filter-tabs,
+html[data-local-role="admin"] .r32-filter-tabs{display:flex!important;align-items:center!important;gap:4px!important;flex-wrap:nowrap!important;width:max-content!important;max-width:none!important;overflow:visible!important}
+html[data-local-role="admin"] .r31-filter-tabs button,
+html[data-local-role="admin"] .r32-filter-tabs button{flex:0 0 auto!important;white-space:nowrap!important;min-width:max-content!important}
+html[data-local-role="admin"] .r26-filter-tabs button.on,
+html[data-local-role="admin"] .r31-filter-tabs button.on,
+html[data-local-role="admin"] .r32-filter-tabs button.on{background:#0d3b32!important;border-color:#0d3b32!important;color:#fff!important}
+html[data-local-role="admin"] .r33-hidden-filter-storage{display:none!important}
+html[data-local-role="admin"] .r32-list-card :is(.tabs.g7-tabs) .tab-button.active{color:#0d3b32!important;border-color:#0d3b32!important}
+html[data-local-role="admin"] .r3-admin-page>.tabs .tab-button.active{color:#0d3b32!important;border-color:#0d3b32!important}
+html[data-local-role="admin"] .r31-number-link{color:#0d3b32!important}
+html[data-local-role="admin"] .r32-table th[data-r32-col="actions"],
+html[data-local-role="admin"] .r32-table td[data-r32-col="actions"]{position:sticky!important;right:0!important;width:220px!important;min-width:220px!important;max-width:220px!important;box-sizing:border-box!important;z-index:3!important;background:#fff!important;box-shadow:-10px 0 14px -14px #17342766}
+html[data-local-role="admin"] .r32-table th[data-r32-col="actions"]{z-index:5!important;background:#f4f8f0!important}
+html[data-local-role="admin"] .r32-table td[data-r32-col="actions"]{padding-left:8px!important;padding-right:8px!important}
+html[data-local-role="admin"] .r32-table td[data-r32-col="actions"] :is(.table-actions,.g19-action-buttons){display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:5px!important;max-width:204px!important;min-width:0!important}
+html[data-local-role="admin"] .r32-table td[data-r32-col="actions"] button{min-width:max-content!important;height:28px!important;padding:0 8px!important;font-size:11px!important}
+
+html[data-local-role="admin"] .r31-table-card{padding:12px 16px 14px!important}
+html[data-local-role="admin"] .r33-reward-filter{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;padding:0!important;border:0!important;background:#fff!important}
+html[data-local-role="admin"] .r33-reward-filter .g19-filter-actions{display:flex!important;gap:8px!important;flex:0 0 auto!important}
+html[data-local-role="admin"] .r32-list-card .r31-table-card{padding:0!important;border:0!important;box-shadow:none!important}
+html[data-local-role="admin"] .r33-reward-pager,
+html[data-local-role="admin"] .r33-modal-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 0;margin-top:8px;border-top:1px solid #edf0ee;color:#64786c;font-size:12px}
+html[data-local-role="admin"] .r33-reward-pager>div,
+html[data-local-role="admin"] .r33-modal-pager>div{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+html[data-local-role="admin"] .r33-reward-pager button,
+html[data-local-role="admin"] .r33-modal-pager button{height:30px;min-width:30px;padding:0 9px;border:1px solid #d6e1d9;border-radius:7px;background:#fff;color:#24503b;cursor:pointer}
+html[data-local-role="admin"] .r33-reward-pager button.active,
+html[data-local-role="admin"] .r33-modal-pager button.active{background:#0d3b32;border-color:#0d3b32;color:#fff}
+html[data-local-role="admin"] .r33-reward-pager button:disabled,
+html[data-local-role="admin"] .r33-modal-pager button:disabled{opacity:.4;cursor:not-allowed}
+html[data-local-role="admin"] .r33-modal-summary{display:flex;justify-content:space-between;gap:15px;margin-bottom:12px;padding:10px 12px;border-radius:8px;background:#f5f8f4;color:#4d6557;font-size:12px}
+@media(max-width:900px){
+  html[data-local-role="admin"] .r33-filter-text-row>label{flex-basis:160px!important;min-width:160px!important}
+  html[data-local-role="admin"] .r32-table th[data-r32-col="actions"],html[data-local-role="admin"] .r32-table td[data-r32-col="actions"]{width:200px!important;min-width:200px!important;max-width:200px!important}
+}

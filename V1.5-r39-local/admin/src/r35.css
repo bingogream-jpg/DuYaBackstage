@@ -1,0 +1,116 @@
+/* V1.5-r35 compact list summaries, semantic status columns and modal exports. */
+html[data-local-role="admin"] .r35-summary-strip{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+  align-items:stretch;
+  flex-wrap:nowrap!important;
+  gap:0!important;
+  min-height:50px;
+  margin:0 0 10px!important;
+  padding:7px 10px!important;
+  border:1px solid #e2e9e3!important;
+  border-radius:9px!important;
+  background:#f7faf8!important;
+  box-sizing:border-box;
+}
+html[data-local-role="admin"] .r35-summary-strip>div,
+html[data-local-role="admin"] .r35-summary-strip>article,
+html[data-local-role="admin"] .r35-summary-strip>span{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:0!important;
+  min-width:0!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:2px 12px!important;
+  border:0!important;
+  border-right:1px solid #e1e8e2!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+html[data-local-role="admin"] .r35-summary-strip>:last-child{border-right:0!important}
+html[data-local-role="admin"] .r35-summary-strip :is(span,em){
+  display:block;
+  overflow:hidden;
+  color:#718177!important;
+  font-size:10px!important;
+  line-height:1.35;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role="admin"] .r35-summary-strip :is(strong,b){
+  display:block;
+  overflow:hidden;
+  margin-top:2px;
+  color:#173d2f!important;
+  font-size:17px!important;
+  font-weight:700;
+  line-height:1.12;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html[data-local-role="admin"] .r32-list-card>.r35-actions-row,
+html[data-local-role="admin"] .r32-list-card>[class*="filter"]+.r32-actions-row{
+  margin-top:16px!important;
+}
+html[data-local-role="admin"] .r32-list-card.r35-has-summary>.r32-actions-row{
+  border-bottom:0!important;
+}
+html[data-local-role="admin"] .r32-list-card.r35-has-summary>.r32-table-divider{
+  display:block!important;
+  height:0!important;
+  margin:0 0 10px!important;
+  border-top:1px solid #dfe7e1!important;
+}
+html[data-local-role="admin"] table.data-table th[data-r32-col="status"],
+html[data-local-role="admin"] table.data-table td[data-r32-col="status"]{
+  min-width:92px;
+}
+html[data-local-role="admin"] .r35-switch-cell{
+  min-width:92px!important;
+  padding-left:8px!important;
+  padding-right:8px!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+html[data-local-role="admin"] .r35-switch-cell .r35-switch{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  vertical-align:middle;
+}
+html[data-local-role="admin"] .r35-status-cell{
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+html[data-local-role="admin"] .r35-status-cell>.r3-badge,
+html[data-local-role="admin"] .r35-status-cell>.badge{
+  display:inline-flex;
+  margin:0;
+}
+html[data-local-role="admin"] .r35-modal-export-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:34px;
+  margin:0 0 10px;
+  padding:0;
+}
+html[data-local-role="admin"] .r35-modal-export-row .button{
+  height:34px;
+  min-height:34px;
+  padding:0 13px;
+}
+html[data-local-role="admin"] #modal-root .modal-foot{
+  justify-content:flex-end;
+}
+@media(max-width:900px){
+  html[data-local-role="admin"] .r35-summary-strip{padding-left:6px!important;padding-right:6px!important}
+  html[data-local-role="admin"] .r35-summary-strip>div,
+  html[data-local-role="admin"] .r35-summary-strip>article,
+  html[data-local-role="admin"] .r35-summary-strip>span{padding-left:7px!important;padding-right:7px!important}
+  html[data-local-role="admin"] .r35-summary-strip :is(strong,b){font-size:15px!important}
+}

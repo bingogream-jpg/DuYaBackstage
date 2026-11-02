@@ -1,0 +1,1881 @@
+{
+  "questionData": {
+    "base": [
+      {
+        "id": "b1",
+        "text": "你更喜欢哪种口味？",
+        "type": "multi",
+        "options": [
+          {
+            "text": "清淡少油",
+            "tags": {
+              "少油少盐": 4,
+              "低卡轻负担": 2
+            }
+          },
+          {
+            "text": "温热汤羹",
+            "tags": {
+              "暖胃": 3,
+              "汤品": 2
+            }
+          },
+          {
+            "text": "西式轻食冷餐",
+            "tags": {
+              "西式冷餐": 2,
+              "轻食沙拉": 2
+            }
+          },
+          {
+            "text": "中式热食",
+            "tags": {
+              "中式热食": 3
+            }
+          },
+          {
+            "text": "谷物能量碗",
+            "tags": {
+              "能量碗": 3,
+              "高饱腹": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "b2",
+        "text": "有需要避开食材吗？",
+        "type": "multi",
+        "options": [
+          {
+            "text": "素食为主",
+            "tags": {
+              "素食友好": 4
+            }
+          },
+          {
+            "text": "不吃辣",
+            "tags": {
+              "少油少盐": 2
+            }
+          },
+          {
+            "text": "乳制品敏感",
+            "tags": {}
+          },
+          {
+            "text": "没有忌口",
+            "tags": {}
+          }
+        ]
+      },
+      {
+        "id": "b3",
+        "text": "打算订哪几餐？",
+        "type": "multi",
+        "recommend": false,
+        "options": [
+          {
+            "text": "午餐",
+            "tags": {}
+          },
+          {
+            "text": "晚餐",
+            "tags": {}
+          }
+        ]
+      },
+      {
+        "id": "b4",
+        "text": "能接受的辣度？",
+        "type": "single",
+        "options": [
+          {
+            "text": "完全不辣",
+            "tags": {
+              "少油少盐": 2
+            }
+          },
+          {
+            "text": "微辣",
+            "tags": {}
+          },
+          {
+            "text": "重辣",
+            "tags": {
+              "中式热食": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "b5",
+        "text": "主食偏好？",
+        "type": "single",
+        "options": [
+          {
+            "text": "米饭 / 杂粮饭",
+            "tags": {
+              "能量碗": 3,
+              "高饱腹": 2
+            }
+          },
+          {
+            "text": "面食",
+            "tags": {
+              "中式热食": 3
+            }
+          },
+          {
+            "text": "沙拉蔬菜为主",
+            "tags": {
+              "轻食沙拉": 3,
+              "低卡轻负担": 2
+            }
+          },
+          {
+            "text": "汤品为主",
+            "tags": {
+              "汤品": 3,
+              "暖胃": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "b6",
+        "text": "每餐预算？",
+        "type": "single",
+        "recommend": false,
+        "options": [
+          {
+            "text": "20 元以内",
+            "tags": {}
+          },
+          {
+            "text": "20 - 35 元",
+            "tags": {}
+          },
+          {
+            "text": "35 元以上",
+            "tags": {}
+          }
+        ]
+      },
+      {
+        "id": "b7",
+        "text": "更喜欢的烹饪方式？",
+        "type": "single",
+        "options": [
+          {
+            "text": "蒸煮少油",
+            "tags": {
+              "少油少盐": 4,
+              "低卡轻负担": 2
+            }
+          },
+          {
+            "text": "炖煮汤品",
+            "tags": {
+              "汤品": 3,
+              "暖胃": 2
+            }
+          },
+          {
+            "text": "冷餐凉拌",
+            "tags": {
+              "西式冷餐": 3,
+              "轻食沙拉": 2
+            }
+          },
+          {
+            "text": "都可以",
+            "tags": {}
+          }
+        ]
+      },
+      {
+        "id": "b8",
+        "text": "常在外就餐的场景？",
+        "type": "multi",
+        "options": [
+          {
+            "text": "工作日午餐",
+            "tags": {}
+          },
+          {
+            "text": "加班晚餐",
+            "tags": {
+              "暖胃": 2
+            }
+          },
+          {
+            "text": "周末聚会",
+            "tags": {}
+          },
+          {
+            "text": "很少外食",
+            "tags": {}
+          }
+        ]
+      }
+    ],
+    "goals": {
+      "减重": [
+        {
+          "id": "r1",
+          "text": "你在意饭后很快饿吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "很在意",
+              "tags": {
+                "高饱腹": 4,
+                "高蛋白": 2
+              }
+            },
+            {
+              "text": "一般",
+              "tags": {
+                "高饱腹": 2
+              }
+            },
+            {
+              "text": "不在意",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "r2",
+          "text": "每天热量想控制在什么范围？",
+          "type": "single",
+          "options": [
+            {
+              "text": "1200 千卡以内",
+              "tags": {
+                "低卡轻负担": 5
+              }
+            },
+            {
+              "text": "1300 - 1500 千卡",
+              "tags": {
+                "低卡轻负担": 3
+              }
+            },
+            {
+              "text": "不算热量",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "r3",
+          "text": "甜食和含糖饮料的频次？",
+          "type": "single",
+          "options": [
+            {
+              "text": "几乎每天",
+              "tags": {
+                "低卡轻负担": 2
+              }
+            },
+            {
+              "text": "偶尔",
+              "tags": {}
+            },
+            {
+              "text": "基本不吃",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "r4",
+          "text": "能接受少油少盐的清淡口味吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "完全接受",
+              "tags": {
+                "少油少盐": 4
+              }
+            },
+            {
+              "text": "部分接受",
+              "tags": {
+                "少油少盐": 2
+              }
+            },
+            {
+              "text": "不太接受",
+              "tags": {
+                "少油少盐": -3
+              }
+            }
+          ]
+        },
+        {
+          "id": "r5",
+          "text": "你现在的减重阶段？",
+          "type": "single",
+          "options": [
+            {
+              "text": "刚开始",
+              "tags": {
+                "低卡轻负担": 3
+              }
+            },
+            {
+              "text": "平台期",
+              "tags": {
+                "高蛋白": 3,
+                "高饱腹": 2
+              }
+            },
+            {
+              "text": "维持期",
+              "tags": {
+                "营养均衡": 3
+              }
+            }
+          ]
+        }
+      ],
+      "增肌": [
+        {
+          "id": "m1",
+          "text": "每天的蛋白质摄入够吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "明显不足",
+              "tags": {
+                "高蛋白": 5
+              }
+            },
+            {
+              "text": "一般",
+              "tags": {
+                "高蛋白": 3
+              }
+            },
+            {
+              "text": "已经足够",
+              "tags": {
+                "高蛋白": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "m2",
+          "text": "有加餐习惯吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "每天加餐",
+              "tags": {
+                "高蛋白": 3,
+                "高饱腹": 2
+              }
+            },
+            {
+              "text": "偶尔加餐",
+              "tags": {}
+            },
+            {
+              "text": "不加餐",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "m3",
+          "text": "每周训练几次？",
+          "type": "single",
+          "options": [
+            {
+              "text": "3 次以上",
+              "tags": {
+                "高蛋白": 4,
+                "能量碗": 3
+              }
+            },
+            {
+              "text": "1 - 2 次",
+              "tags": {
+                "高蛋白": 2
+              }
+            },
+            {
+              "text": "基本不练",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "m4",
+          "text": "每餐饭量？",
+          "type": "single",
+          "options": [
+            {
+              "text": "要大份",
+              "tags": {
+                "能量碗": 4,
+                "高饱腹": 3
+              }
+            },
+            {
+              "text": "正常",
+              "tags": {
+                "高饱腹": 2
+              }
+            },
+            {
+              "text": "吃不太多",
+              "tags": {
+                "低卡轻负担": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "m5",
+          "text": "训练日的主食安排？",
+          "type": "single",
+          "options": [
+            {
+              "text": "碳水要够",
+              "tags": {
+                "能量碗": 4
+              }
+            },
+            {
+              "text": "适中",
+              "tags": {
+                "能量碗": 2
+              }
+            },
+            {
+              "text": "少吃主食",
+              "tags": {
+                "低卡轻负担": 3
+              }
+            }
+          ]
+        }
+      ],
+      "健康饮食": [
+        {
+          "id": "h1",
+          "text": "每天蔬果吃够了吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "明显不足",
+              "tags": {
+                "时令鲜食": 4,
+                "健康食材": 3
+              }
+            },
+            {
+              "text": "一般",
+              "tags": {
+                "健康食材": 2
+              }
+            },
+            {
+              "text": "比较充足",
+              "tags": {
+                "健康食材": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "h2",
+          "text": "每周外食频次？",
+          "type": "single",
+          "options": [
+            {
+              "text": "几乎每天外食",
+              "tags": {
+                "少油少盐": 4,
+                "健康食材": 2
+              }
+            },
+            {
+              "text": "每周几次",
+              "tags": {
+                "少油少盐": 2
+              }
+            },
+            {
+              "text": "很少外食",
+              "tags": {}
+            }
+          ]
+        },
+        {
+          "id": "h3",
+          "text": "更想要的膳食结构？",
+          "type": "single",
+          "options": [
+            {
+              "text": "荤素均衡",
+              "tags": {
+                "营养均衡": 5
+              }
+            },
+            {
+              "text": "清淡为主",
+              "tags": {
+                "少油少盐": 3
+              }
+            },
+            {
+              "text": "汤羹为主",
+              "tags": {
+                "汤品": 3,
+                "暖胃": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "h4",
+          "text": "用餐规律吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "规律三餐",
+              "tags": {
+                "营养均衡": 3
+              }
+            },
+            {
+              "text": "常忙到顾不上",
+              "tags": {
+                "高饱腹": 3,
+                "能量碗": 2
+              }
+            },
+            {
+              "text": "晚睡晚起",
+              "tags": {
+                "暖胃": 2
+              }
+            }
+          ]
+        }
+      ],
+      "减脂": [
+        {
+          "id": "f1",
+          "text": "最想改善的是？",
+          "type": "single",
+          "options": [
+            {
+              "text": "降低体脂率",
+              "tags": {
+                "低卡轻负担": 4,
+                "高蛋白": 3
+              }
+            },
+            {
+              "text": "减少腹部脂肪",
+              "tags": {
+                "低卡轻负担": 3,
+                "高饱腹": 2
+              }
+            },
+            {
+              "text": "保持当前体态",
+              "tags": {
+                "营养均衡": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "f2",
+          "text": "愿意尝试低碳水吗？",
+          "type": "single",
+          "options": [
+            {
+              "text": "愿意",
+              "tags": {
+                "低卡轻负担": 3,
+                "高蛋白": 2
+              }
+            },
+            {
+              "text": "正常碳水",
+              "tags": {}
+            },
+            {
+              "text": "不太想",
+              "tags": {
+                "能量碗": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "f3",
+          "text": "对油盐的敏感度？",
+          "type": "single",
+          "options": [
+            {
+              "text": "特别在意",
+              "tags": {
+                "少油少盐": 5
+              }
+            },
+            {
+              "text": "一般",
+              "tags": {
+                "少油少盐": 2
+              }
+            },
+            {
+              "text": "不太在意",
+              "tags": {
+                "少油少盐": -3
+              }
+            }
+          ]
+        },
+        {
+          "id": "f4",
+          "text": "一天的进食节奏？",
+          "type": "single",
+          "options": [
+            {
+              "text": "一日两餐",
+              "tags": {
+                "高饱腹": 3
+              }
+            },
+            {
+              "text": "少量多餐",
+              "tags": {
+                "低卡轻负担": 2
+              }
+            },
+            {
+              "text": "正常三餐",
+              "tags": {
+                "营养均衡": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "foods": [
+    {
+      "name": "香草鸡胸藜麦碗",
+      "cat": "套餐菜品",
+      "kcal": 139,
+      "carb": 15,
+      "protein": 11,
+      "fat": 4,
+      "fiber": 3.4,
+      "na": 149,
+      "k": 174,
+      "ca": 34,
+      "fe": 0.9,
+      "zn": 0.7,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F001",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "牛油果温泉蛋沙拉",
+      "cat": "套餐菜品",
+      "kcal": 122,
+      "carb": 6,
+      "protein": 7,
+      "fat": 8,
+      "fiber": 4.3,
+      "na": 168,
+      "k": 210,
+      "ca": 28,
+      "fe": 1.1,
+      "zn": 0.6,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F002",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "五谷三蔬能量碗",
+      "cat": "套餐菜品",
+      "kcal": 144,
+      "carb": 22,
+      "protein": 8,
+      "fat": 3,
+      "fiber": 4.8,
+      "na": 132,
+      "k": 190,
+      "ca": 26,
+      "fe": 1.3,
+      "zn": 0.8,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F003",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "菌菇豆腐杂粮饭",
+      "cat": "套餐菜品",
+      "kcal": 132,
+      "carb": 19,
+      "protein": 7,
+      "fat": 3,
+      "fiber": 4.5,
+      "na": 145,
+      "k": 205,
+      "ca": 42,
+      "fe": 1.5,
+      "zn": 0.9,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F004",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "鲜虾蔬菜荞麦面",
+      "cat": "套餐菜品",
+      "kcal": 148,
+      "carb": 21,
+      "protein": 10,
+      "fat": 3,
+      "fiber": 3.1,
+      "na": 210,
+      "k": 168,
+      "ca": 38,
+      "fe": 1.4,
+      "zn": 1,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F005",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "菌菇鸡肉暖汤",
+      "cat": "套餐菜品",
+      "kcal": 113,
+      "carb": 8,
+      "protein": 9,
+      "fat": 4,
+      "fiber": 2.6,
+      "na": 186,
+      "k": 232,
+      "ca": 30,
+      "fe": 1,
+      "zn": 0.8,
+      "units": [
+        [
+          "份",
+          350
+        ]
+      ],
+      "id": "F006",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "糙米饭",
+      "cat": "主食",
+      "kcal": 112,
+      "carb": 23,
+      "protein": 2.6,
+      "fat": 0.9,
+      "fiber": 1.6,
+      "na": 3,
+      "k": 78,
+      "ca": 10,
+      "fe": 0.6,
+      "zn": 0.6,
+      "units": [
+        [
+          "碗",
+          150
+        ],
+        [
+          "小碗",
+          100
+        ]
+      ],
+      "id": "F007",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "白米饭",
+      "cat": "主食",
+      "kcal": 116,
+      "carb": 25.9,
+      "protein": 2.6,
+      "fat": 0.3,
+      "fiber": 0.3,
+      "na": 2.5,
+      "k": 30,
+      "ca": 7,
+      "fe": 0.3,
+      "zn": 0.5,
+      "units": [
+        [
+          "碗",
+          150
+        ],
+        [
+          "小碗",
+          100
+        ]
+      ],
+      "id": "F008",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "荞麦面（熟）",
+      "cat": "主食",
+      "kcal": 108,
+      "carb": 21,
+      "protein": 4.4,
+      "fat": 0.6,
+      "fiber": 1.8,
+      "na": 60,
+      "k": 62,
+      "ca": 10,
+      "fe": 0.8,
+      "zn": 0.7,
+      "units": [
+        [
+          "碗",
+          200
+        ]
+      ],
+      "id": "F009",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "全麦面包",
+      "cat": "主食",
+      "kcal": 246,
+      "carb": 43,
+      "protein": 9,
+      "fat": 3.3,
+      "fiber": 6,
+      "na": 330,
+      "k": 230,
+      "ca": 40,
+      "fe": 2.5,
+      "zn": 1.5,
+      "units": [
+        [
+          "片",
+          35
+        ],
+        [
+          "个",
+          60
+        ]
+      ],
+      "id": "F010",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "鸡胸肉（煮）",
+      "cat": "肉蛋奶",
+      "kcal": 133,
+      "carb": 1.2,
+      "protein": 24.6,
+      "fat": 3.2,
+      "fiber": 0,
+      "na": 63,
+      "k": 338,
+      "ca": 9,
+      "fe": 0.6,
+      "zn": 0.9,
+      "units": [
+        [
+          "份",
+          100
+        ],
+        [
+          "块",
+          120
+        ]
+      ],
+      "id": "F011",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "牛里脊（煎）",
+      "cat": "肉蛋奶",
+      "kcal": 172,
+      "carb": 1,
+      "protein": 26,
+      "fat": 7,
+      "fiber": 0,
+      "na": 58,
+      "k": 320,
+      "ca": 8,
+      "fe": 2.8,
+      "zn": 4.6,
+      "units": [
+        [
+          "份",
+          120
+        ]
+      ],
+      "id": "F012",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "三文鱼（烤）",
+      "cat": "肉蛋奶",
+      "kcal": 208,
+      "carb": 0,
+      "protein": 20,
+      "fat": 13,
+      "fiber": 0,
+      "na": 108,
+      "k": 380,
+      "ca": 12,
+      "fe": 0.6,
+      "zn": 0.5,
+      "units": [
+        [
+          "份",
+          100
+        ]
+      ],
+      "id": "F013",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "水煮蛋",
+      "cat": "肉蛋奶",
+      "kcal": 143,
+      "carb": 1.1,
+      "protein": 12.6,
+      "fat": 9.5,
+      "fiber": 0,
+      "na": 131,
+      "k": 154,
+      "ca": 50,
+      "fe": 1.2,
+      "zn": 1.1,
+      "units": [
+        [
+          "个",
+          50
+        ]
+      ],
+      "id": "F014",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "北豆腐",
+      "cat": "肉蛋奶",
+      "kcal": 116,
+      "carb": 3.8,
+      "protein": 12.2,
+      "fat": 6.5,
+      "fiber": 0.5,
+      "na": 7.2,
+      "k": 106,
+      "ca": 138,
+      "fe": 1.5,
+      "zn": 0.9,
+      "units": [
+        [
+          "块",
+          100
+        ],
+        [
+          "份",
+          150
+        ]
+      ],
+      "id": "F015",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "无糖希腊酸奶",
+      "cat": "肉蛋奶",
+      "kcal": 62,
+      "carb": 4,
+      "protein": 9,
+      "fat": 1.5,
+      "fiber": 0,
+      "na": 40,
+      "k": 140,
+      "ca": 110,
+      "fe": 0.1,
+      "zn": 0.5,
+      "units": [
+        [
+          "杯",
+          120
+        ]
+      ],
+      "id": "F016",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": "6900000000012"
+    },
+    {
+      "name": "西兰花（蒸）",
+      "cat": "蔬菜",
+      "kcal": 34,
+      "carb": 6.6,
+      "protein": 2.8,
+      "fat": 0.4,
+      "fiber": 2.6,
+      "na": 33,
+      "k": 316,
+      "ca": 47,
+      "fe": 0.7,
+      "zn": 0.4,
+      "units": [
+        [
+          "份",
+          150
+        ]
+      ],
+      "id": "F017",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "混合沙拉菜",
+      "cat": "蔬菜",
+      "kcal": 18,
+      "carb": 3.2,
+      "protein": 1.4,
+      "fat": 0.2,
+      "fiber": 1.8,
+      "na": 28,
+      "k": 220,
+      "ca": 36,
+      "fe": 0.6,
+      "zn": 0.2,
+      "units": [
+        [
+          "份",
+          150
+        ]
+      ],
+      "id": "F018",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "清炒时蔬",
+      "cat": "蔬菜",
+      "kcal": 62,
+      "carb": 6,
+      "protein": 2.2,
+      "fat": 3.4,
+      "fiber": 2.4,
+      "na": 240,
+      "k": 260,
+      "ca": 52,
+      "fe": 0.9,
+      "zn": 0.4,
+      "units": [
+        [
+          "份",
+          200
+        ]
+      ],
+      "id": "F019",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "菌菇汤",
+      "cat": "汤羹",
+      "kcal": 42,
+      "carb": 4.6,
+      "protein": 2.4,
+      "fat": 1.6,
+      "fiber": 1.6,
+      "na": 210,
+      "k": 190,
+      "ca": 14,
+      "fe": 0.5,
+      "zn": 0.4,
+      "units": [
+        [
+          "碗",
+          250
+        ]
+      ],
+      "id": "F020",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "番茄鸡蛋汤",
+      "cat": "汤羹",
+      "kcal": 46,
+      "carb": 5,
+      "protein": 3.1,
+      "fat": 1.8,
+      "fiber": 1,
+      "na": 260,
+      "k": 205,
+      "ca": 26,
+      "fe": 0.6,
+      "zn": 0.3,
+      "units": [
+        [
+          "碗",
+          250
+        ]
+      ],
+      "id": "F021",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "牛油果",
+      "cat": "水果",
+      "kcal": 171,
+      "carb": 7.4,
+      "protein": 2,
+      "fat": 15.3,
+      "fiber": 6.7,
+      "na": 8,
+      "k": 599,
+      "ca": 12,
+      "fe": 0.6,
+      "zn": 0.6,
+      "units": [
+        [
+          "个",
+          140
+        ],
+        [
+          "份",
+          70
+        ]
+      ],
+      "id": "F022",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "蓝莓",
+      "cat": "水果",
+      "kcal": 57,
+      "carb": 14.5,
+      "protein": 0.7,
+      "fat": 0.3,
+      "fiber": 2.4,
+      "na": 1,
+      "k": 77,
+      "ca": 6,
+      "fe": 0.3,
+      "zn": 0.2,
+      "units": [
+        [
+          "份",
+          100
+        ],
+        [
+          "盒",
+          125
+        ]
+      ],
+      "id": "F023",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "苹果",
+      "cat": "水果",
+      "kcal": 53,
+      "carb": 13.5,
+      "protein": 0.2,
+      "fat": 0.2,
+      "fiber": 1.7,
+      "na": 1.6,
+      "k": 119,
+      "ca": 4,
+      "fe": 0.2,
+      "zn": 0.1,
+      "units": [
+        [
+          "个",
+          200
+        ]
+      ],
+      "id": "F024",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "无糖气泡水",
+      "cat": "饮品",
+      "kcal": 0,
+      "carb": 0,
+      "protein": 0,
+      "fat": 0,
+      "fiber": 0,
+      "na": 12,
+      "k": 2,
+      "ca": 4,
+      "fe": 0,
+      "zn": 0,
+      "units": [
+        [
+          "瓶",
+          500
+        ]
+      ],
+      "id": "F025",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": ""
+    },
+    {
+      "name": "美式咖啡（无糖）",
+      "cat": "饮品",
+      "kcal": 2,
+      "carb": 0.3,
+      "protein": 0.1,
+      "fat": 0,
+      "fiber": 0,
+      "na": 5,
+      "k": 49,
+      "ca": 2,
+      "fe": 0,
+      "zn": 0,
+      "units": [
+        [
+          "杯",
+          350
+        ]
+      ],
+      "id": "F026",
+      "alias": "",
+      "status": "启用",
+      "source": "演示食物库",
+      "barcode": "6900000000029"
+    }
+  ],
+  "menu": [
+    {
+      "id": "mn1",
+      "brand": "薄荷晨间",
+      "name": "香草鸡胸藜麦碗",
+      "spec": "350g",
+      "kcal": 486,
+      "done": true
+    },
+    {
+      "id": "mn2",
+      "brand": "薄荷晨间",
+      "name": "牛油果温泉蛋沙拉",
+      "spec": "350g",
+      "kcal": 428,
+      "done": true
+    },
+    {
+      "id": "mn3",
+      "brand": "谷物碗社",
+      "name": "五谷三蔬能量碗",
+      "spec": "350g",
+      "kcal": 505,
+      "done": true
+    },
+    {
+      "id": "mn4",
+      "brand": "谷物碗社",
+      "name": "菌菇豆腐杂粮饭",
+      "spec": "350g",
+      "kcal": null,
+      "done": false
+    },
+    {
+      "id": "mn5",
+      "brand": "暖汤小馆",
+      "name": "菌菇鸡肉暖汤",
+      "spec": "350g",
+      "kcal": null,
+      "done": false
+    },
+    {
+      "id": "mn6",
+      "brand": "青禾轻食",
+      "name": "时蔬鸡肉谷物碗",
+      "spec": "350g",
+      "kcal": null,
+      "done": false
+    }
+  ],
+  "brands": [
+    {
+      "id": "deer",
+      "name": "Leapeer 鹿跃森",
+      "cover": "brand-leapeer.png",
+      "tags": [
+        "西式冷餐",
+        "健康食材",
+        "低卡轻负担",
+        "时令鲜食"
+      ],
+      "status": "上架",
+      "heat": 200
+    },
+    {
+      "id": "mint",
+      "name": "薄荷晨间",
+      "cover": "brand-mint.png",
+      "tags": [
+        "轻食沙拉",
+        "健康食材",
+        "时令鲜食",
+        "低卡轻负担"
+      ],
+      "status": "上架",
+      "heat": 185
+    },
+    {
+      "id": "grain",
+      "name": "谷物碗社",
+      "cover": "brand-grain.png",
+      "tags": [
+        "能量碗",
+        "营养均衡",
+        "高饱腹",
+        "健康食材"
+      ],
+      "status": "上架",
+      "heat": 170
+    },
+    {
+      "id": "noodle",
+      "name": "鲜面研究所",
+      "cover": "brand-noodle.png",
+      "tags": [
+        "中式热食",
+        "少油少盐",
+        "健康食材",
+        "高饱腹"
+      ],
+      "status": "上架",
+      "heat": 155
+    },
+    {
+      "id": "soup",
+      "name": "暖汤小馆",
+      "cover": "brand-baiwei.png",
+      "tags": [
+        "汤品",
+        "营养均衡",
+        "暖胃",
+        "少油少盐"
+      ],
+      "status": "上架",
+      "heat": 140
+    },
+    {
+      "id": "qinghe",
+      "name": "青禾轻食",
+      "cover": "brand-senlin.png",
+      "tags": [
+        "轻食沙拉",
+        "素食友好",
+        "时令鲜食",
+        "营养均衡"
+      ],
+      "status": "上架",
+      "heat": 125
+    }
+  ],
+  "templates": [
+    {
+      "id": "CP001",
+      "name": "满 39 减 8 元券",
+      "amount": 8,
+      "threshold": 39,
+      "brands": [],
+      "expire": "2026-11-30",
+      "status": "启用",
+      "source": "问卷调查奖励",
+      "desc": "订单满 39 元可用，每单限用一张，不与其他优惠券叠加。",
+      "validMode": "fixed",
+      "days": 15,
+      "start": "2026-10-01",
+      "end": "2027-12-31",
+      "limit": 1
+    },
+    {
+      "id": "CP002",
+      "name": "无门槛 5 元券",
+      "amount": 5,
+      "threshold": 0,
+      "brands": [],
+      "expire": "2026-10-31",
+      "status": "启用",
+      "source": "邀请好友奖励",
+      "desc": "无门槛，下单直接抵扣 5 元，每单限用一张。",
+      "validMode": "relative",
+      "days": 15,
+      "start": "2026-10-01",
+      "end": "2027-12-31",
+      "limit": 1
+    },
+    {
+      "id": "CP003",
+      "name": "满 69 减 15 元券",
+      "amount": 15,
+      "threshold": 69,
+      "brands": [
+        "薄荷晨间",
+        "谷物碗社"
+      ],
+      "expire": "2026-12-31",
+      "status": "启用",
+      "source": "新客礼包",
+      "desc": "限指定品牌订单，满 69 元可用。",
+      "validMode": "fixed",
+      "days": 15,
+      "start": "2026-10-01",
+      "end": "2027-12-31",
+      "limit": 1
+    }
+  ],
+  "profile": {
+    "name": "林小鸦",
+    "gender": "女",
+    "birthday": "1999-02-01",
+    "age": 27,
+    "height": 158,
+    "weight": 54.7,
+    "startWeight": 54.7,
+    "activity": "轻度活动"
+  },
+  "delivery": {
+    "orders": [
+      {
+        "id": "shop-seed-deer-1",
+        "brandId": "deer",
+        "planId": "shop-work",
+        "remaining": 6,
+        "brand": "Leapeer 鹿跃森",
+        "pkg": "7天体验套餐",
+        "packageId": "trial7",
+        "status": "进行中",
+        "newShop": true,
+        "seed": true,
+        "total": 20,
+        "used": 14,
+        "price": 299,
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-20",
+        "time": "2026-10-11 09:40",
+        "meals": "剩余 6 餐",
+        "orderNumber": "RF2026101600001"
+      },
+      {
+        "id": "shop-seed-deer-2",
+        "brandId": "deer",
+        "planId": "shop-light",
+        "remaining": 12,
+        "brand": "Leapeer 鹿跃森",
+        "pkg": "7天体验套餐",
+        "packageId": "trial7",
+        "status": "进行中",
+        "newShop": true,
+        "seed": true,
+        "total": 20,
+        "used": 8,
+        "price": 299,
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-23",
+        "time": "2026-10-11 09:41",
+        "meals": "剩余 12 餐",
+        "orderNumber": "RF2026101600002"
+      },
+      {
+        "id": "shop-seed-mint-1",
+        "brandId": "mint",
+        "planId": "shop-work",
+        "remaining": 2,
+        "brand": "薄荷晨间",
+        "pkg": "7天体验套餐",
+        "packageId": "trial7",
+        "status": "进行中",
+        "newShop": true,
+        "seed": true,
+        "total": 20,
+        "used": 18,
+        "price": 299,
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-17",
+        "time": "2026-10-11 09:42",
+        "meals": "剩余 6 餐",
+        "orderNumber": "RF2026101600003"
+      },
+      {
+        "id": "P20261010470123460908286250",
+        "brand": "EatTime",
+        "pkg": "新用户专享",
+        "status": "待付款",
+        "meals": "5 餐 · 优惠已锁定",
+        "time": "2026-10-10 17:53",
+        "price": 0.01,
+        "countdown": "14分53秒"
+      },
+      {
+        "id": "P20261009470123460908286206",
+        "brand": "EatTime",
+        "pkg": "新用户专享",
+        "status": "待使用",
+        "meals": "5 餐尚未启用",
+        "time": "2026-10-09 10:17",
+        "price": 0.01
+      },
+      {
+        "id": "P20261009470123460908286206b",
+        "brand": "EatTime",
+        "pkg": "新用户专享",
+        "status": "进行中",
+        "meals": "剩余 5 餐已使用 0 餐",
+        "time": "2026-10-09 10:17",
+        "price": 0.01,
+        "next": "下次配送：10月16日 · 送达时间 12:00 前"
+      },
+      {
+        "id": "P20261008470123460908286160",
+        "brand": "EatTime",
+        "pkg": "新用户专享u'﹏'h（10餐）",
+        "status": "进行中",
+        "meals": "剩余 8 餐已使用 2 餐",
+        "time": "2026-10-08 23:03",
+        "price": 0.01,
+        "next": "下次配送：10月12日 · 送达时间 12:00 前"
+      },
+      {
+        "id": "P20261008470123460908286147",
+        "brand": "EatTime",
+        "pkg": "新用户专享（10 餐）",
+        "status": "进行中",
+        "meals": "剩余 8 餐已使用 2 餐",
+        "time": "2026-10-08 22:55",
+        "price": 0.01,
+        "next": "下次配送：10月12日 · 送达时间 12:00 前"
+      },
+      {
+        "id": "P20261008470123460908286134",
+        "brand": "森林健康",
+        "pkg": "新用户专享（10 餐）",
+        "status": "进行中",
+        "meals": "剩余 10 餐已使用 0 餐",
+        "time": "2026-10-08 19:13",
+        "price": 0.01,
+        "next": "下次配送：10月12日 · 送达时间 11:00 前"
+      },
+      {
+        "id": "P20261008470123460908286121",
+        "brand": "嘻嘻轻食",
+        "pkg": "新用户专享（10 餐）",
+        "status": "进行中",
+        "meals": "剩余 8 餐已使用 2 餐",
+        "time": "2026-10-08 19:11",
+        "price": 0.01,
+        "next": "下次配送：10月12日 · 送达时间 11:00 前"
+      },
+      {
+        "id": "P20260928462662140642459793",
+        "brand": "白味",
+        "pkg": "周套餐",
+        "status": "已完成",
+        "meals": "剩余 7 餐已使用 0 餐",
+        "time": "2026-09-28 16:27",
+        "finish": "2026-10-02 11:00",
+        "price": 0.02
+      },
+      {
+        "id": "P20260928462662140642459764",
+        "brand": "白味",
+        "pkg": "新人套餐",
+        "status": "已完成",
+        "meals": "剩余 5 餐已使用 0 餐",
+        "time": "2026-09-28 15:59",
+        "finish": "2026-10-08 11:00",
+        "price": 0.03
+      },
+      {
+        "id": "P20260930464298978448769231",
+        "brand": "燃卡计划",
+        "pkg": "新人套餐（单品牌仅可购买一次）",
+        "status": "已取消",
+        "meals": "取消原因：超时未支付",
+        "time": "2026-09-30 16:44",
+        "cancel": "2026-09-30 16:59",
+        "price": 298
+      },
+      {
+        "id": "P20260930464298978448769103",
+        "brand": "百味",
+        "pkg": "新人套餐（单品牌仅可购买一次）",
+        "status": "已取消",
+        "meals": "取消原因：超时未支付",
+        "time": "2026-09-30 15:19",
+        "cancel": "2026-09-30 15:34",
+        "price": 0.01
+      },
+      {
+        "id": "d31-mint-2",
+        "brandId": "mint",
+        "planId": "shop-work",
+        "remaining": 2,
+        "brand": "薄荷晨间",
+        "pkg": "7天体验套餐",
+        "packageId": "trial7",
+        "status": "进行中",
+        "newShop": true,
+        "seed": true,
+        "total": 20,
+        "used": 18,
+        "price": 299,
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-19",
+        "time": "2026-10-11 09:43",
+        "meals": "剩余 6 餐",
+        "orderNumber": "RF2026101600004"
+      },
+      {
+        "id": "d31-mint-3",
+        "brandId": "mint",
+        "planId": "shop-work",
+        "remaining": 2,
+        "brand": "薄荷晨间",
+        "pkg": "7天体验套餐",
+        "packageId": "trial7",
+        "status": "进行中",
+        "newShop": true,
+        "seed": true,
+        "total": 20,
+        "used": 18,
+        "price": 299,
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-20",
+        "time": "2026-10-11 09:44",
+        "meals": "剩余 6 餐",
+        "orderNumber": "RF2026101600005"
+      }
+    ],
+    "plans": [
+      {
+        "id": "shop-work",
+        "name": "工作日午晚餐计划",
+        "rule": "工作日配送",
+        "meals": [
+          "午餐",
+          "晚餐"
+        ],
+        "perDay": "一天两餐",
+        "time": "12:00前送达",
+        "lunchTime": "12:00前送达",
+        "dinnerTime": "18:00前送达",
+        "contact": "张小琴",
+        "phone": "13854875454",
+        "addressText": "深南大道英龙大厦",
+        "active": true,
+        "brands": "薄荷晨间、谷物碗社、暖汤小馆",
+        "customDays": [],
+        "lunchAddressId": "d31-home",
+        "dinnerAddressId": "d31-office"
+      },
+      {
+        "id": "shop-light",
+        "name": "轻盈工作日计划",
+        "rule": "工作日配送",
+        "meals": [
+          "午餐",
+          "晚餐"
+        ],
+        "perDay": "一天两餐",
+        "time": "12:00前送达",
+        "lunchTime": "12:00前送达",
+        "dinnerTime": "18:00前送达",
+        "contact": "张小琴",
+        "phone": "13854875454",
+        "addressText": "深南大道英龙大厦",
+        "active": false,
+        "brands": "暂无",
+        "customDays": [],
+        "lunchAddressId": "d31-home",
+        "dinnerAddressId": "d31-office"
+      },
+      {
+        "id": "shop-weekend",
+        "name": "周末家庭配送计划",
+        "rule": "自定义配送",
+        "customDays": [
+          "周六",
+          "周日"
+        ],
+        "meals": [
+          "午餐"
+        ],
+        "perDay": "一天一餐",
+        "time": "12:00前送达",
+        "lunchTime": "12:00前送达",
+        "dinnerTime": "18:00前送达",
+        "contact": "张小琴",
+        "phone": "13854875454",
+        "addressText": "世纪大道100号 3栋502室",
+        "active": false,
+        "brands": "暂无"
+      }
+    ],
+    "addresses": [
+      {
+        "id": 1,
+        "tag": "公司",
+        "name": "李",
+        "phone": "136****6666",
+        "region": "四川省成都市双流区",
+        "street": "华阳街道2",
+        "door": "",
+        "def": true
+      },
+      {
+        "id": 2,
+        "tag": "学校",
+        "name": "张",
+        "phone": "135****6888",
+        "region": "四川省成都市双流区",
+        "street": "雅和北三路与新裕路交叉口东北 100 米",
+        "door": "3256 栋",
+        "def": false
+      },
+      {
+        "id": 3,
+        "tag": "家",
+        "name": "赵",
+        "phone": "139****9999",
+        "region": "四川省成都市双流区",
+        "street": "兴隆街道 123 号",
+        "door": "3 单元 501",
+        "def": false
+      },
+      {
+        "id": "d31-home",
+        "name": "张小琴",
+        "phone": "13854875454",
+        "region": "",
+        "street": "世纪大道100号",
+        "door": "",
+        "tag": "家",
+        "def": false
+      },
+      {
+        "id": "d31-office",
+        "name": "张小琴",
+        "phone": "13854875454",
+        "region": "",
+        "street": "南京路200号",
+        "door": "",
+        "tag": "公司",
+        "def": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,420 @@
+/* r38 scoped corrections shared by the two offline builds. */
+html[data-local-role=mini] .r36-asset-tabs button>b,
+html[data-local-role=mini] .r33m-coupon-tabs button>b{
+  display:inline-flex;
+  min-width:18px;
+  min-height:18px;
+  align-items:center;
+  justify-content:center;
+  padding:1px 5px;
+  border-radius:10px;
+  background:#edf3e8;
+  color:#55713e;
+  font-size:10px;
+  line-height:16px;
+}
+html[data-local-role=mini] .r36-asset-tabs button.on>b,
+html[data-local-role=mini] .r33m-coupon-tabs button.on>b{
+  background:#fff;
+  color:#5f8f12;
+}
+html[data-local-role=mini] .r33m-ticket[data-id]{
+  cursor:default;
+}
+html[data-local-role=mini] .r27-food-search{
+  min-height:48px;
+}
+html[data-local-role=mini] .r27-food-search button[data-act="v15-search"]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  align-self:stretch;
+  height:48px;
+  min-width:70px;
+  margin:0;
+  padding:0 16px;
+  border-radius:0 27px 27px 0;
+  color:#fff;
+  font-size:13px;
+  font-weight:650;
+  line-height:1;
+  white-space:nowrap;
+}
+html[data-local-role=mini] .r37p-page .r36p-time.r38-time-row{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+html[data-local-role=mini] .r38-meal-row{
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  padding:0 0 18px;
+  color:#607f87;
+  font-size:12px;
+}
+html[data-local-role=mini] .r38-meal-options{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin:0;
+  min-width:0;
+}
+html[data-local-role=mini] .r38-meal-options button{
+  min-width:0;
+  min-height:38px;
+  padding:8px 6px;
+  border:1px solid #dfe8df;
+  border-radius:11px;
+  background:#fff;
+  color:#698073;
+  font:600 12px/1.3 "Microsoft YaHei",Arial,sans-serif;
+}
+html[data-local-role=mini] .r38-meal-options button.on{
+  border-color:#608d15;
+  background:#608d15;
+  color:#fff;
+}
+html[data-local-role=mini] .r37p-page .r36p-actions>button:first-child{
+  background:#fff!important;
+  color:#75971d!important;
+}
+html[data-local-role=mini] .r37p-page .r36p-actions>button:nth-child(2){
+  background:linear-gradient(110deg,#80a319,#5f8e06)!important;
+  color:#fff!important;
+}
+html[data-local-role=mini] .r36-meal-card[hidden]{
+  display:none!important;
+}
+html[data-local-role=mini] .r37f-empty{
+  margin:14px 0;
+  padding:22px;
+  border-radius:16px;
+  background:#f7faf5;
+  color:#87958c;
+  text-align:center;
+  font-size:12px;
+}
+
+html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs button.tab-button,
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs button.tab-button,
+html[data-local-role=admin] .tabs.g7-tabs button.tab-button,
+html[data-local-role=admin] #workspace .tabs>button.tab-button,
+html[data-local-role=admin] #modal-root .tabs>button.tab-button,
+html[data-local-role=admin] #drawer-root .tabs>button.tab-button{
+  border:0!important;
+  border-bottom:2px solid transparent!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#4d685d!important;
+  padding:9px 14px 8px!important;
+  box-shadow:none!important;
+}
+html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs,
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs,
+html[data-local-role=admin] .tabs.g7-tabs,
+html[data-local-role=admin] #workspace .tabs,
+html[data-local-role=admin] #modal-root .tabs,
+html[data-local-role=admin] #drawer-root .tabs{
+  border:0!important;
+  background:transparent!important;
+}
+html[data-local-role=admin] .tabs.g7-tabs button.tab-button::before,
+html[data-local-role=admin] .tabs.g7-tabs button.tab-button::after,
+html[data-local-role=admin] :is(#workspace,#modal-root,#drawer-root) .tabs>button.tab-button::before,
+html[data-local-role=admin] :is(#workspace,#modal-root,#drawer-root) .tabs>button.tab-button::after{
+  display:none!important;
+  content:none!important;
+}
+html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs button.tab-button.active,
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs button.tab-button.active,
+html[data-local-role=admin] .r3-admin-page .tabs.g7-tabs button.tab-button[aria-selected=true],
+html[data-local-role=admin] .r3-admin-page>.tabs.g7-tabs button.tab-button[aria-selected=true],
+html[data-local-role=admin] .tabs.g7-tabs button.tab-button.active,
+html[data-local-role=admin] .tabs.g7-tabs button.tab-button[aria-selected=true],
+html[data-local-role=admin] :is(#workspace,#modal-root,#drawer-root) .tabs>button.tab-button.active,
+html[data-local-role=admin] :is(#workspace,#modal-root,#drawer-root) .tabs>button.tab-button[aria-selected=true],
+html[data-local-role=admin] :is(#workspace,#modal-root,#drawer-root) .tabs>button.tab-button[aria-pressed=true]{
+  border-color:transparent!important;
+  border-bottom-color:#0d3b32!important;
+  border-bottom-width:2px!important;
+  background:transparent!important;
+  color:#0d3b32!important;
+  box-shadow:none!important;
+}
+html[data-local-role=admin] .r37f-stack-label{
+  display:block;
+  margin:0 0 7px;
+  color:#45665a;
+  font-size:12px;
+  font-weight:650;
+}
+html[data-local-role=admin] .r38-revoke-hint{
+  display:block;
+  margin-top:5px;
+  color:#7c8f86;
+  font-size:10px;
+  line-height:1.45;
+  white-space:normal;
+}
+html[data-local-role=admin] .r38-revoke-hint.revocable{
+  color:#4f7d3f;
+}
+html[data-local-role=admin] .r38-coupon-summary{
+  min-width:1120px;
+}
+html[data-local-role=admin] .r38-coupon-summary th,
+html[data-local-role=admin] .r38-coupon-summary td{
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+html[data-local-role=admin] .r38-coupon-summary tr:first-child th{
+  background:#eaf2ed!important;
+}
+html[data-local-role=admin] .r38-coupon-summary tr:nth-child(2) th{
+  background:#f5f8f6!important;
+  font-size:11px!important;
+}
+html[data-local-role=admin] .r38-coupon-number{
+  min-width:42px;
+  border:0!important;
+  background:transparent!important;
+  color:#0d7664!important;
+  font-weight:700!important;
+}
+html[data-local-role=admin] .r38-invite-dependent[hidden]{
+  display:none!important;
+}
+html[data-local-role=admin] .r38-binding-coupon{
+  min-height:38px;
+  padding:7px 11px;
+  border:1px solid #c8d9d4;
+  border-radius:7px;
+  background:#fff;
+  color:#294f43;
+  text-align:left;
+}
+html[data-local-role=admin] .r38-binding-coupon small{
+  display:block;
+  color:#7c9188;
+  font-size:10px;
+}
+html[data-local-role=admin] .r38-binding-image{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:150px;
+}
+html[data-local-role=admin] .r38-binding-image img{
+  width:72px;
+  height:72px;
+  border:1px solid #dce7e1;
+  border-radius:9px;
+  object-fit:cover;
+}
+html[data-local-role=admin] .r38-coupon-search{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+html[data-local-role=admin] .r38-coupon-search span{
+  flex:0 0 auto;
+  color:#45665a;
+  font-size:12px;
+  font-weight:650;
+}
+html[data-local-role=admin] .r38-coupon-search input{
+  width:min(360px,100%);
+  min-height:36px;
+}
+html[data-local-role=admin] .r38-coupon-picker{
+  width:100%;
+  min-width:720px;
+}
+html[data-local-role=admin] .r38-coupon-picker th,
+html[data-local-role=admin] .r38-coupon-picker td{
+  text-align:center!important;
+  vertical-align:middle!important;
+  white-space:nowrap;
+}
+html[data-local-role=admin] .r38-coupon-picker tr.on td{
+  background:#f1f7f2;
+}
+html[data-local-role=admin] .r38-coupon-picker .button{
+  min-width:76px;
+}
+html[data-local-role=admin] .r38-coupon-picker-empty td{
+  padding:28px 12px!important;
+  color:#82948b;
+}
+html[data-local-role=admin] .a37-intro-field{
+  grid-column:1/-1!important;
+}
+html[data-local-role=admin] .a37-intro-field textarea{
+  width:100%;
+  min-height:96px;
+  padding:10px 12px;
+  border:1px solid #c8d9d4;
+  border-radius:8px;
+  resize:vertical;
+  font:inherit;
+  line-height:1.7;
+  color:#24443b;
+  background:#fff;
+}
+html[data-local-role=admin] .r38-award-limit{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  white-space:nowrap;
+}
+/* r38 reference artwork and route-scoped composition. */
+html[data-local-role=mini] #stage .r38v-activities,
+html[data-local-role=mini] #stage .r38v-detail,
+html[data-local-role=mini] #stage .r38v-assets{background:#fff;color:#123e2f;min-height:calc(100vh - 80px)}
+html[data-local-role=mini] #stage .r38v-activities{padding:16px 14px 30px}
+html[data-local-role=mini] .r38v-activities .r37c-activity-tabs{display:flex;gap:8px;overflow:auto;padding:0 0 18px;background:#fff;scrollbar-width:none}
+html[data-local-role=mini] .r38v-activities .r37c-activity-tabs button{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;border:1px solid #e6e9e4;background:#fff;color:#5b625e;border-radius:28px;padding:10px 14px;font-size:13px;white-space:nowrap}
+html[data-local-role=mini] .r38v-activities .r37c-activity-tabs button.on{background:linear-gradient(120deg,#8bab3c,#4e8509);color:white;border-color:transparent}
+.r38v-tab-icon{font-style:normal;font-size:18px;line-height:1}
+html[data-local-role=mini] #stage .r38v-activities .r37-activity-card{display:block;text-align:left;width:100%;border:1px solid #f0f2ef;background:#fff;border-radius:24px;padding:20px 16px 12px;margin:0 0 18px;box-shadow:0 3px 15px #324b2410;box-sizing:border-box;color:#25332b}
+html[data-local-role=mini] .r38v-activities .r37f-card-badges{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html[data-local-role=mini] .r38v-activities .r37f-card-badges>span{font-size:12px;padding:6px 10px;background:#f1f6eb;color:#60862e;border-radius:16px}
+html[data-local-role=mini] .r38v-activities .r37f-card-badges>span:last-child{font-weight:600}
+html[data-local-role=mini] .r38v-activities h2{display:flex;align-items:center;gap:7px;font-size:21px!important;line-height:1.4;margin:15px 0 10px!important;color:#18281e;overflow-wrap:anywhere}
+.r38v-activity-thumb{width:38px;height:34px;object-fit:contain;flex-shrink:0}
+html[data-local-role=mini] .r38v-activities .r37f-intro{color:#929891;font-size:12px;line-height:1.8;margin:0 0 20px;min-height:20px}
+html[data-local-role=mini] .r38v-activities .r37f-activity-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0;margin:0!important}
+html[data-local-role=mini] .r38v-activities .r37f-activity-grid>div{position:relative;padding:16px 6px 16px 30px!important;border:0;border-top:1px solid #f0f1ee;background:none!important;border-radius:0!important;min-width:0}
+html[data-local-role=mini] .r38v-activities .r37f-activity-grid>div:nth-child(even):after{content:'';position:absolute;left:0;top:18px;height:38px;border-left:1px solid #eee}
+.r38v-field-icon{position:absolute;left:0;top:17px;width:25px;height:25px;object-fit:contain}
+html[data-local-role=mini] .r38v-activities .r37f-activity-grid dt{font-size:11px;color:#91968f;margin:0 0 6px}
+html[data-local-role=mini] .r38v-activities .r37f-activity-grid dd{font-size:11px;line-height:1.8;color:#535d55;overflow-wrap:anywhere;margin:0}
+html[data-local-role=mini] #stage .r38v-detail{padding:14px 16px 34px}
+html[data-local-role=mini] .r38v-detail>header{position:relative;padding:12px 0 94px!important;min-height:175px;box-sizing:border-box;margin:0;background:white;isolation:isolate}
+html[data-local-role=mini] .r38v-detail .r37c-detail-badges{display:flex;gap:6px;position:relative;z-index:1;max-width:65%;flex-wrap:wrap}
+html[data-local-role=mini] .r38v-detail .r37c-detail-badges>span{font-size:12px;padding:7px 10px;background:#eff8e9;border-radius:22px;color:#53801d;white-space:nowrap}
+html[data-local-role=mini] .r38v-detail>header h1{font-size:27px!important;line-height:1.3;margin:15px 0 0;max-width:70%;position:relative;z-index:1;overflow-wrap:anywhere;color:#10412e}
+.r38v-detail-art{position:absolute;right:-7px;bottom:0;width:49%;max-height:160px;object-fit:contain;z-index:-1}
+html[data-local-role=mini] .r38v-detail .r37c-detail-info{display:block!important;border:2px solid #eef7ef;border-radius:22px;background:#fff;padding:0 12px!important;margin:0 0 18px;box-shadow:none}
+html[data-local-role=mini] .r38v-detail .r37c-detail-info>div{display:block;position:relative;padding:17px 0 17px 51px!important;border:0;border-bottom:1px solid #e7f0e9!important;border-radius:0;background:transparent!important;min-width:0;min-height:70px;box-sizing:border-box}
+html[data-local-role=mini] .r38v-detail .r37c-detail-info>div:last-child{border-bottom:0!important}
+.r38v-detail-icon{position:absolute;left:0;top:17px;width:39px;height:39px;object-fit:contain}
+html[data-local-role=mini] .r38v-detail .r37c-detail-info>div>span{display:block;color:#10412e;font-size:15px;font-weight:650;margin:0 0 5px}
+html[data-local-role=mini] .r38v-detail .r37c-detail-info p{color:#53616a;font-size:13px;margin:0;line-height:1.7;overflow-wrap:anywhere}
+html[data-local-role=mini] .r38v-detail .r36n-back-activities{background:linear-gradient(110deg,#7da229,#588700)!important;color:#fff!important;border:0!important;border-radius:26px;width:100%;padding:15px;font-weight:600;margin:0}
+html[data-local-role=mini] #stage .r37f-water{padding:20px 18px 35px;background:#f9fcff}
+html[data-local-role=mini] .r37f-water section{border:1px solid #fbfdff;box-shadow:0 4px 20px #4f7f9d08;border-radius:19px;padding:18px;margin-bottom:17px}
+html[data-local-role=mini] .r37f-water .r37f-water-hero{grid-template-columns:31% 1fr;gap:14px;background:#f1f8ff;padding:20px 16px}
+html[data-local-role=mini] .r37f-water .r37f-glass{width:100%;height:auto;aspect-ratio:224/272;background:transparent;border:0;box-shadow:none;border-radius:0;transform:none;overflow:visible;margin:0}
+html[data-local-role=mini] .r37f-glass:before,html[data-local-role=mini] .r37f-glass:after{display:none}
+.r37f-glass img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+html[data-local-role=mini] .r37f-water-hero strong{font-size:48px;line-height:1.15;color:#10191e;font-weight:750}
+html[data-local-role=mini] .r37f-water-hero p{font-size:13px;color:#647078}
+html[data-local-role=mini] .r37f-water-hero small{font-size:11px;color:#a2adb5;margin:5px 0 13px}
+html[data-local-role=mini] .r37f-water-progress{height:7px;border-radius:8px;overflow:visible;position:relative;background:#e1edf8}
+html[data-local-role=mini] .r37f-water-progress i{border-radius:8px;background:linear-gradient(90deg,#65b6fa,#5bb8f1);position:relative}
+.r37f-water-progress i:after{content:'●';position:absolute;right:-9px;top:-5px;background:white;color:#58b8ec;border-radius:50%;box-shadow:0 1px 7px #8aaac12b;width:18px;height:18px;font-size:10px;display:grid;place-items:center}
+html[data-local-role=mini] .r37f-water-form>label{font-size:13px;padding-bottom:18px;justify-content:space-between;gap:5px}
+html[data-local-role=mini] .r37f-water-form>label:before{content:'▦';font-size:25px;color:#85aa39}
+html[data-local-role=mini] .r37f-water-form>label input{border:0;padding:4px;font-size:12px;max-width:155px}
+html[data-local-role=mini] .r37f-water-presets{gap:7px;margin:22px 0}
+html[data-local-role=mini] .r37f-water-presets button{width:45px;height:48px;border-radius:50%;font-size:13px;color:#454c4f;flex:1;max-width:54px;padding:4px 0;background:white;border:1px solid #e7e9e7}
+html[data-local-role=mini] .r37f-water-presets button.on{background:#f6f9ed;border-color:#9fbe63;color:#8aaa39;font-weight:700;transform:scale(1.08)}
+html[data-local-role=mini] .r37f-water-presets button.on:not(:last-child){font-size:19px}
+html[data-local-role=mini] .r37f-water-presets small{font-weight:400;font-size:11px}
+html[data-local-role=mini] .r37f-water-custom{margin:0 0 16px;gap:8px}
+html[data-local-role=mini] .r37f-water-custom input{background:#f9fbfd;border-color:#eaf0f2;padding:7px}
+html[data-local-role=mini] .r37f-water-save{font-size:16px;padding:14px;border-radius:30px;background:linear-gradient(100deg,#84a839,#a0bc67);color:#fff}
+html[data-local-role=mini] .r37f-water-history h2{font-size:16px;color:#131f22;margin:0 0 10px}
+html[data-local-role=mini] .r37f-water-history article{padding:16px 0;gap:10px}
+.r37f-water-history article>span img{display:block;width:32px;height:34px;object-fit:contain}
+html[data-local-role=mini] .r37f-water-history article b{font-size:15px;color:#151d20}
+html[data-local-role=mini] #stage .r38v-assets{padding:12px 14px 30px}
+html[data-local-role=mini] .r38v-assets .r36-page-head{position:relative;border-radius:17px;background:#f2f7ee!important;overflow:hidden;min-height:113px;box-sizing:border-box;padding:16px!important;margin:0 0 14px;isolation:isolate}
+html[data-local-role=mini] .r38v-assets .r36-page-head:before,html[data-local-role=mini] .r38v-assets .r36-page-head:after{display:none!important}
+.r38v-benefits-art{position:absolute;right:0;top:0;width:50%;height:100%;object-fit:cover;object-position:left center;z-index:-1}
+html[data-local-role=mini] .r38v-assets .r36-page-head>small{font-size:10px;letter-spacing:2px;color:#7d9b62;position:relative;z-index:1}
+html[data-local-role=mini] .r38v-assets .r36-page-head h1,html[data-local-role=mini] .r38v-assets .r36-page-head h2{font-size:24px;line-height:1.3;max-width:68%;margin:10px 0 0;color:#123c29;position:relative;z-index:1}
+html[data-local-role=mini] .r38v-assets .r36-asset-tabs{display:flex;background:#f4f8f4;border:0!important;padding:0;border-radius:25px;overflow:visible;margin:0 0 17px;gap:0}
+html[data-local-role=mini] .r38v-assets .r36-asset-tabs button{width:50%;position:relative;border:0!important;border-radius:24px;background:transparent;color:#6f8575;padding:11px 5px;font-size:15px}
+html[data-local-role=mini] .r38v-assets .r36-asset-tabs button.on{background:linear-gradient(110deg,#83a15b,#658b42);color:white}
+html[data-local-role=mini] .r38v-assets .r36-asset-tabs button.on:after{content:none;height:3px;width:23px;border-radius:4px;background:#7b9e5b;position:absolute;bottom:-7px;left:calc(50% - 12px)}
+html[data-local-role=mini] .r38v-assets .r36-asset-tabs button>b{background:transparent;color:inherit;font-weight:400;padding:0}
+html[data-local-role=mini] .r38v-assets .r33m-coupon-tabs{gap:7px;display:flex;margin-bottom:14px}
+html[data-local-role=mini] .r38v-assets .r33m-coupon-tabs button{border:1px solid #eff3ef;background:#f6f9f6;color:#707c73;border-radius:22px;padding:8px 13px;font-size:12px}
+html[data-local-role=mini] .r38v-assets .r33m-coupon-tabs button.on{background:#e2efd6;color:#40662c;border-color:#e2efd6}
+html[data-local-role=mini] .r38v-assets .r33m-coupon-tabs button>b{background:none;color:inherit;font-weight:400}
+html[data-local-role=mini] .r38v-assets .r33m-ticket{border:1px solid #e7f1e8;background:#fff;border-radius:13px;padding:7px;box-shadow:0 3px 9px #79986d0a;margin-bottom:10px;display:grid;grid-template-columns:28% minmax(0,1fr);overflow:hidden}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-amount{background:linear-gradient(110deg,#f2f8eb,#eaf3df);border:0;border-radius:8px;position:relative;padding:9px 4px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:0;min-width:0}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-amount:after{display:none}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-amount b{font-size:36px;color:#456d32;line-height:1.15}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-amount small{font-size:10px;background:#ffffff80;border:1px solid white;border-radius:12px;padding:3px 5px;white-space:normal;text-align:center;color:#577948;width:auto}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info{padding:9px 4px 5px 12px;min-width:0;position:relative;display:flex;flex-direction:column;gap:7px}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info header{padding-right:39px;min-width:0}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info h2,html[data-local-role=mini] .r38v-assets .r33m-ticket-info h3{font-size:14px;line-height:1.5;margin:0;overflow-wrap:anywhere;color:#163c29}
+html[data-local-role=mini] .r38v-assets .r37f-usage-badge{position:absolute;right:1px;top:9px;background:#eef6e7;color:#577c3b;padding:4px 6px;border-radius:15px;font-size:9px;white-space:nowrap}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info p{font-size:11px;color:#94a0a5;line-height:1.5;margin:0}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info footer{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;font-size:9px;color:#91a1a6;margin-top:auto}
+html[data-local-role=mini] .r38v-assets .r33m-ticket-info button,html[data-local-role=mini] .r38v-assets .r36-meal-card footer button{background:linear-gradient(110deg,#789c4d,#567e37);color:white;border:0;border-radius:20px;font-size:11px;padding:8px 12px;white-space:nowrap}
+html[data-local-role=mini] .r38v-assets .r36-meal-card{border:1px solid #e8f1e5;background:#fff;border-radius:20px;box-shadow:0 3px 13px #819c680b}
+html[data-local-role=mini] .r37h-intake .r29-target-entry{font-size:0}
+html[data-local-role=mini] .r37h-intake .r29-target-entry svg{width:21px;height:21px}
+html[data-local-role=mini] #stage .record-track .r25-record-summary.r38-plan-nutrition{display:grid;grid-template-columns:108px minmax(0,1fr);gap:14px 16px;padding:17px 16px 15px;overflow:hidden;border:1px solid #e6eee3;border-radius:21px;background:linear-gradient(145deg,#fff,#f9fcf7);box-shadow:0 6px 22px #365b3810;box-sizing:border-box}
+html[data-local-role=mini] .r38-plan-nutrition-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+html[data-local-role=mini] .r38-plan-nutrition-head>div{min-width:0}
+html[data-local-role=mini] .r38-plan-nutrition-head small,html[data-local-role=mini] .r38-plan-nutrition-head b{display:block}
+html[data-local-role=mini] .r38-plan-nutrition-head small{margin:0 0 3px;color:#8a9a8f;font-size:10px;letter-spacing:1px}
+html[data-local-role=mini] .r38-plan-nutrition-head b{color:#173c2c;font-size:16px;line-height:1.35}
+html[data-local-role=mini] .r38-plan-nutrition-title{display:block;max-width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left}
+html[data-local-role=mini] .r38-plan-nutrition-title span{display:inline-flex;margin:3px 0 0;color:#789083;font-size:9px;font-weight:400}
+html[data-local-role=mini] .r38-plan-nutrition-head>.r38-plan-target-action{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:3px;min-height:32px;padding:6px 10px;border:1px solid #d9e6d2;border-radius:17px;background:#f2f8ed;color:#527b18;font:600 11px/1.2 "Microsoft YaHei",Arial,sans-serif;white-space:nowrap}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring{width:108px;height:108px;overflow:hidden;border-radius:50%;background:conic-gradient(#78aa1c var(--r25-pct),#eaf2e5 0)}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring:after{inset:9px;border-radius:50%;background:#fff}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring>div{z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:86px;min-width:0;background:transparent;text-align:center}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring span{margin:0 0 4px;color:#60756a;font-size:11px}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring b{max-width:100%;color:#0d5a3c;font-size:27px;line-height:1.05;overflow-wrap:anywhere}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring small{margin-top:3px;color:#96a49b;font-size:10px}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-ring.over b{color:#bd674a}
+html[data-local-role=mini] .r38-plan-nutrition .r25-record-macros{display:grid;align-content:center;gap:9px;min-width:0}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:8px;min-width:0}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-icon{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#edf5e7;color:#668f23}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-icon svg{width:15px;height:15px}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail,html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail>div{min-width:0}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail>div{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:4px}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail span{color:#62756a;font-size:11px}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail b{color:#24483a;font-size:11px;font-weight:600;white-space:nowrap}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail>i{display:block;height:5px;overflow:hidden;border-radius:5px;background:#eef2eb}
+html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail>i em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#9cbd49,#6f991d)}
+@media(max-width:350px){html[data-local-role=mini] #stage .record-track .r25-record-summary.r38-plan-nutrition{grid-template-columns:92px minmax(0,1fr);gap:12px;padding:15px 12px 13px}html[data-local-role=mini] .r38-plan-nutrition .r37d-ring{width:92px;height:92px}html[data-local-role=mini] .r38-plan-nutrition .r37d-ring>div{width:72px}html[data-local-role=mini] .r38-plan-nutrition .r37d-ring b{font-size:23px}html[data-local-role=mini] .r38-plan-nutrition-head b{font-size:14px}html[data-local-role=mini] .r38-plan-nutrition-head>.r38-plan-target-action{padding:6px 8px;font-size:10px}html[data-local-role=mini] .r38-plan-nutrition .r37d-macro{grid-template-columns:20px minmax(0,1fr);gap:6px}html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-icon{width:20px;height:20px}html[data-local-role=mini] .r38-plan-nutrition .r37d-macro-detail b{font-size:10px}}
+@media(max-width:340px){html[data-local-role=mini] .r38v-detail>header h1{font-size:23px!important}html[data-local-role=mini] .r38v-assets .r36-page-head h1{font-size:21px}html[data-local-role=mini] .r38v-assets .r33m-ticket-info{padding-left:8px}html[data-local-role=mini] .r38v-activities .r37f-activity-grid dd{font-size:10px}html[data-local-role=mini] .r37f-water-hero strong{font-size:39px}}
+html[data-local-role=mini] #stage .r38v-detail .r37c-detail-info>div{display:block!important}
+html[data-local-role=mini] #stage .r38v-detail .r37c-detail-info>div>span{display:block;flex:none;width:auto;max-width:none;font-size:15px}
+html[data-local-role=mini] #stage .r38v-detail .r37c-detail-info>div>p{display:block;font-size:13px;line-height:1.7}
+html[data-local-role=mini] #stage .r38v-assets .r36-page-head>.r36v-art{display:none!important}
+html[data-local-role=mini] .r38v-activities .r37c-activity-tabs button:before{display:none!important}
+/* Field choices are segmented options; view navigation remains underlined tabs. */
+html[data-local-role=admin] select.x38-choice-native {display:none!important}
+html[data-local-role=admin] .x38-options {display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:3px;border:1px solid #dce4df;background:#f5f8f6;min-height:36px;width:max-content;max-width:100%;border-radius:8px;box-sizing:border-box}
+html[data-local-role=admin] .x38-options>button {appearance:none;height:30px;border:0;border-radius:6px;box-shadow:none;background:transparent;color:#65776e;padding:0 11px;line-height:1.4;font-size:12px;white-space:nowrap}
+html[data-local-role=admin] .x38-options>button.on {color:white;background:#274934;box-shadow:none;font-weight:600}
+html[data-local-role=admin] .x38-filter-options>button.on {background:#0c3d33}
+html[data-local-role=admin] .x38-options>button:focus-visible {outline:2px solid #6e992e;outline-offset:-2px}
+html[data-local-role=admin] .x38-options>button:disabled {opacity:.5}
+html[data-local-role=admin] .r37-growth-filters>label {min-width:160px;flex:0 1 auto;width:max-content;max-width:100%;display:flex;flex-direction:column;gap:7px;align-items:stretch}
+html[data-local-role=admin] .r37-growth-filters {display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px}
+html[data-local-role=admin] .r37-growth-filters .x38-options {flex-wrap:nowrap;max-width:100%}
+html[data-local-role=admin] .g16-picker-filters {flex-wrap:wrap}
+html[data-local-role=admin] .g16-picker-table {overflow:auto}
+html[data-local-role=admin] .g16-picker-table table {min-width:1030px}
+html[data-local-role=admin] .g16-picker-table td {white-space:normal;min-width:90px}
+
+html[data-local-role=admin] .x38-code-filter {display:flex;flex-direction:column;gap:7px;align-items:stretch;width:180px;max-width:100%;font-size:12px;font-weight:600;color:#62776a}
+html[data-local-role=admin] .x38-code-filter input {display:block;width:100%;min-width:0;height:36px;border:1px solid #cfded4;border-radius:8px;background:white;padding:0 11px;color:#244c39;box-sizing:border-box;font-size:12px;font-weight:400}
+html[data-local-role=admin] .x38-code-filter input:focus {outline:2px solid #8ab85a55;border-color:#71994e}
+html[data-local-role=admin] .x38-code-filter input::placeholder {color:#94a397}
+html[data-local-role=admin] .r37-growth-filters .r33-filter-text-row {display:flex!important;flex-wrap:wrap!important;align-items:flex-end!important;gap:14px!important;max-width:100%;min-width:0}
+html[data-local-role=admin] .r37-growth-filters .r33-filter-text-row>label {flex:0 1 auto!important;width:max-content!important;min-width:max-content!important;max-width:100%!important}
+html[data-local-role=admin] .r37-growth-filters .x38-options {width:max-content!important;max-width:100%!important;flex-wrap:wrap!important}
+html[data-local-role=admin] .g6-confirm {z-index:2147483000!important}

@@ -1,0 +1,5 @@
+html[data-local-role="admin"] table.data-table th.g22-person,
+html[data-local-role="admin"] table.data-table td.g22-person{min-width:150px!important;width:auto!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;text-align:center!important}
+html[data-local-role="admin"] td.g22-person small{display:block;margin-top:6px;color:var(--muted);font-size:11px}
+#modal-root .g20-calendar{width:100%;max-width:none;box-sizing:border-box}
+.g21-nutrition-table td:has([data-g21-nutrient="name"]){min-width:190px}

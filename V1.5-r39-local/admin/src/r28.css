@@ -1,0 +1,22 @@
+html[data-local-role="admin"] .r26-switch span{display:none!important}
+html[data-local-role="admin"] .r26-status-cell .r3-badge,html[data-local-role="admin"] .r26-name-status .r3-badge{display:none!important}
+html[data-local-role="admin"] .g6-filters .toolbar-group,html[data-local-role="admin"] .g20-filter-row{align-items:flex-end!important;justify-content:flex-start!important}
+html[data-local-role="admin"] .g6-table-shell>.toolbar-stack{margin-bottom:16px}
+html[data-local-role="admin"] .g8-table-actions-left{justify-content:flex-start!important}
+html[data-local-role="admin"] .r28-choice-row{display:flex;gap:6px;flex-wrap:wrap;padding:3px;border:1px solid #dde4df;border-radius:8px;background:#f6f8f6}
+html[data-local-role="admin"] .r28-choice-row button{height:30px;padding:0 11px;border:0;border-radius:6px;background:transparent;color:#667168;font:12px "Microsoft YaHei",Arial}
+html[data-local-role="admin"] .r28-choice-row button.on{background:#274934;color:#fff}
+html[data-local-role="admin"] .g6-filters .r28-choice-row{display:none!important}
+html[data-local-role="admin"] .r28-form-switch{display:flex;align-items:center;gap:9px;min-height:38px;padding:0 10px;border:1px solid #dce3df;border-radius:8px}
+html[data-local-role="admin"] .r28-form-switch>input{position:absolute;opacity:0}
+html[data-local-role="admin"] .r28-form-switch>i{width:34px;height:19px;border-radius:99px;background:#c9d0cc;position:relative}
+html[data-local-role="admin"] .r28-form-switch>i:after{content:"";position:absolute;width:15px;height:15px;left:2px;top:2px;background:#fff;border-radius:50%}
+html[data-local-role="admin"] .r28-form-switch>input:checked+i{background:#2f6a48}
+html[data-local-role="admin"] .r28-form-switch>input:checked+i:after{left:17px}
+html[data-local-role="admin"] .r28-invite-info{display:flex;align-items:stretch;gap:0;overflow-x:auto;margin:0 0 14px;padding:12px 14px;border:1px solid #dfe5e0;border-radius:9px;background:#fff}
+html[data-local-role="admin"] .r28-invite-info div{flex:1 0 auto;min-width:108px;padding:0 13px;border-right:1px solid #edf0ed}
+html[data-local-role="admin"] .r28-invite-info div:last-child{border:0}
+html[data-local-role="admin"] .r28-invite-info span{display:block;font-size:10px;color:#87918a}
+html[data-local-role="admin"] .r28-invite-info b{display:block;margin-top:4px;font-size:12px;color:#27332c;white-space:nowrap}
+html[data-local-role="admin"] .g20-filter-row{margin-bottom:14px}
+@media(max-width:900px){html[data-local-role="admin"] .r28-invite-info{min-width:760px}}
