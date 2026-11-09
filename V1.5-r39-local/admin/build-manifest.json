@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "admin",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-02T08:32:23.030Z",
+  "generatedAt": "2026-11-09T08:18:25.384Z",
   "artifact": {
     "file": "dist/渡鸦管家-后台.html",
-    "bytes": 32684806,
-    "sha256": "BBAAD1A8CCFFAD0A735DCBF930B3C2BD23AFD2802D8972F803169C64CCEDB92C"
+    "bytes": 32686789,
+    "sha256": "342A91251B7B35C25D206D7E0408A43A60C70AC1E18B15651936FE2B01B388A5"
   },
   "sourceFiles": [
     {
@@ -376,8 +376,8 @@
     },
     {
       "path": "src/growth-r37.js",
-      "bytes": 35618,
-      "sha256": "37C1DF0AF9FFFA37B14886986724A55FB21E6B98A0A05D7AB6C314DF83E493A2"
+      "bytes": 36757,
+      "sha256": "42E5EF2A0B1D01FB71E3AA3F353A66A38EAA70C407778980BA06E28C71720E38"
     },
     {
       "path": "src/growth-r38-admin.js",
@@ -581,8 +581,8 @@
     },
     {
       "path": "src/r39-admin.css",
-      "bytes": 554,
-      "sha256": "B03ED1DFF65C4747F54BEBA319E52CE17A1648565427FD86A25F04DE39FC3415"
+      "bytes": 1398,
+      "sha256": "E3785CB1EB49AC3CAD40035385B831EE03B315ED92BD1344BF66222B63C5B0F2"
     },
     {
       "path": "src/storage-r37.js",

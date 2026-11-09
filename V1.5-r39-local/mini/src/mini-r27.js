@@ -154,8 +154,8 @@
     const foodImageMap={主食:'grain.png',肉蛋奶:'meal-1.jpg',蔬菜:'meal-2.jpg',水果:'goal-food.png',汤羹:'noodle.png',饮品:'water-glass.jpg',套餐菜品:'shop-salad.png'};
     const foodImage=food=>assetImg('assets/'+(food?.image||foodImageMap[food?.cat]||'shop-salad.png'),'r27-food-image');
     SCREENS.dietSearch.render=function(){
-      const keyword=(V15().foodKeyword||'').trim(),category=V15().foodCat||'全部',view=V15().foodView==='收藏'?'收藏':'最近',categories=['全部','主食','肉蛋奶','蔬菜','水果','汤羹','饮品','套餐菜品'],recent=V15().recentFoods||[];
-      let foods=V15_FOODS.filter(food=>(category==='全部'||food.cat===category)&&(!keyword||food.name.includes(keyword)));
+      const keyword=(V15().foodKeyword||'').trim(),storedCategory=V15().foodCat||'最近',category=storedCategory==='全部'?'最近':storedCategory,view=V15().foodView==='收藏'?'收藏':'最近',categories=['最近','主食','肉蛋奶','蔬菜','水果','汤羹','饮品','套餐菜品'],recent=V15().recentFoods||[];
+      let foods=V15_FOODS.filter(food=>(category==='最近'?recent.includes(food.name):food.cat===category)&&(!keyword||food.name.includes(keyword)));
       if(view==='最近')foods=[...foods].sort((a,b)=>{
        const ai=recent.indexOf(a.name),bi=recent.indexOf(b.name);
        if(ai<0&&bi<0)return 0;

@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "mini",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-02T07:35:20.906Z",
+  "generatedAt": "2026-11-09T08:18:25.574Z",
   "artifact": {
     "file": "dist/渡鸦管家-小程序.html",
-    "bytes": 43674941,
-    "sha256": "3B3A2BC7D283656E28830B01FF6D75F16C879EF429594D85A126D006B2377E56"
+    "bytes": 43675937,
+    "sha256": "07ADCE97BCB7784DDFD1A647DE8035CEE0B606BCA38F8A35086A8A06B4C24B9C"
   },
   "sourceFiles": [
     {
@@ -766,8 +766,8 @@
     },
     {
       "path": "src/mini-r27.js",
-      "bytes": 21149,
-      "sha256": "9DFC8A7FF7E9B0166D5E955263829D417A82DB90DF81A48234158F359E63B3AB"
+      "bytes": 21240,
+      "sha256": "95C19C8BFB0465BDF30A4A7A8F87807F5963A59F8C75362FEE99AF0C14A06883"
     },
     {
       "path": "src/mini-r29.js",
@@ -846,13 +846,13 @@
     },
     {
       "path": "src/mini-r38-diet.js",
-      "bytes": 16784,
-      "sha256": "DFCD3BED4E03FC1C37D73CCD8EF8D91CDAD3CBB6F9C78FEC47A1DD86EE0069D2"
+      "bytes": 16673,
+      "sha256": "8C76708E45B3E768BBCE7D429C5F17DACFBCA4EB552D2F7754913C2963286BDB"
     },
     {
       "path": "src/mini-r38.js",
-      "bytes": 8885,
-      "sha256": "4FA0D1E05C6E44C5B803496D47C20E8F1E808FFCB27EC971CB1EA1C4AF71D2C9"
+      "bytes": 9511,
+      "sha256": "BCFCA62DD6759EBF646B21A41379FD1567394E73176563C9D29F17A403037163"
     },
     {
       "path": "src/mini-r39-navigation.js",
@@ -1021,13 +1021,13 @@
     },
     {
       "path": "src/r38-diet.css",
-      "bytes": 19477,
-      "sha256": "8AC95FB37BF4A6B197D23C730BDEF4EA56E72814E183A2460367F2123C788E42"
+      "bytes": 19737,
+      "sha256": "A7A4731DDFAF55181C619D0D848C0A7B259AFA32E5E183B6FAAD283106E493A5"
     },
     {
       "path": "src/r38.css",
-      "bytes": 25023,
-      "sha256": "AE02B2079BEE1BF4244F4A09B0E3B2E7C5922504F54DFA2E0404A0F710B24D42"
+      "bytes": 25153,
+      "sha256": "B168A3BE54E305E58ADFF69B4286927233341AD1405CD9F20EDCB30BE62BFDC0"
     },
     {
       "path": "src/r39-navigation.css",

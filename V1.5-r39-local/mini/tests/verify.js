@@ -150,17 +150,38 @@ check('目录内无完全重复文件',new Set(hashes).size===hashes.length);
   check('日历图标打开日期弹窗',await page.locator('.r37-calendar-backdrop').count()===1);
   await page.locator('[data-r37-calendar-close]').click();
 
+  await page.evaluate(()=>window.__duya.state.v15.foodCat='全部');
   await go('dietSearch');
   const tools=await page.locator('.r27-food-tools').innerText();
   check('选食页仅显示最近和收藏',tools.includes('最近')&&tools.includes('收藏')&&!tools.includes('全部'));
   check('选食页录入改名自定义',tools.includes('自定义')&&!tools.includes('手填'));
   check('选食页移除拍照',await page.locator('[data-act="v15-photo-open"]').count()===0);
+  check('选食页左侧首个分类为最近',await page.locator('.r27-cats button').first().innerText()==='最近'&&await page.locator('.r27-cats button').first().evaluate(node=>node.classList.contains('on')));
+  check('旧全部分类自动按最近筛选',await page.evaluate(()=>{const recent=window.__duya.state.v15.recentFoods||[];return [...document.querySelectorAll('.r27-food-main')].every(node=>recent.includes(node.dataset.name));}));
   check('主食分类显示自定义',await page.locator('.r27-cats button').filter({hasText:'自定义'}).count()===1);
   check('食物列表不显示实物图',await page.locator('.r27-food-card .r27-food-image').count()===0);
+  await page.locator('[data-act="v15-custom-open"]').click();
+  await page.waitForSelector('.x38-custom');
+  check('自定义食物删除日期和餐次',await page.locator('.x38-custom [data-custom38="date"],.x38-custom [data-custom38="meal"]').count()===0);
+  await page.locator('[data-custom38="name"]').fill('线上自定义测试食物');
+  await page.locator('[data-custom38="grams"]').fill('120');
+  await page.locator('[data-act="x38-custom-save"]').click();
+  await page.waitForTimeout(120);
+  check('自定义食物继承当前日期餐次',await page.evaluate(()=>{const b=window.__duya.state.v15?.batch38;const row=window.R38DietUI.batch().rows.at(-1);return Boolean(row?.custom&&row.date&&row.meal);}));
   await page.evaluate(()=>window.R38DietUI.popup(window.R3.state.foods[0].id));
   await page.waitForSelector('.x38-portion');
   const portionText=await page.locator('.x38-portion').innerText();
   check('选择份量不显示ml估算演示提示',!portionText.includes('1ml≈1g')&&!portionText.includes('仅用于演示')&&await page.locator('.x38-ml-note').count()===0);
+  check('选择份量底部显示最近使用份量',await page.locator('.x38-recent-portion').count()===1&&await page.locator('.x38-recent-portion .x38-history button').first().innerText()==='100克');
+  await page.locator('[data-x38="quantity"]').fill('250');
+  await page.locator('.x38-recent-portion .x38-history button').first().click();
+  const recentSync=await page.evaluate(()=>({
+   quantity:Number(document.querySelector('[data-x38="quantity"]')?.value),
+   actual:document.querySelector('[data-x38-actual]')?.textContent||'',
+   kcal:Number(document.querySelector('[data-x38-value="kcal"]')?.textContent),
+   expectedKcal:Number(window.R3.state.foods[0].kcal)
+  }));
+  check('最近份量标签点击后同步数量和营养',recentSync.quantity===100&&Number.parseFloat(recentSync.actual)===100&&recentSync.actual.endsWith('克')&&Math.abs(recentSync.kcal-recentSync.expectedKcal)<0.11);
   await page.locator('[data-act="sheet-close"]').click();
 
   await go('coupons');
@@ -180,12 +201,15 @@ check('目录内无完全重复文件',new Set(hashes).size===hashes.length);
    check('奖励分类'+(index+1)+'图片正常加载',loaded);
   }
   check('奖励页无动态资源相对路径',await page.locator('img').evaluateAll(nodes=>nodes.every(node=>!(node.getAttribute('src')||'').startsWith('assets-r36-visual/')&&!(node.getAttribute('src')||'').startsWith('assets-r38-visual/'))));
+  await page.evaluate(()=>{const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';for(const activity of window.R3.state.activities37)activity.image=image;});
   await go('checkinActivities');
   check('活动列表直接显示卡片',await page.locator('.r37-activity-card').count()>0);
+  check('活动列表显示上传图片',await page.locator('.r38v-activity-photo').evaluateAll(nodes=>nodes.length>0&&nodes.every(node=>node.complete&&node.naturalWidth>0&&node.src.startsWith('data:image/'))));
   check('活动字段图标正常加载',await page.locator('.r38v-field-icon').evaluateAll(nodes=>nodes.length>0&&nodes.every(node=>node.complete&&node.naturalWidth>0&&node.src.startsWith('data:image/'))));
   await page.locator('.r37-activity-card').first().click();
   await page.waitForTimeout(160);
-  check('活动详情图片正常加载',await page.locator('.r38v-detail-art,.r38v-detail-icon').evaluateAll(nodes=>nodes.length>0&&nodes.every(node=>node.complete&&node.naturalWidth>0&&node.src.startsWith('data:image/'))));
+  check('活动详情显示上传图片',await page.locator('.r38v-detail-art').evaluateAll(nodes=>nodes.length===1&&nodes.every(node=>node.complete&&node.naturalWidth>0&&node.src.startsWith('data:image/'))));
+  check('活动详情图标正常加载',await page.locator('.r38v-detail-icon').evaluateAll(nodes=>nodes.length>0&&nodes.every(node=>node.complete&&node.naturalWidth>0&&node.src.startsWith('data:image/'))));
 
   await go('package');
   await page.locator('.shop-subnav [data-route="deliveryCalendar"]').click();

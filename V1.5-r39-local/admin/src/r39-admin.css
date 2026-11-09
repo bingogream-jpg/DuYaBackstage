@@ -22,3 +22,38 @@ html[data-local-role=admin] .r37f-tier-minimum{
   font-size:11px;
   white-space:nowrap;
 }
+html[data-local-role=admin] .a37-activity-image-field{
+  grid-column:1/-1;
+}
+html[data-local-role=admin] .a37-activity-image-control{
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) auto;
+  gap:12px;
+  align-items:center;
+}
+html[data-local-role=admin] .a37-activity-image-control>input{
+  min-width:0;
+}
+html[data-local-role=admin] .a37-activity-image-preview{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:54px;
+}
+html[data-local-role=admin] .a37-activity-image-preview img{
+  width:92px;
+  height:64px;
+  border-radius:9px;
+  object-fit:cover;
+  border:1px solid #dce7e1;
+}
+html[data-local-role=admin] .a37-activity-image-preview small{
+  max-width:240px;
+  color:#7b8e84;
+  line-height:1.6;
+}
+@media(max-width:900px){
+  html[data-local-role=admin] .a37-activity-image-control{
+    grid-template-columns:1fr;
+  }
+}

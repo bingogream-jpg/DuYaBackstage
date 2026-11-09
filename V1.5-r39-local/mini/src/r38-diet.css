@@ -343,6 +343,17 @@ html[data-local-role=mini] .x38-history{
   flex-wrap:wrap;
   gap:7px;
 }
+html[data-local-role=mini] .x38-recent-portion{
+  margin:14px 0 2px;
+  padding-top:13px;
+  border-top:1px solid #edf1e9;
+}
+html[data-local-role=mini] .x38-recent-portion>small{
+  display:block;
+  margin:0 0 8px;
+  color:#88988e;
+  font-size:10px;
+}
 html[data-local-role=mini] .x38-history button{
   padding:6px 9px;
   border:1px solid #e0e8de;

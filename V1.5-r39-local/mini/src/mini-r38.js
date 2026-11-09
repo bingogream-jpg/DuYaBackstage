@@ -79,8 +79,8 @@
    });
    list.querySelectorAll('.r37-activity-card').forEach(card=>{
     if(card.dataset.r38Visual)return;card.dataset.r38Visual='yes';
-    const title=card.querySelector('h2'),image=document.createElement('img');
-    image.className='r38v-activity-thumb';image.alt='';image.src=window.__offlineAsset(card.querySelector('.r37f-card-badges>span')?.textContent.includes('打卡')?'assets-r38-visual/activity-checkin.png':'assets-r38-visual/activity-invite.png');title?.prepend(image);
+    const title=card.querySelector('h2'),row=window.R37Mini?.query?.().find(item=>item.activity.id===card.dataset.id),activity=row?.activity,fallback=card.querySelector('.r37f-card-badges>span')?.textContent.includes('打卡')?'assets-r38-visual/activity-checkin.png':'assets-r38-visual/activity-invite.png',image=document.createElement('img');
+    image.className='r38v-activity-photo';image.alt=activity?.name||'活动图片';image.dataset.fallback=window.__offlineAsset(fallback);image.src=activity?.image||image.dataset.fallback;image.onerror=()=>{image.onerror=null;image.src=image.dataset.fallback};title?.before(image);
     const icons=['calendar','condition','reward','people'];
     card.querySelectorAll('.r37f-activity-grid>div').forEach((row,i)=>{const dt=row.querySelector('dt');if(dt)dt.textContent=dt.textContent.replace(/^[^\u4e00-\u9fff]+/,'');row.insertAdjacentHTML('afterbegin',visual('assets-r38-visual/icon-'+icons[i]+'.png','r38v-field-icon'));});
    });
@@ -88,7 +88,8 @@
   const detail=document.querySelector('#stage .r37-activity-detail');
   if(detail&&!detail.dataset.r38Visual){
    detail.dataset.r38Visual='yes';detail.classList.add('r38v-detail');
-   const header=detail.querySelector(':scope>header');header?.insertAdjacentHTML('beforeend',visual('assets-r38-visual/activity-hero.png','r38v-detail-art'));
+   const header=detail.querySelector(':scope>header'),row=window.R37Mini?.query?.().find(item=>item.activity.id===window.R37CommentsMini?.activityId),image=document.createElement('img');
+   image.className='r38v-detail-art';image.alt=row?.activity?.name||'活动图片';image.dataset.fallback=window.__offlineAsset('assets-r38-visual/activity-hero.png');image.src=row?.activity?.image||image.dataset.fallback;image.onerror=()=>{image.onerror=null;image.src=image.dataset.fallback};header?.append(image);
    const sections=[...detail.querySelectorAll('.r37c-detail-info')],first=sections[0];
    sections.slice(1).forEach(section=>{while(section.firstChild)first.append(section.firstChild);section.remove();});
    const icons={'活动简介':'intro','活动时间':'calendar','达标条件':'condition','参与进度':'progress','奖励内容':'reward','获奖人数':'people'};
