@@ -174,6 +174,14 @@ function packedInitial(){
   await page.locator('[data-action="a37-save"]').click();
   await page.waitForFunction(count=>window.R3.state.activities37.length===count+1,activityCountBefore);
   check('活动图片保存到活动数据',await page.evaluate(()=>{const item=window.R3.state.activities37.find(activity=>activity.name==='r39活动图片验证');return Boolean(item?.image?.startsWith('data:image/png;base64,'));}));
+  await page.locator('[name="r37GrowthName"]').fill('r39活动图片验证');
+  await page.locator('[data-action="r37-growth-find"]').click();
+  await page.waitForTimeout(120);
+  const newActivityRow=page.locator('.a37-table tbody tr').filter({hasText:'r39活动图片验证'});
+  check('用户活动表显示独立图片列',await page.locator('.a37-table thead th').filter({hasText:'活动图片'}).count()===1&&await newActivityRow.locator('.a37-activity-thumb').evaluate(async node=>{if(!node.complete)await new Promise(resolve=>node.addEventListener('load',resolve,{once:true}));return node.src.startsWith('data:image/png;base64,')&&node.naturalWidth>0;}));
+  await page.locator('[data-action="r37-growth-reset"]').click();
+  await page.waitForTimeout(120);
+  check('无图用户活动显示图片占位',await page.locator('.a37-table .a37-activity-noimg').count()>0);
   const legacyActivity=await page.evaluate(()=>{const item=window.R3.state.activities37.find(activity=>!activity.image);return item?{id:item.id,name:item.name,count:window.R3.state.activities37.length}:null;});
   check('存在无图历史活动用于兼容验证',Boolean(legacyActivity));
   await navigate(page,'user-growth');

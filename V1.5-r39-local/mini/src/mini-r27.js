@@ -153,8 +153,15 @@
 
     const foodImageMap={主食:'grain.png',肉蛋奶:'meal-1.jpg',蔬菜:'meal-2.jpg',水果:'goal-food.png',汤羹:'noodle.png',饮品:'water-glass.jpg',套餐菜品:'shop-salad.png'};
     const foodImage=food=>assetImg('assets/'+(food?.image||foodImageMap[food?.cat]||'shop-salad.png'),'r27-food-image');
+    const recentFallback=['香草鸡胸藜麦碗','糙米饭','鸡胸肉（煮）','西兰花（蒸）','苹果','无糖希腊酸奶'];
+    function recentFoodNames(){
+      const known=new Set(V15_FOODS.map(food=>food.name));
+      const historical=[...(r3Me()?.diet||[])].map((row,index)=>({row,index})).sort((a,b)=>String(b.row.date||'').localeCompare(String(a.row.date||''))||a.index-b.index).map(({row})=>row.name);
+      const explicit=V15().recentFoods||[];
+      return [...new Set([...historical,...explicit,...recentFallback].filter(name=>known.has(name)))].slice(0,30);
+    }
     SCREENS.dietSearch.render=function(){
-      const keyword=(V15().foodKeyword||'').trim(),storedCategory=V15().foodCat||'最近',category=storedCategory==='全部'?'最近':storedCategory,view=V15().foodView==='收藏'?'收藏':'最近',categories=['最近','主食','肉蛋奶','蔬菜','水果','汤羹','饮品','套餐菜品'],recent=V15().recentFoods||[];
+      const keyword=(V15().foodKeyword||'').trim(),storedCategory=V15().foodCat||'最近',category=storedCategory==='全部'?'最近':storedCategory,view=V15().foodView==='收藏'?'收藏':'最近',categories=['最近','主食','肉蛋奶','蔬菜','水果','汤羹','饮品','套餐菜品'],recent=recentFoodNames(),categoryLabel=category==='主食'?'自定义':category,resultLabel=view==='收藏'?'收藏 · '+categoryLabel:categoryLabel;
       let foods=V15_FOODS.filter(food=>(category==='最近'?recent.includes(food.name):food.cat===category)&&(!keyword||food.name.includes(keyword)));
       if(view==='最近')foods=[...foods].sort((a,b)=>{
        const ai=recent.indexOf(a.name),bi=recent.indexOf(b.name);
@@ -167,7 +174,7 @@
       return '<div class="v15-page r27-food-page"><header class="r27-food-head"><button data-act="back">'+I('back')+'</button><div><small>FOOD LIBRARY</small><h1>选择食物</h1></div><span>'+(r27Flow().added?'本次已添加 '+r27Flow().added+' 项':'')+'</span></header>'+
         '<div class="r27-food-search"><input id="v15-food-kw" value="'+esc(keyword)+'" placeholder="搜索食物名称"><button data-act="v15-search">搜索</button></div>'+
         '<div class="r27-food-tools"><div class="r27-view-tabs">'+['最近','收藏'].map(value=>'<button class="'+(view===value?'on':'')+'" data-act="r2-food-view" data-value="'+value+'">'+value+'</button>').join('')+'</div><div class="r27-methods">'+[['v15-custom-open','自定义','edit'],['v15-barcode-open','扫码','scan']].map(([act,label,icon])=>'<button data-act="'+act+'">'+I(icon)+'<span>'+label+'</span></button>').join('')+'</div></div>'+
-        '<div class="r27-food-body"><nav class="r27-cats">'+categories.map(value=>'<button class="'+(value===category?'on':'')+'" data-act="v15-food-cat" data-cat="'+value+'">'+(value==='主食'?'自定义':value)+'</button>').join('')+'</nav><div class="r27-food-results">'+(foods.length?foods.map(food=>'<article class="r27-food-card">'+foodImage(food)+'<button class="r27-food-main" data-act="v15-food-pick" data-name="'+esc(food.name)+'"><b>'+esc(food.name)+'</b><small>'+v15Num(food.kcal)+' kcal/100g</small><em>碳 '+v15Num(food.carb,1)+' · 蛋 '+v15Num(food.protein,1)+' · 脂 '+v15Num(food.fat,1)+'</em></button><button class="r27-favorite '+(Boolean((V15().favoriteFoods||[]).includes(food.name))?'on':'')+'" data-act="r2-food-favorite" data-name="'+esc(food.name)+'" aria-label="收藏食物">'+(Boolean((V15().favoriteFoods||[]).includes(food.name))?'★':'☆')+'</button></article>').join(''):'<div class="r27-empty">没有找到食物，试试其他关键词。</div>')+'</div></div></div>';
+        '<div class="r27-food-body"><nav class="r27-cats">'+categories.map(value=>'<button class="'+(value===category?'on':'')+'" data-act="v15-food-cat" data-cat="'+value+'">'+(value==='主食'?'自定义':value)+'</button>').join('')+'</nav><div class="r27-food-results"><header class="r27-current-category" data-r27-category="'+esc(categoryLabel)+'"><b>'+esc(resultLabel)+'</b><small>'+foods.length+' 项</small></header>'+(foods.length?foods.map(food=>'<article class="r27-food-card">'+foodImage(food)+'<button class="r27-food-main" data-act="v15-food-pick" data-name="'+esc(food.name)+'"><b>'+esc(food.name)+'</b><small>'+v15Num(food.kcal)+' kcal/100g</small><em>碳 '+v15Num(food.carb,1)+' · 蛋 '+v15Num(food.protein,1)+' · 脂 '+v15Num(food.fat,1)+'</em></button><button class="r27-favorite '+(Boolean((V15().favoriteFoods||[]).includes(food.name))?'on':'')+'" data-act="r2-food-favorite" data-name="'+esc(food.name)+'" aria-label="收藏食物">'+(Boolean((V15().favoriteFoods||[]).includes(food.name))?'★':'☆')+'</button></article>').join(''):'<div class="r27-empty">没有找到食物，试试其他关键词。</div>')+'</div></div></div>';
     };
 
     function macroCard(key,label,target,mode){

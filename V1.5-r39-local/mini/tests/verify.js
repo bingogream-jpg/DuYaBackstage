@@ -157,7 +157,21 @@ check('目录内无完全重复文件',new Set(hashes).size===hashes.length);
   check('选食页录入改名自定义',tools.includes('自定义')&&!tools.includes('手填'));
   check('选食页移除拍照',await page.locator('[data-act="v15-photo-open"]').count()===0);
   check('选食页左侧首个分类为最近',await page.locator('.r27-cats button').first().innerText()==='最近'&&await page.locator('.r27-cats button').first().evaluate(node=>node.classList.contains('on')));
-  check('旧全部分类自动按最近筛选',await page.evaluate(()=>{const recent=window.__duya.state.v15.recentFoods||[];return [...document.querySelectorAll('.r27-food-main')].every(node=>recent.includes(node.dataset.name));}));
+  check('选食页左上角显示当前分类',await page.locator('.r27-current-category b').innerText()==='最近');
+  check('最近分类补齐兜底食物数据',await page.locator('.r27-food-main').count()>=6&&await page.locator('.r27-food-main').evaluateAll(nodes=>nodes.some(node=>node.dataset.name==='香草鸡胸藜麦碗')));
+  await page.evaluate(()=>{const user=window.R3.state.me;user._r39DietBackup=user.diet;user.diet=[...user.diet,{id:'R39-RECENT-1',name:'西兰花（蒸）',date:'2026-11-08',meal:'午餐'},{id:'R39-RECENT-2',name:'糙米饭',date:'2026-11-09',meal:'晚餐'}];});
+  await go('dietSearch');
+  check('最近分类优先显示历史饮食',await page.locator('.r27-food-main').first().getAttribute('data-name')==='糙米饭'&&await page.locator('.r27-food-main').nth(1).getAttribute('data-name')==='西兰花（蒸）');
+  await page.evaluate(()=>{const user=window.R3.state.me;user.diet=user._r39DietBackup||[];delete user._r39DietBackup;});
+  await go('dietSearch');
+  await page.locator('.r27-cats button').filter({hasText:'自定义'}).click();
+  check('切换分类后左上角标题同步',await page.locator('.r27-current-category b').innerText()==='自定义');
+  await page.locator('.r27-cats button').filter({hasText:'最近'}).click();
+  for(const width of [320,375,430]){
+   await page.setViewportSize({width,height:850});
+   check(width+'px选食分类标题无横向溢出',await page.locator('.r27-food-page').evaluate(node=>node.scrollWidth<=node.clientWidth+1));
+  }
+  await page.setViewportSize({width:375,height:850});
   check('主食分类显示自定义',await page.locator('.r27-cats button').filter({hasText:'自定义'}).count()===1);
   check('食物列表不显示实物图',await page.locator('.r27-food-card .r27-food-image').count()===0);
   await page.locator('[data-act="v15-custom-open"]').click();

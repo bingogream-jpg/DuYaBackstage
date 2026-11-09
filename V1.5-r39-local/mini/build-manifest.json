@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "mini",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-09T08:18:25.574Z",
+  "generatedAt": "2026-11-09T08:36:59.569Z",
   "artifact": {
     "file": "dist/渡鸦管家-小程序.html",
-    "bytes": 43675937,
-    "sha256": "07ADCE97BCB7784DDFD1A647DE8035CEE0B606BCA38F8A35086A8A06B4C24B9C"
+    "bytes": 43677262,
+    "sha256": "3B913A2832870C03D39F445F67642DD21696F487CF33FF6CFDD713E3C883D4C0"
   },
   "sourceFiles": [
     {
@@ -766,8 +766,8 @@
     },
     {
       "path": "src/mini-r27.js",
-      "bytes": 21240,
-      "sha256": "95C19C8BFB0465BDF30A4A7A8F87807F5963A59F8C75362FEE99AF0C14A06883"
+      "bytes": 22105,
+      "sha256": "7D674E7B0DFFF0425132537C73065D17EB5DF5899D22BDEE93E81EE01287AD19"
     },
     {
       "path": "src/mini-r29.js",
@@ -911,8 +911,8 @@
     },
     {
       "path": "src/r27.css",
-      "bytes": 26276,
-      "sha256": "9CF879DD63F5908F08DB130B379047FFAED6E61E0CD7BAFBC3C31B380879C360"
+      "bytes": 26736,
+      "sha256": "2E831627F901BCE032E6BBF87DE032280B195CB90891247BD6D4E5CA8638A975"
     },
     {
       "path": "src/r28.css",

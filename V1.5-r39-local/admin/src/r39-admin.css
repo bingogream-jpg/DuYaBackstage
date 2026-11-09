@@ -52,6 +52,29 @@ html[data-local-role=admin] .a37-activity-image-preview small{
   color:#7b8e84;
   line-height:1.6;
 }
+html[data-local-role=admin] .a37-activity-thumb{
+  display:block;
+  width:56px;
+  height:40px;
+  border:1px solid #dce7e1;
+  border-radius:8px;
+  background:#f4f7f5;
+  object-fit:cover;
+}
+html[data-local-role=admin] .a37-activity-noimg{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:56px;
+  height:40px;
+  border:1px dashed #d7e0dc;
+  border-radius:8px;
+  background:#f7f9f8;
+  color:#8b9a93;
+  font-size:10px;
+  line-height:1.3;
+  text-align:center;
+}
 @media(max-width:900px){
   html[data-local-role=admin] .a37-activity-image-control{
     grid-template-columns:1fr;
