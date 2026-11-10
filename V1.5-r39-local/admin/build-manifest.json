@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "admin",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-09T08:39:13.081Z",
+  "generatedAt": "2026-11-10T10:05:41.112Z",
   "artifact": {
     "file": "dist/渡鸦管家-后台.html",
-    "bytes": 32687709,
-    "sha256": "1E3C880EC92EE471D5CFD88480A9F783EDC20338E4026C3D69078BACC6A3855D"
+    "bytes": 40109633,
+    "sha256": "55C1C32DAA15E3BD0744BB40CB6D2629147546C0D704624242E9F76B32613DB2"
   },
   "sourceFiles": [
     {
@@ -58,6 +58,21 @@
       "path": "base/assets/package-cover-7day-premium.jpg",
       "bytes": 199129,
       "sha256": "642211407E3D20573F4DC6A4433CCC3ADE981364D4894ABC89EF10E7138C2FBB"
+    },
+    {
+      "path": "base/assets/recipe39-broccoli.png",
+      "bytes": 1972144,
+      "sha256": "0818FA0087816C47DDFE5C3FD5AEFF3CD47627F812BD1D5C25F8A8927F76814A"
+    },
+    {
+      "path": "base/assets/recipe39-chicken.png",
+      "bytes": 1769288,
+      "sha256": "9197E59857A1EE5D2F6836331C5344DB20BCF4D663511E3C04EB577D9EF8D129"
+    },
+    {
+      "path": "base/assets/recipe39-rice.png",
+      "bytes": 1791019,
+      "sha256": "E46BC4DA7AC80FE46E225CB9419C9DB625D5A134EE20AACF0E04F676BBE0196B"
     },
     {
       "path": "base/assets/vendor/xlsx.full.min.js",
@@ -235,9 +250,19 @@
       "sha256": "DEDC97D5ED3E31ABA5CC6B89E67AA3874A60A71D37E90BF6D2483AF388B36BDE"
     },
     {
+      "path": "src/engine-r39-mode.js",
+      "bytes": 13339,
+      "sha256": "19C30196BF7CB3DFE03A7020F7708F76D0D245411B324A284315799D2EE806E4"
+    },
+    {
+      "path": "src/engine-r39-recipes.js",
+      "bytes": 10449,
+      "sha256": "5861909D57829EDA9DFF0DF6381313DFB0A273D956F4F3B241E0479A65D4E580"
+    },
+    {
       "path": "src/growth-admin.js",
-      "bytes": 38590,
-      "sha256": "FD98C7B81E9F44593057323F79FF52A331BE2C695742ADE09A07A01088B84D26"
+      "bytes": 38619,
+      "sha256": "586BF855CDC3D87A195D06502DC6EA7F5AC7FBD9FF1026DF13779D91C571923B"
     },
     {
       "path": "src/growth-r10.js",
@@ -385,6 +410,11 @@
       "sha256": "47B0332216F635612846C4145C0DF383FA566C7A67F407F5FD828DAB40269317"
     },
     {
+      "path": "src/growth-r39-recipes.js",
+      "bytes": 16469,
+      "sha256": "FD313C2A64CC390B502BBDBD6CE3960678875EA038E010BCABE2DF8E3AA29434"
+    },
+    {
       "path": "src/growth-r7.js",
       "bytes": 25361,
       "sha256": "5E3EF62A8403357D41AB729E9B5316E199380A024052EF3A7F857EF6956FF99D"
@@ -416,8 +446,8 @@
     },
     {
       "path": "src/local-client.js",
-      "bytes": 13108,
-      "sha256": "E793B758E1CF1C176524FC504FE14348D443F3A1B245CC881098EC94B9F008F9"
+      "bytes": 13399,
+      "sha256": "F5836F04A1B9F4B8064DD7317FFD8C3DC49521226C59E1D9DFA1CEE38E1D468C"
     },
     {
       "path": "src/local.css",
@@ -585,6 +615,11 @@
       "sha256": "44A35CA5FD6E341449973072D022F0125C85C2728F5936AFDA165024C46FBAE3"
     },
     {
+      "path": "src/r39-recipes.css",
+      "bytes": 4572,
+      "sha256": "9DE138C8858922016C011E1C7B04F6F70CEE5495A6ADF3E5CC13AC4B4B92643C"
+    },
+    {
       "path": "src/storage-r37.js",
       "bytes": 1911,
       "sha256": "9FD965F64051C09DA88587E07AEE14F2922D090199910D7A8D57C19EF6E2775F"
@@ -596,8 +631,8 @@
     },
     {
       "path": "tools/build.js",
-      "bytes": 10265,
-      "sha256": "F236FA04083B11B55F66E01507EF8379130AD958060DB1F6BA2CC44D0B45879A"
+      "bytes": 10515,
+      "sha256": "99B9E54E2BEFC4F3A4E0F417597A214308CB5A12682098C4CFB303B5792B3A84"
     },
     {
       "path": "tools/user-codes.js",

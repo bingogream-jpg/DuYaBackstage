@@ -73,15 +73,56 @@ html[data-local-role=mini] .record-profile .r39-service-tool .row-tail{
   color:#aaa;
 }
 html[data-local-role=mini] .record-profile .r39-invite-card{
-  padding:16px;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:18px 16px 14px;
+  border:1px solid #fff;
+  border-radius:18px;
+  background:#f5f8ed;
+  box-shadow:0 3px 14px #48642809;
+}
+html[data-local-role=mini] .r39-invite-art{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  object-position:center right;
+  mask-image:linear-gradient(to bottom,#000 78%,transparent);
+  pointer-events:none;
+}
+html[data-local-role=mini] .r39-invite-copy{
+  width:70%;
+  min-width:0;
+}
+html[data-local-role=mini] .r39-invite-eyebrow{
+  display:inline-block;
+  padding:3px 12px;
+  border-radius:20px;
+  background:linear-gradient(110deg,#8bac33,#86af24);
+  color:#fff;
+  font-size:10px;
+  line-height:1.5;
+  letter-spacing:.4px;
+  white-space:nowrap;
 }
 html[data-local-role=mini] .record-profile .r39-invite-card .card-head{
   align-items:center;
-  margin-bottom:10px;
+  margin:9px 0 7px;
+}
+html[data-local-role=mini] .record-profile .r39-invite-card h3{
+  margin:0;
+  color:#203b24;
+  font-size:26px;
+  line-height:1.25;
+  font-weight:750;
+  letter-spacing:.4px;
 }
 html[data-local-role=mini] .r39-invite-intro{
-  margin:0 0 11px;
-  color:#52695d;
+  margin:0;
+  color:#7a8775;
   font-size:12px;
   line-height:1.7;
   overflow-wrap:anywhere;
@@ -92,29 +133,43 @@ html[data-local-role=mini] .r39-invite-footer{
   justify-content:space-between;
   gap:12px;
   min-width:0;
+  margin-top:16px;
 }
 html[data-local-role=mini] .r39-invite-footer>span{
-  color:#64756b;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  color:#293d2a;
   font-size:13px;
   white-space:nowrap;
 }
+html[data-local-role=mini] .r39-invite-footer>span svg{width:20px;height:20px;margin-right:3px;color:#7b9e2d;flex:none}
 html[data-local-role=mini] .r39-invite-footer>span b{
-  color:#668d26;
-  font-size:16px;
+  color:#85ab31;
+  font-size:20px;
 }
 html[data-local-role=mini] .r39-invite-entry{
   display:flex;
   align-items:center;
   justify-content:center;
   flex:0 0 auto;
-  min-height:38px;
-  padding:8px 18px;
+  gap:8px;
+  min-height:36px;
+  padding:8px 16px;
   border:0;
   border-radius:20px;
   background:linear-gradient(110deg,#8db42f,#6e9c17);
   color:#fff;
   font-size:13px;
   font-weight:650;
+}
+html[data-local-role=mini] .r39-invite-entry svg{width:12px;height:12px;flex:none}
+@media(max-width:350px){
+  html[data-local-role=mini] .record-profile .r39-invite-card{padding:15px 13px 13px}
+  html[data-local-role=mini] .r39-invite-copy{width:74%}
+  html[data-local-role=mini] .record-profile .r39-invite-card h3{font-size:24px}
+  html[data-local-role=mini] .r39-invite-intro{font-size:11px}
+  html[data-local-role=mini] .r39-invite-entry{padding:8px 12px}
 }
 html[data-local-role=mini] .track-met+.r29-diet{margin-top:16px}
 html[data-local-role=mini] .r39-invite-bind{

@@ -33,7 +33,9 @@
    const rules=inviteRules();
    const invite=document.createElement('section');
    invite.className='card r39-invite-card';
-   invite.innerHTML='<div class="card-head"><h3>邀请码活动</h3></div><p class="r39-invite-intro">'+e(rules.intro||'暂无活动简介')+'</p><div class="r39-invite-footer"><span>已邀请 <b>'+effectiveInvites()+'</b> 人</span><button type="button" class="r39-invite-entry" data-act="profile-quick" data-key="invite">立即邀请</button></div>';
+   const artwork=window.__offlineAsset('assets-r39-profile/invite-gift-banner.png');
+   invite.innerHTML='<div class="r39-invite-copy"><span class="r39-invite-eyebrow">邀请好友 · 共享健康</span><div class="card-head"><h3>邀请码活动</h3></div><p class="r39-invite-intro">'+e(rules.intro||'邀请好友加入，一起开启健康生活')+'</p></div><div class="r39-invite-footer"><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="7" r="3.2"/><path d="M2.5 20v-2a6.5 6.5 0 0 1 13 0v2M16 4a3.2 3.2 0 0 1 0 6.3M18 13a6 6 0 0 1 3.5 5.5V20"/></svg>已邀请 <b>'+effectiveInvites()+'</b> 人</span><button type="button" class="r39-invite-entry" data-act="profile-quick" data-key="invite">立即邀请<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 5 5-5 5"/></svg></button></div>';
+   invite.insertAdjacentHTML('afterbegin','<img class="r39-invite-art" src="'+e(artwork)+'" alt="" aria-hidden="true">');
    quick.after(invite);
   }
   const tools=[...box.querySelectorAll('.card')].find(card=>card.querySelector('.card-head h3')?.textContent.trim()==='更多工具');

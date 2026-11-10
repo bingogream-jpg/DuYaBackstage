@@ -1,0 +1,39 @@
+html[data-local-role=admin] .rr39-tabs{display:flex;gap:25px;border-bottom:1px solid #dce6e0;margin:12px 0 18px}
+html[data-local-role=admin] .rr39-tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#789084;font-size:14px;padding:10px 4px}
+html[data-local-role=admin] .rr39-tabs button.on{color:#144f3e;border-bottom-color:#61a363;font-weight:650}
+html[data-local-role=admin] .rr39-filters{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+html[data-local-role=admin] .rr39-field{display:flex;flex-direction:column;gap:8px;min-width:0;color:#365b4c;font-size:13px}
+html[data-local-role=admin] .rr39-field>span{font-weight:600}
+html[data-local-role=admin] .rr39-field input:not([type=radio]):not([type=checkbox]):not([type=file]),html[data-local-role=admin] .rr39-field select{width:100%;min-height:38px;border:1px solid #cadbd4;border-radius:7px;padding:8px 11px;background:#fff;color:#284e3e;font:inherit;box-sizing:border-box}
+html[data-local-role=admin] .rr39-filters>.rr39-field:first-child{width:200px}
+html[data-local-role=admin] .rr39-options{display:flex;flex-wrap:wrap;gap:0;padding:3px;background:#f1f6f3;border:1px solid #d9e5dd;border-radius:8px;min-height:38px;box-sizing:border-box}
+html[data-local-role=admin] .rr39-options label{position:relative;padding:6px 12px;border-radius:5px;color:#70877b;cursor:pointer;white-space:nowrap;font-size:12px}
+html[data-local-role=admin] .rr39-options label.on,html[data-local-role=admin] .rr39-options label:has(input:checked){background:#184f3f;color:#fff}
+html[data-local-role=admin] .rr39-options input[type=radio]{position:absolute;opacity:0;width:1px;height:1px}
+html[data-local-role=admin] .rr39-options label:focus-within{outline:2px solid #8daf62;outline-offset:1px}
+html[data-local-role=admin] .rr39-filter-buttons{display:flex;gap:8px}
+html[data-local-role=admin] .rr39-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-bottom:12px;border-bottom:1px solid #e0e9e3}
+html[data-local-role=admin] .rr39-scroll{overflow:auto}
+html[data-local-role=admin] .rr39-table{width:100%;min-width:820px;border-collapse:collapse;margin:0}
+html[data-local-role=admin] .rr39-table th,html[data-local-role=admin] .rr39-table td{padding:14px 12px;vertical-align:middle;text-align:center;border-bottom:1px solid #e4ece7}
+html[data-local-role=admin] .rr39-table small{display:block;color:#7e9486;font-size:11px;line-height:1.8}
+html[data-local-role=admin] .rr39-table .rr39-ops{position:sticky;right:0;background:#fff;white-space:nowrap;min-width:130px}
+html[data-local-role=admin] .rr39-table thead .rr39-ops{background:#f0f6ee}
+html[data-local-role=admin] .rr39-ops button+button{margin-left:6px}
+html[data-local-role=admin] .rr39-thumb,html[data-local-role=admin] .rr39-noimg{width:48px;height:48px;object-fit:contain;border-radius:8px;vertical-align:middle;margin-right:10px}
+html[data-local-role=admin] .rr39-noimg{display:inline-grid;place-items:center;background:#f0f5e9;color:#91a47d;font-size:11px}
+html[data-local-role=admin] .rr39-pager{display:flex;align-items:center;gap:8px;padding-top:15px;color:#779381;font-size:12px}
+html[data-local-role=admin] .rr39-pager span{margin-right:auto}
+html[data-local-role=admin] #rr39-form{padding-bottom:90px}
+html[data-local-role=admin] .rr39-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 24px}
+html[data-local-role=admin] .rr39-wide{grid-column:1/-1}
+html[data-local-role=admin] .rr39-image{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px;border:1px dashed #cddfcd;border-radius:10px}
+html[data-local-role=admin] .rr39-image small{font-size:11px;color:#839a86}
+html[data-local-role=admin] .rr39-slot{padding:20px 0;border-top:1px dashed #dbe5da;margin-top:18px}
+html[data-local-role=admin] .rr39-slot h3{color:#2b5b3c}
+html[data-local-role=admin] .rr39-slot>p{font-size:12px;color:#69856e;margin-top:18px}
+html[data-local-role=admin] .rr39-allowed{display:flex;flex-wrap:wrap;gap:12px 22px;padding:14px;background:#f6f9f1;border-radius:9px}
+html[data-local-role=admin] .rr39-allowed label{display:flex;gap:6px;align-items:center;font-size:12px;color:#5e795e}
+html[data-local-role=admin] .rr39-savebar{position:fixed;bottom:0;left:var(--sidebar,248px);right:0;z-index:100;display:flex;justify-content:flex-end;gap:10px;padding:14px 28px;background:#fff;border-top:1px solid #e0e9e4;box-shadow:0 -3px 16px #183f3105}
+html[data-local-role=admin] .rr39-savebar button{min-width:90px}
+@media(max-width:1000px){html[data-local-role=admin] .rr39-grid{gap:18px}}

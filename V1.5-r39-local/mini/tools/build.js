@@ -25,7 +25,7 @@ const commonJs=[
  'engine-r18.js','metrics-r19.js','engine-r20.js','data-r21.js',
  'invite-r23-data.js','engine-r25.js','engine-r26.js','engine-r28.js','engine-r31.js',
  'engine-r36.js','engine-r36-units.js','engine-r36-review.js','engine-r37.js',
- 'engine-r37-comments.js','engine-r37-followup.js','engine-r38.js','engine-r38-diet.js'
+ 'engine-r37-comments.js','engine-r37-followup.js','engine-r38.js','engine-r38-diet.js','engine-r39-mode.js','engine-r39-recipes.js'
 ];
 const demoJs=['demo.js','demo-r8.js','demo-r9.js','demo-r13.js','demo-r14.js','demo-r15.js','demo-r16.js','demo-r17.js','demo-r18.js','demo-r20.js','demo-diet-r33.js'];
 const commonCss=[
@@ -38,7 +38,7 @@ const miniJs=[
  'mini-r26.js','mini-r26.1.js','mini-r27.js','r29-slider.js','mini-r29.js','mini-r30.js',
  'mini-r31.js','mini-r33-refresh.js','mini-r35.js','mini-r36.js','mini-r36-visual.js',
  'mini-r36-refine.js','mini-r36-units.js','mini-r36-review.js','mini-r37.js',
- 'mini-r37-diet.js','mini-r37-home.js','mini-r37-followup.js','mini-r38.js','mini-r38-diet.js'
+ 'mini-r37-diet.js','mini-r37-home.js','mini-r37-followup.js','mini-r38.js','mini-r38-diet.js','mini-r39-recipes.js','mini-r39-mode.js'
 ];
 const miniRoleCss=['r33-mini-refresh.css','r33-comments.css','r35-mini.css','r36-mini.css','r36-visual.css','r36-refine.css','r36-units.css','r36-review.css','r37-diet.css','r37-home.css'];
 const append=(items)=>items.map(readSrc).join('\n');
@@ -118,7 +118,7 @@ html=html.replace(/<link\b([^>]*?)rel="stylesheet"([^>]*?)>/g,tag=>{
  return file?'<style>'+embed(readBase(file))+'</style>':tag;
 });
 const commonStyle=commonCss.map(readSrc).join('\n')+'\n'+miniRoleCss.map(readSrc).join('\n');
-const postStyle=readSrc('r37-comments.css')+'\n'+readSrc('r39-navigation.css');
+const postStyle=readSrc('r37-comments.css')+'\n'+readSrc('r39-navigation.css')+'\n'+readSrc('r39-recipes.css')+'\n'+readSrc('r39-mode.css');
 html=html.replace('</head>',()=>'<style>'+commonStyle+'</style><style data-r39-final-style>'+postStyle+'</style></head>');
 
 const legacyInitial=JSON.parse(readData('legacy-initial-state.json'));

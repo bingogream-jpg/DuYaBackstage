@@ -24,7 +24,7 @@ const commonJs=[
  'engine-r18.js','metrics-r19.js','engine-r20.js','data-r21.js',
  'invite-r23-data.js','engine-r25.js','engine-r26.js','engine-r28.js','engine-r31.js',
  'engine-r36.js','engine-r36-units.js','engine-r36-review.js','engine-r37.js',
- 'engine-r37-comments.js','engine-r37-followup.js','engine-r38.js','engine-r38-diet.js'
+ 'engine-r37-comments.js','engine-r37-followup.js','engine-r38.js','engine-r38-diet.js','engine-r39-mode.js','engine-r39-recipes.js'
 ];
 const demoJs=['demo.js','demo-r8.js','demo-r9.js','demo-r13.js','demo-r14.js','demo-r15.js','demo-r16.js','demo-r17.js','demo-r18.js','demo-r20.js','demo-diet-r33.js'];
 const commonCss=[
@@ -38,9 +38,9 @@ const adminJs=[
  'growth-r16.js','growth-r17.js','growth-r18.js','growth-r19.js','growth-r20.js','growth-r21.js',
  'growth-r22.js','growth-r24.js','growth-r26.js','growth-r28.js','growth-r31.js','growth-r32.js',
  'growth-r33.js','growth-r33-comments.js','growth-r35.js','growth-r36.js','growth-r36-units.js',
- 'growth-r36-review.js','growth-r37.js'
+ 'growth-r36-review.js','growth-r37.js','growth-r39-recipes.js'
 ];
-const adminRoleCss=['r33-comments.css','r35.css','r36.css','r36-refine.css','r36-units.css','r36-review.css','r39-admin.css'];
+const adminRoleCss=['r33-comments.css','r35.css','r36.css','r36-refine.css','r36-units.css','r36-review.css','r39-admin.css','r39-recipes.css'];
 const append=(items)=>items.map(readSrc).join('\n');
 
 let engine=readSrc('store-source.js')

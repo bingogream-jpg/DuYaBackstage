@@ -72,11 +72,11 @@ const storedUser=admin?'admin':localStorage.getItem('duya-local-r39-mini-user')|
 let user=admin?'admin':(['NEW','INV','REWARD'].includes(storedUser)?storedUser:'NEW');
 if(!admin)try{localStorage.setItem('duya-local-r39-mini-user',user);}catch(error){enterMemoryMode(error);}
 let state=null,busy=0,listeners=[],lastSavedRaw=null;
-function normalize(d){window.R20Data?.migrate(d);window.R25Data?.migrate(d);window.R26Data?.migrate(d);window.R31Data?.migrate(d);window.R36Data?.migrate(d);window.R36Measure?.migrate(d);window.R36Review?.migrate(d);window.R37Activities?.migrate(d);if([window.R37Followup?.migrate(d),window.R37CommentsData?.migrate(d),window.R38Data?.migrate(d)].some(Boolean))window.__R39_MIGRATION_DIRTY__=true;if(!d.r39Migration){d.r39Migration={version:1,at:new Date().toISOString()};window.__R39_MIGRATION_DIRTY__=true;}for(const u of d.users)for(const r of u.rewards)if(r.type==='coupon'&&!r.name)r.name=d.templates.find(t=>t.id===r.config?.couponId)?.name||'优惠券奖励';return d;}
+function normalize(d){if(window.R39Recipes?.migrate(d))window.__R39_MIGRATION_DIRTY__=true;if(window.R39PlanMode?.migrate(d))window.__R39_MIGRATION_DIRTY__=true;window.R20Data?.migrate(d);window.R25Data?.migrate(d);window.R26Data?.migrate(d);window.R31Data?.migrate(d);window.R36Data?.migrate(d);window.R36Measure?.migrate(d);window.R36Review?.migrate(d);window.R37Activities?.migrate(d);if([window.R37Followup?.migrate(d),window.R37CommentsData?.migrate(d),window.R38Data?.migrate(d)].some(Boolean))window.__R39_MIGRATION_DIRTY__=true;if(!d.r39Migration){d.r39Migration={version:1,at:new Date().toISOString()};window.__R39_MIGRATION_DIRTY__=true;}for(const u of d.users)for(const r of u.rewards)if(r.type==='coupon'&&!r.name)r.name=d.templates.find(t=>t.id===r.config?.couponId)?.name||'优惠券奖励';return d;}
 function initialData(){return JSON.parse(JSON.stringify(window.__DUYA_INITIAL__));}
 function safeBackup(name,value){try{localStorage.setItem(name,value);return true;}catch(error){lastStorageError=error?.message||String(error);backupStatus='backup-skipped';return false;}}
 function backupFollowup(raw){
- const d=window.R37Storage.decode(raw);
+ const d=window.R37Storage.decode(raw);if(!Object.prototype.hasOwnProperty.call(d,'advancedRecipes39')&&!localStorage.getItem(key+'-before-recipes39'))safeBackup(key+'-before-recipes39',raw);
  if(!d.r38Migration&&!localStorage.getItem(key+'-before-r38-migration'))safeBackup(key+'-before-r38-migration',raw);
  if(Number(d.r38DietUpgrade?.version||0)<3){
   const repairKey=key+'-before-history-repair-v3';

@@ -18,7 +18,7 @@
  r3Act('w37-edit',n=>{const r=U().waterRecords.find(x=>x.id===n.dataset.id);if(!r)return;closeLayer();ui.waterEdit=r.id;ui.waterDate=r.date;ui.waterTime=r.time;ui.waterMl=r.ml;render();document.querySelector('.r37f-water-form')?.scrollIntoView({block:'center'});});
  r3Act('w37-delete',async n=>{const r=U().waterRecords.find(x=>x.id===n.dataset.id);if(!r)return;closeLayer();await r3.cmd('WATER_DELETE',{id:r.id});render();});
  document.addEventListener('change',ev=>{if(ev.target.dataset.water37==='date'){const value=ev.target.value;if(!value||value>today()){ev.target.value=ui.waterDate||today();return;}ui.waterDate=value;render();}if(ev.target.dataset.water37==='ml')ui.waterMl=ev.target.value;if(ev.target.dataset.water37==='time')ui.waterTime=ev.target.value;});
- document.addEventListener('click',ev=>{if(ev.target.closest('#nav .nav-goal')){ev.preventDefault();ev.stopImmediatePropagation();return;}const tab=ev.target.closest('[data-meal37-tab]');if(tab){ev.preventDefault();ui.mealTab=tab.dataset.meal37Tab;render();}},true);
+ document.addEventListener('click',ev=>{const tab=ev.target.closest('[data-meal37-tab]');if(tab){ev.preventDefault();ui.mealTab=tab.dataset.meal37Tab;render();}},true);
  const usageBadge=f=>'<span class="r37f-usage-badge">'+e(f.usageStatus)+'</span>';
  function decorate(){
   document.querySelectorAll('#stage input:not([placeholder]),#stage textarea:not([placeholder])').forEach(n=>{if(!['','text','number','search','tel','email'].includes(n.getAttribute('type')||''))return;const label=n.closest('label')?.cloneNode(true);label?.querySelectorAll('input,select,textarea,svg,button').forEach(x=>x.remove());n.placeholder='请输入'+(n.dataset.p36==='quantity'?'实际克数或毫升量':label?.textContent.trim()||'内容');});
