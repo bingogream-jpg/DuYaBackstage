@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "admin",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-10T10:05:41.112Z",
+  "generatedAt": "2026-11-11T01:27:19.117Z",
   "artifact": {
     "file": "dist/渡鸦管家-后台.html",
-    "bytes": 40109633,
-    "sha256": "55C1C32DAA15E3BD0744BB40CB6D2629147546C0D704624242E9F76B32613DB2"
+    "bytes": 40109819,
+    "sha256": "70E1D5A6C86346054819249B8A07E4899537342572AED11410B1E05888141690"
   },
   "sourceFiles": [
     {
@@ -251,8 +251,8 @@
     },
     {
       "path": "src/engine-r39-mode.js",
-      "bytes": 13339,
-      "sha256": "19C30196BF7CB3DFE03A7020F7708F76D0D245411B324A284315799D2EE806E4"
+      "bytes": 13525,
+      "sha256": "5AD4E5876A4B4D712FF76B9DEBE70BB51514F44F08A894C1A20F1D7B257D3EE9"
     },
     {
       "path": "src/engine-r39-recipes.js",

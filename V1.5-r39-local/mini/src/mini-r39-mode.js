@@ -9,63 +9,68 @@
  const modeTitle=value=>value==='advanced'?'进阶版':'基础版';
  const typeTitle=value=>value==='manual'?'自定义':'定制化';
  const mealTitle=key=>key==='lunch'?'午餐':'晚餐';
- const art=(name,cls)=>'<img class="'+cls+'" src="'+e(window.__offlineAsset('assets-r39-mode/'+name+'.png'))+'" alt="" aria-hidden="true">';
+ const modeAssets={hero:window.__offlineAsset('assets-r39-mode/hero.png'),basic:window.__offlineAsset('assets-r39-mode/basic.png'),advanced:window.__offlineAsset('assets-r39-mode/advanced.png')};
+ const art=(name,cls)=>'<img class="'+cls+'" data-r39-mode-art="'+e(name)+'" loading="eager" decoding="sync" src="'+e(modeAssets[name]||window.__offlineAsset('assets-r39-mode/'+name+'.png'))+'" alt="" aria-hidden="true">';
  const activityText=value=>({'久坐不动':'日常轻活动','轻度活动':'每周轻运动 2～3 次','中度活动':'规律运动 3～5 次','高度活动':'高频运动 5～6 次','极高活动':'高强度训练或体力工作'})[value]||value||'日常活动';
  const safeAsync=fn=>()=>Promise.resolve().then(fn).catch(error=>{if(!error?.cancelled)toast('操作未完成',error?.message||'请稍后重试','error')});
 
  function ensureModeDraft(){
   if(!modeDraft||modeDraft.user!==r3.user){
    const selected=P.read(user());
-   modeDraft={user:r3.user,version:selected.mode,type:selected.type||'customized'};
+   modeDraft={user:r3.user,version:selected.mode};
   }
   return modeDraft;
  }
  function openMode(onboarding=false){
   const selected=P.read(user());
-  modeDraft={user:r3.user,version:onboarding?'advanced':selected.mode,type:selected.type||'customized'};
+  modeDraft={user:r3.user,version:onboarding?'advanced':selected.mode};
   closeAllLayers();go('planMode39',{replace:true,root:onboarding,tab:'menu'});
  }
  function modeCard(version,title,subtitle,description,image){
   const selected=ensureModeDraft().version===version;
   return '<button type="button" role="radio" aria-checked="'+selected+'" class="m39-choice '+(selected?'on':'')+'" data-act="m39-version-pick" data-version="'+version+'">'+art(image,'m39-choice-art')+'<span><b>'+title+'</b><small>'+subtitle+'<br>'+description+'</small></span><i class="m39-choice-mark">'+(selected?'✓':'›')+'</i></button>';
  }
- function typeCard(type,title,description){
-  const selected=ensureModeDraft().type===type;
-  return '<button type="button" role="radio" aria-checked="'+selected+'" class="m39-type-card '+(selected?'on':'')+'" data-act="m39-type-pick" data-type="'+type+'"><span><b>'+title+'</b><small>'+description+'</small></span><i>'+(selected?'✓':'›')+'</i></button>';
- }
  SCREENS.planMode39={title:'选择计划版本',noTab:true,navStyle:{bg:'#fafdf8',ink:'#163c31'},render(){
-  const draft=ensureModeDraft(),advanced=draft.version==='advanced';
-  return '<div class="m39-page m39-mode-page"><header class="m39-hero"><div><h1>选择适合你的<br>计划方式</h1><i></i><p>基础版轻松记录，进阶版按目标生成餐食方案。</p></div>'+art('hero','m39-hero-art')+'</header>'+
-   '<section class="m39-version-box"><h2>① 选择版本</h2>'+modeCard('basic','基础版','保留原有品牌菜单','自行选择品牌和餐食')+modeCard('advanced','进阶版','目标管理与餐食方案','生成午餐、晚餐和完整报告')+'</section>'+
-   (advanced?'<section class="m39-version-box m39-advanced-types"><h2>② 选择进阶模式</h2>'+typeCard('customized','定制化','填写减脂目标，系统计算热量并生成方案')+typeCard('manual','自定义','直接填写热量与三大营养素后生成方案')+'</section>':'')+
-   '<footer class="m39-footer"><button type="button" class="m39-confirm" data-act="m39-mode-confirm">'+(advanced?'确定并继续':'使用基础版')+'</button></footer></div>';
+  return '<div class="m39-page m39-mode-page"><header class="m39-hero"><div><h1>选择适合你的<br>计划版本</h1><i></i><p>基础版保留品牌菜单，进阶版按目标生成餐食方案。</p></div>'+art('hero','m39-hero-art')+'</header>'+
+   '<section class="m39-version-box"><h2>① 选择版本</h2>'+modeCard('basic','基础版','保留原有品牌菜单','自行选择品牌和餐食','basic')+modeCard('advanced','进阶版','目标管理与餐食方案','生成午餐、晚餐和完整报告','advanced')+'</section>'+
+   '<footer class="m39-footer"><button type="button" class="m39-confirm" data-act="m39-mode-confirm">确认并进入</button></footer></div>';
+ },mounted(){
+  document.querySelectorAll('.m39-mode-page [data-r39-mode-art]').forEach(image=>{
+   const key=image.dataset.r39ModeArt;if(modeAssets[key])image.src=modeAssets[key];
+   image.onerror=()=>{image.onerror=null;if(modeAssets[key]&&image.src!==modeAssets[key])image.src=modeAssets[key];};
+  });
  }};
 
- async function activateVersion(version,type='customized',next=''){
+ async function activateVersion(version){
   if(saving)return;saving=true;
   try{
-   await r3.cmd('PLAN_MODE_SAVE',{mode:version,advancedPlanType:version==='advanced'?type:undefined});
+   await r3.cmd('PLAN_MODE_SAVE',{mode:version});
    modeDraft=null;closeAllLayers();
-   if(version==='basic'){manualFlow=false;go('menu',{replace:true,root:true,tab:'menu'});toast('已切换为基础版');return;}
-   if(next==='customized'){openCustomTarget();return;}
-   if(next==='manual'){openManual();return;}
-   const current=plan();
-   if(current)go('menu',{replace:true,root:true,tab:'menu'});
-   else openMode(false);
+   manualFlow=false;go('menu',{replace:true,root:true,tab:'menu'});toast(version==='advanced'?'已切换到进阶版':'已切换为基础版');
   }finally{saving=false;}
  }
- function versionSheet(){
-  const selected=P.read(user());
-  sheet({title:'切换计划版本',body:'<div class="m39-version-sheet"><button data-act="p39-version-set" data-version="basic" class="'+(selected.mode==='basic'?'on':'')+'"><span><b>基础版</b><small>保留原品牌列表与择食流程</small></span><i>'+(selected.mode==='basic'?'✓':'›')+'</i></button><button data-act="p39-version-set" data-version="advanced" class="'+(selected.mode==='advanced'?'on':'')+'"><span><b>进阶版</b><small>定制化或自定义生成午餐晚餐方案</small></span><i>'+(selected.mode==='advanced'?'✓':'›')+'</i></button></div>',dismissible:true});
- }
- r3Act('p39-version-set',node=>activateVersion(node.dataset.version));
- ACTIONS['goal-chip']=versionSheet;
+ ACTIONS['goal-chip']=()=>openMode(false);
  ACTIONS['r3-plan-create']=()=>openMode(P.read(user()).pending);
  ACTIONS['goal-edit']=()=>{const current=plan();if(current)editPlan();else openMode(false);};
  ACTIONS['m39-target-open']=()=>openMode(false);
  r3Act('m39-version-pick',node=>{ensureModeDraft().version=node.dataset.version;render();});
- r3Act('m39-type-pick',node=>{ensureModeDraft().type=node.dataset.type;render();});
- r3Act('m39-mode-confirm',async()=>{const draft=ensureModeDraft();await activateVersion(draft.version,draft.type,draft.version==='advanced'?draft.type:'');});
+ r3Act('m39-mode-confirm',()=>activateVersion(ensureModeDraft().version));
+
+ function advancedModeSheet(){
+  const selected=P.read(user()).type;
+  sheet({title:'选择进阶模式',body:'<div class="m39-version-sheet"><button data-act="p39-mode-set" data-type="customized" class="'+(selected==='customized'?'on':'')+'"><span><b>定制化</b><small>填写减脂目标，由系统计算热量并生成午晚餐</small></span><i>'+(selected==='customized'?'✓':'›')+'</i></button><button data-act="p39-mode-set" data-type="manual" class="'+(selected==='manual'?'on':'')+'"><span><b>自定义</b><small>自行填写每日热量与三大营养素</small></span><i>'+(selected==='manual'?'✓':'›')+'</i></button></div>',dismissible:true});
+ }
+ async function chooseAdvancedMode(type){
+  if(saving)return;saving=true;
+  try{
+   await r3.cmd('PLAN_MODE_SAVE',{mode:'advanced',advancedPlanType:type});
+   closeAllLayers();
+   if(type==='customized')openCustomTarget();
+   else openManual();
+  }finally{saving=false;}
+ }
+ r3Act('p39-mode-open',advancedModeSheet);
+ r3Act('p39-mode-set',node=>chooseAdvancedMode(node.dataset.type));
 
  function defaultCustomDraft(){
   const current=plan(),weight=Number(user()?.profile?.weight)||60;
@@ -108,7 +113,7 @@
   else{selected.delete('无');selected.has(tag)?selected.delete(tag):selected.add(tag);customDraft.taboos=selected.size?[...selected]:['无'];}
   render();
  });
- r3Act('p39-target-back',()=>openMode(false));
+ r3Act('p39-target-back',()=>{manualFlow=false;go('menu',{replace:true,tab:'menu'});});
 
  function targetPage(){
   const target=r3UI.r25?.targetDraft||window.R25Nutrition.getTarget(user()),mode=r3UI.r25?.targetMode||'percent';
@@ -161,7 +166,7 @@
   try{preview=P.preview(r3.state,user(),input);}catch(error){toast('请检查填写内容',error.message,'error');return;}
   if(!preview.calculation.safe){safetySheet(preview,retry);return;}
   saving=true;
-  try{await r3.cmd('PLAN_GENERATE39',{input},'plan39-'+Date.now());manualFlow=false;customDraft=null;reportId='current';closeAllLayers();go('planResult39',{replace:true});toast('餐食方案已生成');}
+  try{await r3.cmd('PLAN_GENERATE39',{input},'plan39-'+Date.now());manualFlow=false;customDraft=null;reportId='current';closeAllLayers();go('menu',{replace:true,root:true,tab:'menu'});toast('餐食方案已生成');}
   catch(error){if(error.message==='SAFE_PLAN_REQUIRED')safetySheet(preview,retry);else throw error;}
   finally{saving=false;}
  }
@@ -192,11 +197,17 @@
   return planResultHTML(current,true);
  }};
  function editPlan(){
-  const current=plan();if(!current)return openMode(false);
+  const current=plan(),selected=P.read(user());
+  if(!current){
+   if(selected.type==='manual'){openManual();return;}
+   if(selected.type==='customized'){openCustomTarget();return;}
+   advancedModeSheet();return;
+  }
   if(current.mode==='manual'){openManual();return;}
   customDraft=JSON.parse(JSON.stringify(current.input));go('planTarget39',{replace:true});
  }
  r3Act('p39-edit',editPlan);
+ r3Act('p39-edit-from-food',editPlan);
  r3Act('p39-start',()=>startExecution());
 
  function startExecution(){
@@ -228,10 +239,10 @@
  }
  SCREENS.planReport39={title:'完整报告',noTab:true,navStyle:{bg:'#edf6f5',ink:'#17473b'},render(){
   const snapshot=reportForCurrent();
-  return '<div class="m39-report-page">'+reportHTML(snapshot)+'<div class="m39-report-actions"><button class="m39-primary" data-act="p39-report-download">保存到相册</button><button class="m39-outline" data-act="p39-report-back">返回结果页</button><button class="m39-text-action" data-act="p39-report-disclaimer">查看数据说明与免责声明</button></div></div>';
+  return '<div class="m39-report-page">'+reportHTML(snapshot)+'<div class="m39-report-actions"><button class="m39-primary" data-act="p39-report-download">保存到相册</button><button class="m39-outline" data-act="p39-report-back">返回择食页</button><button class="m39-text-action" data-act="p39-report-disclaimer">查看数据说明与免责声明</button></div></div>';
  }};
  r3Act('p39-full-report',()=>{reportId='current';go('planReport39');});
- r3Act('p39-report-back',()=>{reportId='current';go('planResult39',{replace:true});});
+ r3Act('p39-report-back',()=>{reportId='current';go('menu',{replace:true,root:true,tab:'menu'});});
  r3Act('p39-report-disclaimer',()=>sheet({title:'数据说明与免责声明',body:'<div class="m39-disclaimer"><p>方案依据你当前填写的身高、体重、年龄、活动水平和目标，结合后台餐盘配置自动计算。</p><p>营养值按食材每100克基准及实际克重换算，可能因品牌、生熟状态和烹饪用油产生差异。</p><p>本方案仅供一般健康饮食和体重管理参考，不替代医生、营养师或专业诊疗建议。如处于孕期、哺乳期、慢性病治疗期或存在进食障碍，请先咨询专业人员。</p></div>',dismissible:true}));
 
  function canvasBlob(canvas){return new Promise(resolve=>canvas.toBlob(resolve,'image/png'))}
@@ -272,11 +283,17 @@
  r3Act('p39-history',()=>go('planHistory39'));
  r3Act('p39-history-open',node=>{reportId=node.dataset.id;go('planReport39');});
 
+ function advancedFoodBar(selected){
+  if(!selected.type)return '<section class="m39-food-planbar"><div><small>进阶模式</small><b>请选择进阶模式</b></div><button data-act="p39-mode-open">选择进阶模式</button></section>';
+  if(!selected.current)return '<section class="m39-food-planbar"><div><small>进阶模式</small><b>'+typeTitle(selected.type)+' · 待生成方案</b></div><button data-act="p39-edit-from-food">继续设置</button></section>';
+  return '<section class="m39-food-planbar"><div><small>当前进阶方案</small><b>'+typeTitle(selected.type)+' · '+e(selected.current.goal)+' · '+N(selected.current.target.kcal)+' kcal</b></div><div class="m39-food-planbar-actions"><button data-act="p39-edit-from-food">修改方案</button><button data-act="p39-full-report">查看报告</button></div></section>';
+ }
  SCREENS.menu.render=function(){
-  const selected=P.read(user());
-  if(selected.mode==='basic')return baseMenu.apply(this,arguments);
-  if(selected.current)return planResultHTML(selected.current,false);
-  return '<div class="m39-page"><div class="m39-empty-plan"><div class="m39-empty-mark">＋</div><h2>创建进阶方案</h2><p>选择定制化或自定义方式，生成适合你的午餐和晚餐。</p><button class="m39-confirm" data-act="r3-plan-create">开始设置</button></div></div>';
+  const selected=P.read(user()),html=baseMenu.apply(this,arguments);
+  if(selected.mode==='basic')return html;
+  const box=document.createElement('div');box.innerHTML=html;const page=box.querySelector('.rp39-page');
+  if(page)page.insertAdjacentHTML('afterbegin',advancedFoodBar(selected));
+  return box.innerHTML;
  };
  const nav=navMarkup;navMarkup=function(){const box=document.createElement('div');box.innerHTML=nav();const chip=box.querySelector('.nav-goal');if(chip&&user()){const selected=P.read(user());chip.innerHTML=e(modeTitle(selected.mode))+'⌄';chip.setAttribute('aria-label','切换基础版或进阶版');}return box.innerHTML;};
 
@@ -286,11 +303,11 @@
  const previousBack=ACTIONS.back;
  ACTIONS.back=node=>{
   if(manualFlow&&state.route==='nutritionTarget'){manualFlow=false;openMode(false);return;}
-  if(state.route==='planTarget39'){openMode(false);return;}
+  if(state.route==='planTarget39'){go('menu',{replace:true,tab:'menu'});return;}
   if(state.route==='planMode39'){if(modeDraft?.onboarding)return;go('menu',{replace:true,tab:'menu'});return;}
-  if(state.route==='planReport39'){reportId='current';go('planResult39',{replace:true});return;}
-  if(state.route==='planHistory39'){go('planResult39',{replace:true});return;}
-  if(state.route==='planResult39'){go('menu',{replace:true,tab:'menu'});return;}
+  if(state.route==='planReport39'){reportId='current';go('menu',{replace:true,root:true,tab:'menu'});return;}
+  if(state.route==='planHistory39'){go('menu',{replace:true,root:true,tab:'menu'});return;}
+  if(state.route==='planResult39'){go('menu',{replace:true,root:true,tab:'menu'});return;}
   return previousBack(node);
  };
  window.R39PlanUI={open:openMode,openManual,generate:generatePlan,current:plan,reportForCurrent,get draft(){return customDraft;},get manualFlow(){return manualFlow;},get manualTarget(){return r3UI.r25?.targetDraft||null;}};

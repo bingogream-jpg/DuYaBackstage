@@ -2,11 +2,11 @@
   "version": "V1.5-r39",
   "role": "mini",
   "storageKey": "duya-local-r39-data",
-  "generatedAt": "2026-11-10T10:02:19.796Z",
+  "generatedAt": "2026-11-11T01:24:33.413Z",
   "artifact": {
     "file": "dist/渡鸦管家-小程序.html",
-    "bytes": 59277319,
-    "sha256": "D2E5F0E25D38A47C8CF92D29BC9859FFEF7474B2CE74DE2D87A1AA8D1EDDA90B"
+    "bytes": 65511254,
+    "sha256": "FFDD25E9B0158999D700996D1D2DA22B19C2E22DC396C58E64E81699518E837E"
   },
   "sourceFiles": [
     {
@@ -741,8 +741,8 @@
     },
     {
       "path": "src/engine-r39-mode.js",
-      "bytes": 13339,
-      "sha256": "19C30196BF7CB3DFE03A7020F7708F76D0D245411B324A284315799D2EE806E4"
+      "bytes": 13525,
+      "sha256": "5AD4E5876A4B4D712FF76B9DEBE70BB51514F44F08A894C1A20F1D7B257D3EE9"
     },
     {
       "path": "src/engine-r39-recipes.js",
@@ -901,8 +901,8 @@
     },
     {
       "path": "src/mini-r39-mode.js",
-      "bytes": 32252,
-      "sha256": "02D53BE852318FE74B3BB64D12CABF623B6B2B9938131DEE76AEA66D9B814850"
+      "bytes": 32933,
+      "sha256": "A8F2AA11A9762CCE290564511449E3C9634C4F23BF968B6BF4BA151419D55767"
     },
     {
       "path": "src/mini-r39-navigation.js",
@@ -1086,8 +1086,8 @@
     },
     {
       "path": "src/r39-mode.css",
-      "bytes": 25558,
-      "sha256": "F9FCFFE46D4B45F9D18D2DA8FAC34D508FF69F57D07E15110DA04AE61F1D490B"
+      "bytes": 27021,
+      "sha256": "73535D391FBA037DA7966DFEAF46E51482EF769C586DD90988D034DABDB610F9"
     },
     {
       "path": "src/r39-navigation.css",

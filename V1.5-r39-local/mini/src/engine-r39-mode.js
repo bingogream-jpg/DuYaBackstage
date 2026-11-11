@@ -34,7 +34,7 @@
   const pending=user?.modeSelectionPending===true||(!user?.planMode&&!user?.onboarded);
   const inferred=['减重','增肌','减脂'].includes(user?.goal)?'advanced':'basic';
   const mode=user?.planMode==='advanced'||user?.planMode==='basic'?user.planMode:pending?'advanced':inferred;
-  const type=['customized','manual'].includes(user?.advancedPlanType)?user.advancedPlanType:mode==='advanced'?'customized':null;
+  const type=['customized','manual'].includes(user?.advancedPlanType)?user.advancedPlanType:null;
   return {
    mode,
    type,
@@ -170,6 +170,8 @@
   owner.planMode='advanced';owner.advancedPlanType=plan.mode;owner.advancedGoal=plan.goal;owner.goal=plan.goal;owner.hasPlan=true;
   owner.modeSelectionPending=false;owner.planModeConfirmedAt=now;owner.nutritionTarget=copy(plan.target);
   owner.advancedPlan39=copy(plan);owner.advancedPlanHistory39=[copy(plan),...(Array.isArray(owner.advancedPlanHistory39)?owner.advancedPlanHistory39:[])].slice(0,30);
+  owner.advancedRecipePlans39=owner.advancedRecipePlans39||{};
+  for(const meal of plan.meals)owner.advancedRecipePlans39[meal.meal]={plates:copy(meal.plates),savedAt:now,configRevision:plan.configRevision,plan39Id:plan.id};
   return copy(plan);
  }
 
@@ -180,7 +182,7 @@
    if(p.mode==='advanced'&&p.advancedPlanType!=null&&!['customized','manual'].includes(p.advancedPlanType))throw Error('请选择有效的进阶方案模式');
    const owner=this.user(user);if(!owner.onboarded)throw Error('请先完成初始设置');
    if(!owner.modeSelectionPending&&!owner.nutritionTarget&&!Object.prototype.hasOwnProperty.call(owner,'nutritionGoalBeforeMode39'))owner.nutritionGoalBeforeMode39=owner.goal||'健康饮食';
-   owner.planMode=p.mode;owner.advancedPlanType=p.mode==='advanced'?(p.advancedPlanType||owner.advancedPlanType||'customized'):(owner.advancedPlanType||null);
+   owner.planMode=p.mode;owner.advancedPlanType=p.mode==='advanced'?(p.advancedPlanType||owner.advancedPlanType||null):(owner.advancedPlanType||null);
    owner.advancedGoal=p.mode==='advanced'?'减脂':owner.advancedGoal||null;owner.goal=p.mode==='advanced'?'减脂':owner.goal||'健康饮食';
    owner.hasPlan=p.mode==='basic'||Boolean(owner.advancedPlan39);owner.modeSelectionPending=false;owner.planModeConfirmedAt=new Date(this.now()).toISOString();
    return copy(read(owner));
